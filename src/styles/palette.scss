@@ -1,0 +1,168 @@
+@import "./functions";
+@import "./test";
+
+$color-green: rgb(100, 255, 100);
+$color-olive: rgb(100, 200, 150);
+$color-orange: rgb(200, 100, 100);
+$color-saddle: rgb(175, 100, 25);
+$color-gold: rgb(175, 125, 55);
+$color-blue: rgb(100, 100, 255);
+
+$palette: (
+  colors: (
+    "jungle": $color-green,
+    "olive": $color-olive,
+    "sunset": $color-orange,
+    "saddle": $color-saddle,
+    "gold": $color-gold,
+    "sky": $color-blue
+  ),
+  tones: (
+    'dark': 10,
+    'normal': 0,
+    'light': -10
+  ),
+  alpha: (
+    'low': 0.4,
+    'medium': 0.6,
+    'high': 0.8
+  ),
+  mix: (
+    'color': #ff0000,
+    'keep': 100%
+  )
+);
+
+@each $colors in map-keys(map-get($palette, colors)) {
+  $palette: map-deep-set(
+    $palette,
+    "colors",
+    $colors,
+    mix(
+      map-deep-get($palette, "colors", $colors),
+      map-deep-get($palette, "mix", "color"),
+      map-deep-get($palette, "mix", "keep")
+    )
+  );
+}
+
+$palette_debug: true;
+$mypalette: ();
+$class-prefix: 'jd-';
+
+@function color($name, $is_imp: false) {
+  @if map-has-key($mypalette, $name) {
+    $c: map-get($mypalette, $name);
+    @if $is_imp == false {
+      @return $c;
+    } @else {
+      @return $c !important;
+    }
+  }
+
+  @warn "Unknown `#{$name}` in palette";
+  @return null;
+}
+
+/* temp loop variable to cache values */
+$v: '';
+/* loop through primary colors in palette */
+@each $colors in map-keys(map-get($palette, colors)) {
+  $v: map-deep-get($palette, "colors", $colors);
+  /* generate a class for the main color (no specific tone or alpha applied) */
+  .#{$class-prefix}paint-color-#{$colors} {
+    background-color: $v !important;
+  }
+
+  /* generate a variable in the color map for the main color (no specific tone or alpha applied) */
+  $mypalette: map-merge($mypalette, (#{$colors}: $v));
+
+  /* loop through tones */
+  @each $tones in map-keys(map-get($palette, tones)) {
+    /* for the primary colors, generate a class and variable for each tone variation */
+    .#{$class-prefix}paint-color-#{$colors}-#{$tones} {
+      /* darken or lighten the primary color based on the tone value being positive or negative */
+      @if map-deep-get($palette, "tones", $tones) > 0 {
+        $v: darken(
+          map-deep-get($palette, "colors", $colors),
+          map-deep-get($palette, "tones", $tones)
+        );
+        background-color: $v !important;
+        $mypalette: map-merge($mypalette, (#{$colors}_#{$tones}: $v));
+      } @else {
+        $v: lighten(
+          map-deep-get($palette, "colors", $colors),
+          abs(map-deep-get($palette, "tones", $tones))
+        );
+        background-color: $v !important;
+        $mypalette: map-merge($mypalette, (#{$colors}_#{$tones}: $v));
+      }
+    }
+
+    /* for each tone of a primary color, loop through the alpha variations */
+    @each $alpha in map-keys(map-get($palette, alpha)) {
+      /* generate an alpha variation class and variable for each alpha variation of a tone variation of a primary color */
+      .#{$class-prefix}paint-color-#{$colors}-#{$tones}-#{$alpha} {
+        /* generate the class. first we darken or lighten the tone of the color, then we deassemble the color into 
+ /* rgb channels so that we can set the alpha channel using rgba */
+        @if map-deep-get($palette, "tones", $tones) > 0 {
+          $v: rgba(
+            red(
+              darken(
+                map-deep-get($palette, "colors", $colors),
+                map-deep-get($palette, "tones", $tones)
+              )
+            ),
+            green(
+              darken(
+                map-deep-get($palette, "colors", $colors),
+                map-deep-get($palette, "tones", $tones)
+              )
+            ),
+            blue(
+              darken(
+                map-deep-get($palette, "colors", $colors),
+                map-deep-get($palette, "tones", $tones)
+              )
+            ),
+            map-deep-get($palette, "alpha", $alpha)
+          );
+
+          background-color: $v !important;
+          $mypalette: map-merge(
+            $mypalette,
+            (#{$colors}_#{$tones}_#{$alpha}: $v)
+          );
+        } @else {
+          $v: rgba(
+            red(
+              lighten(
+                map-deep-get($palette, "colors", $colors),
+                abs(map-deep-get($palette, "tones", $tones))
+              )
+            ),
+            green(
+              lighten(
+                map-deep-get($palette, "colors", $colors),
+                abs(map-deep-get($palette, "tones", $tones))
+              )
+            ),
+            blue(
+              lighten(
+                map-deep-get($palette, "colors", $colors),
+                abs(map-deep-get($palette, "tones", $tones))
+              )
+            ),
+            map-deep-get($palette, "alpha", $alpha)
+          );
+
+          background-color: $v !important;
+          $mypalette: map-merge(
+            $mypalette,
+            (#{$colors}_#{$tones}_#{$alpha}: $v)
+          );
+        }
+      }
+    }
+  }
+}
