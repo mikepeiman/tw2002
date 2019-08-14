@@ -64,18 +64,24 @@ $class-prefix: 'mp-';
   @return null;
 }
 
+/* temp loop variable to cache values */
 $v: '';
-
+/* loop through primary colors in palette */
 @each $colors in map-keys(map-get($palette, colors)) {
   $v: map-deep-get($palette, "colors", $colors);
+  /* generate a class for the main color (no specific tone or alpha applied) */
   .#{$class-prefix}paint-color-#{$colors} {
     background-color: $v !important;
   }
 
+  /* generate a variable in the color map for the main color (no specific tone or alpha applied) */
   $mypalette: map-merge($mypalette, (#{$colors}: $v));
 
+  /* loop through tones */
   @each $tones in map-keys(map-get($palette, tones)) {
+    /* for the primary colors, generate a class and variable for each tone variation */
     .#{$class-prefix}paint-color-#{$colors}-#{$tones} {
+      /* darken or lighten the primary color based on the tone value being positive or negative */
       @if map-deep-get($palette, "tones", $tones) > 0 {
         $v: darken(
           map-deep-get($palette, "colors", $colors),
@@ -93,8 +99,12 @@ $v: '';
       }
     }
 
+    /* for each tone of a primary color, loop through the alpha variations */
     @each $alpha in map-keys(map-get($palette, alpha)) {
+      /* generate an alpha variation class and variable for each alpha variation of a tone variation of a primary color */
       .#{$class-prefix}paint-color-#{$colors}-#{$tones}-#{$alpha} {
+        /* generate the class. first we darken or lighten the tone of the color, then we deassemble the color into 
+ /* rgb channels so that we can set the alpha channel using rgba */
         @if map-deep-get($palette, "tones", $tones) > 0 {
           $v: rgba(
             red(
