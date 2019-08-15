@@ -18,21 +18,24 @@
     list-style: none;
     margin: 0;
     padding: 0;
-    font-size: 0.8rem;
+    font-size: 1.25rem;
     font-weight: 700;
     text-align: center;
     text-transform: uppercase;
   }
 
   .colors-container {
+    display: flex;
+    flex-direction: column;
   }
   .tones-container {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(30px, 50px));
+        display: flex;
+    flex-direction: column;
+    // grid-template-columns: repeat(3, minmax(30px, 50px));
     list-style: none;
     margin: 0;
     padding: 0;
-    font-size: 0.6rem;
+    font-size: .9rem;
     font-weight: 400;
     text-align: left;
     text-transform: uppercase;
@@ -44,7 +47,7 @@
     list-style: none;
     margin: 0;
     padding: 0;
-    font-size: 0.5rem;
+    font-size: 0.75rem;
     font-weight: 300;
     text-align: left;
     text-transform: uppercase;
@@ -73,9 +76,9 @@
     {#each colors as color}
       <li class="colors-container">
         <span class="swatch mp-paint-color-{color}">{color}</span>
-        <div class="tones-container">
+        <div>
           {#each tones as tone}
-            <li>
+            <li class="tones-container">
               <span class="swatch mp-paint-color-{color}-{tone}">{tone}</span>
               <div class="alphas-container">
                 {#each alphas as alpha}
