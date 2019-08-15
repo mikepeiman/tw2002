@@ -4,7 +4,7 @@
   let alphas = ["low", "medium", "high"];
 </script>
 
-<style lang="scss">
+<style lang="scss" global>
   @import "src/styles/palette.scss";
 
   .palette-title {
@@ -12,9 +12,41 @@
     background: color(sky_light_high, true);
     color: $test;
   }
-
+  .colors-container {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(50px, 150px));
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: .8rem;
+    font-weight: 700;
+    text-align: center;
+    text-transform: uppercase;
+  }
+  .tones-container {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(50px, 150px));
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: .6rem;
+    font-weight: 400;
+    text-align: left;
+    text-transform: uppercase;
+  }
+  .alphas-container {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(50px, 150px));
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: .5rem;
+    font-weight: 300;
+    text-align: left;
+    text-transform: uppercase;
+  }
   .swatch {
-    width: 25px;
+    width: auto;
     height: 25px;
   }
 </style>
@@ -32,20 +64,24 @@
   </a>
   for the code and inspiration!
 </p>
-<ul>
+<ul class="colors-container">
   {#each colors as color}
-    <li class="swatch mp_{color}">{color}</li>
-    <ul>
-      {#each tones as tone}
-        <li class="swatch mp_{color}_{tone}">{color}_{tone}</li>
-        <ul>
-          {#each alphas as alpha}
-            <li class="swatch mp_{color}_{tone}_{alpha}">
-              {color}_{tone}_{alpha}
-            </li>
-          {/each}
-        </ul>
-      {/each}
-    </ul>
+    <li class="swatch mp-paint-color-{color}">
+      {color}
+      <ul class="tones-container">
+        {#each tones as tone}
+          <li class="swatch mp-paint-color-{color}-{tone}">
+            {`${color}-${tone}`}
+            <ul class="alphas-container">
+              {#each alphas as alpha}
+                <li class="swatch mp-paint-color-{color}-{tone}-{alpha}">
+                  {`${color}-${tone}-${alpha}`}
+                </li>
+              {/each}
+            </ul>
+          </li>
+        {/each}
+      </ul>
+    </li>
   {/each}
 </ul>

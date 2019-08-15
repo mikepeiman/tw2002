@@ -68,14 +68,14 @@ $v: '';
 
 @each $colors in map-keys(map-get($palette, colors)) {
   $v: map-deep-get($palette, "colors", $colors);
-  .#{$class-prefix}paint-color-#{$colors} {
+  :global(.#{$class-prefix}paint-color-#{$colors}) {
     background-color: $v !important;
   }
 
   $mypalette: map-merge($mypalette, (#{$colors}: $v));
 
   @each $tones in map-keys(map-get($palette, tones)) {
-    .#{$class-prefix}paint-color-#{$colors}-#{$tones} {
+    :global(.#{$class-prefix}paint-color-#{$colors}-#{$tones}) {
       @if map-deep-get($palette, "tones", $tones) > 0 {
         $v: darken(
           map-deep-get($palette, "colors", $colors),
@@ -94,7 +94,7 @@ $v: '';
     }
 
     @each $alpha in map-keys(map-get($palette, alpha)) {
-      .#{$class-prefix}paint-color-#{$colors}-#{$tones}-#{$alpha} {
+      :global(.#{$class-prefix}paint-color-#{$colors}-#{$tones}-#{$alpha}) {
         @if map-deep-get($palette, "tones", $tones) > 0 {
           $v: rgba(
             red(

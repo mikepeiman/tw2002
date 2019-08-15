@@ -4,7 +4,7 @@ import commonjs from "rollup-plugin-commonjs";
 import svelte from "rollup-plugin-svelte";
 // import { sass } from "svelte-preprocess-sass";
 import sveltePreprocess from 'svelte-preprocess';
-// import { scss } from 'svelte-preprocess';
+import { scss, globalStyle } from 'svelte-preprocess';
 import babel from "rollup-plugin-babel";
 import { terser } from "rollup-plugin-terser";
 import config from "sapper/config/rollup.js";
@@ -14,8 +14,11 @@ const mode = process.env.NODE_ENV;
 const dev = mode === "development";
 const legacy = !!process.env.SAPPER_LEGACY_BUILD;
 const preprocess = sveltePreprocess({
-  scss: true
+  scss: true,
+  postcss: true
 });
+
+// svelte.preprocess(input, [scss(), globalStyle()])
 
 const onwarn = (warning, onwarn) =>
   (warning.code === "CIRCULAR_DEPENDENCY" &&
@@ -33,7 +36,10 @@ export default {
         dev,
         hydratable: true,
         emitCss: true,
-        preprocess
+        preprocess: [
+          scss(),
+          globalStyle()
+        ]
       }),
       replace({
         "process.browser": true,
@@ -90,7 +96,10 @@ export default {
       svelte({
         generate: "ssr",
         dev,
-        preprocess
+        preprocess: [
+          scss(),
+          globalStyle()
+        ]
       }),
       resolve({
         dedupe
