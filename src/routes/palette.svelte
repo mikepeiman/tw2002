@@ -12,76 +12,82 @@
     background: color(sky_light_high, true);
     color: $test;
   }
-  .colors-container {
+  .palette-container {
     display: grid;
     grid-template-columns: repeat(6, minmax(50px, 150px));
     list-style: none;
     margin: 0;
     padding: 0;
-    font-size: .8rem;
+    font-size: 0.8rem;
     font-weight: 700;
     text-align: center;
     text-transform: uppercase;
   }
+
+  .colors-container {
+  }
   .tones-container {
     display: grid;
-    grid-template-columns: repeat(3, minmax(50px, 150px));
+    grid-template-columns: repeat(3, minmax(30px, 50px));
     list-style: none;
     margin: 0;
     padding: 0;
-    font-size: .6rem;
+    font-size: 0.6rem;
     font-weight: 400;
     text-align: left;
     text-transform: uppercase;
   }
   .alphas-container {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(50px, 150px));
+    display: flex;
+    flex-direction: column;
+    // grid-template-columns: repeat(3, minmax(30px, 50px));
     list-style: none;
     margin: 0;
     padding: 0;
-    font-size: .5rem;
+    font-size: 0.5rem;
     font-weight: 300;
     text-align: left;
     text-transform: uppercase;
   }
   .swatch {
     width: auto;
-    height: 25px;
+    height: auto;
   }
 </style>
 
 <svelte:head>
   <title>Color Palette Generator</title>
 </svelte:head>
-<h1 class="palette-title">Color Palette Generator</h1>
 
-<p>
-  Huge thanks to
-  <a
-    href="https://ferdychristant.com/mastering-color-palettes-with-sass-ed124b1f8920#.lf2yof825">
-    Freddy Christant
-  </a>
-  for the code and inspiration!
-</p>
-<ul class="colors-container">
-  {#each colors as color}
-    <li class="swatch mp-paint-color-{color}">
-      {color}
-      <ul class="tones-container">
-        {#each tones as tone}
-          <li class="swatch mp-paint-color-{color}-{tone}">
-            {`${color}-${tone}`}
-            <ul class="alphas-container">
-              {#each alphas as alpha}
-                <li class="swatch mp-paint-color-{color}-{tone}-{alpha}">
-                  {`${color}-${tone}-${alpha}`}
-                </li>
-              {/each}
-            </ul>
-          </li>
-        {/each}
-      </ul>
-    </li>
-  {/each}
-</ul>
+<div>
+  <h1 class="palette-title">Color Palette Generator</h1>
+  <p>
+    Huge thanks to
+    <a
+      href="https://ferdychristant.com/mastering-color-palettes-with-sass-ed124b1f8920#.lf2yof825">
+      Freddy Christant
+    </a>
+    for the code and inspiration!
+  </p>
+  <div class="palette-container">
+    {#each colors as color}
+      <li class="colors-container">
+        <span class="swatch mp-paint-color-{color}">{color}</span>
+        <div class="tones-container">
+          {#each tones as tone}
+            <li>
+              <span class="swatch mp-paint-color-{color}-{tone}">{tone}</span>
+              <div class="alphas-container">
+                {#each alphas as alpha}
+                  <span class="swatch mp-paint-color-{color}-{tone}-{alpha}">
+                    {alpha}
+                  </span>
+                {/each}
+              </div>
+            </li>
+          {/each}
+        </div>
+      </li>
+    {/each}
+  </div>
+</div>
