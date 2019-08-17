@@ -1,5 +1,11 @@
 <script>
-  let colors = ["primary-blue", "primary-royal", "accent-orange", "secondary-redblack", "secondary-blueblack"];
+  let colors = [
+    "primary-blue",
+    "primary-royal",
+    "accent-orange",
+    "secondary-redblack",
+    "secondary-blueblack"
+  ];
   let tones = ["dark", "normal", "light"];
   let alphas = ["low", "medium", "high"];
 </script>
@@ -8,10 +14,10 @@
   @import "src/styles/palette.scss";
 
   .palette-title {
-    background: color(sky_dark_high, true);
-    color: $test;
-    padding: .75rem;
-    border-radius: .75rem;
+    background: color(primary-royal, true);
+    color: color(accent-orange, true);
+    padding: 0.75rem;
+    border-radius: 0.75rem;
   }
   .palette-container {
     display: grid;
@@ -25,12 +31,28 @@
     justify-content: center;
     text-align: left;
     text-transform: uppercase;
+    &.contrast {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      margin-top: 4rem;
+    }
   }
 
   .colors-container {
     display: flex;
     flex-direction: column;
+    &.contrast {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+    }
   }
+  .within-colors-container {
+    display: grid;
+    grid-template-rows: 2fr 3fr;
+    padding: 2rem;
+  }
+
   .tones-container {
     display: flex;
     flex-direction: row;
@@ -42,6 +64,9 @@
     font-weight: 400;
     text-align: left;
     text-transform: uppercase;
+    &.contrast {
+      font-size: 0.75rem;
+    }
   }
   .alphas-container {
     display: flex;
@@ -59,15 +84,28 @@
   .color {
     font-size: 1rem;
     font-weight: 700;
+    &.contrast {
+      height: 3rem;
+    }
+    &.subcolor {
+      padding: 1rem;
+    }
   }
   .tone {
     font-size: 0.75rem;
+    &.contrast {
+      font-size: 0.45rem;
+    }
   }
   .alpha {
     font-size: 0.5rem;
+    &.contrast {
+      font-size: 0.25rem;
+    }
   }
 
   $swatch-radius: 5rem;
+  $swatch-small: 2rem;
   .swatch {
     width: $swatch-radius;
     height: $swatch-radius;
@@ -76,10 +114,15 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    &.contrast {
+      width: $swatch-small;
+      height: $swatch-small;
+      border-radius: 0;
+    }
   }
 
   .thanks-to-freddy {
-    color: color(sky_dark_high, true);
+    color: color("primary-royal", true);
   }
 </style>
 
@@ -117,6 +160,34 @@
             </li>
           {/each}
         </div>
+      </li>
+    {/each}
+  </div>
+  <div class="palette-container contrast">
+    {#each colors as mainColor}
+      <li class="colors-container contrast">
+        <span class="color subcolor mp-paint-color-{mainColor}">{mainColor}</span>
+        {#each colors as subColor}
+          <li
+            class="within-colors-container contrast mp-paint-color-{mainColor}">
+            <span class="color contrast">{subColor}</span>
+            <div>
+              {#each tones as tone}
+                <li class="tones-container contrast">
+                  <span
+                    class="swatch contrast tone mp-paint-color-{subColor}-{tone}">
+                  </span>
+                  <div class="alphas-container">
+                    {#each alphas as alpha}
+                      <span
+                        class="swatch contrast mp-paint-color-{subColor}-{tone}-{alpha}" />
+                    {/each}
+                  </div>
+                </li>
+              {/each}
+            </div>
+          </li>
+        {/each}
       </li>
     {/each}
   </div>
