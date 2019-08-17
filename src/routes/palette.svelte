@@ -8,6 +8,18 @@
   ];
   let tones = ["dark", "normal", "light"];
   let alphas = ["low", "medium", "high"];
+  let backgrounds = [
+    "africa-animal-animals-417142.jpg",
+    "cascade-cliff-clouds-356831.jpg",
+    "cascade-clouds-cool-wallpaper-210186.jpg",
+    "perspective.jpg"
+  ];
+  let l = colors.length;
+  function loopArray(outer, inner) {
+    let sequence = outer + inner;
+    sequence > 4 ? (sequence -= 5) : sequence;
+    return sequence;
+  }
 </script>
 
 <style lang="scss" global>
@@ -37,6 +49,10 @@
       width: 100%;
       margin-top: 4rem;
     }
+    &.image-bg {
+      background-size: cover;
+      background-attachment: fixed;
+    }
   }
 
   .colors-container {
@@ -45,6 +61,9 @@
     &.contrast {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
+      &.image-bg {
+        grid-template-columns: repeat(5, 1fr);
+      }
     }
   }
   .within-colors-container {
@@ -166,7 +185,9 @@
   <div class="palette-container contrast">
     {#each colors as mainColor}
       <li class="colors-container contrast">
-        <span class="color subcolor mp-paint-color-{mainColor}">{mainColor}</span>
+        <span class="color subcolor mp-paint-color-{mainColor}">
+          {mainColor}
+        </span>
         {#each colors as subColor}
           <li
             class="within-colors-container contrast mp-paint-color-{mainColor}">
@@ -175,8 +196,7 @@
               {#each tones as tone}
                 <li class="tones-container contrast">
                   <span
-                    class="swatch contrast tone mp-paint-color-{subColor}-{tone}">
-                  </span>
+                    class="swatch contrast tone mp-paint-color-{subColor}-{tone}" />
                   <div class="alphas-container">
                     {#each alphas as alpha}
                       <span
@@ -191,4 +211,37 @@
       </li>
     {/each}
   </div>
+  {#each backgrounds as bg}
+    <div
+      class="palette-container contrast image-bg"
+      style="background-image: url({bg});">
+      {bg}
+      {#each colors as mainColor, mainIteration}
+        <li class="colors-container contrast image-bg">
+          {#each colors as subColor, subIteration}
+            <li class="within-colors-container">
+              <span
+                class="color contrast mp-text-color-{`${colors[loopArray(mainIteration, subIteration)]}`}">
+                {colors[loopArray(mainIteration, subIteration)]}
+              </span>
+              <div>
+                {#each tones as tone}
+                  <li class="tones-container contrast">
+                    <span
+                      class="swatch contrast tone mp-paint-color-{`${colors[loopArray(mainIteration, subIteration)]}`}-{tone}" />
+                    <div class="alphas-container">
+                      {#each alphas as alpha}
+                        <span
+                          class="swatch contrast mp-paint-color-{`${colors[loopArray(mainIteration, subIteration)]}`}-{tone}-{alpha}" />
+                      {/each}
+                    </div>
+                  </li>
+                {/each}
+              </div>
+            </li>
+          {/each}
+        </li>
+      {/each}
+    </div>
+  {/each}
 </div>

@@ -70,6 +70,9 @@ $v: '';
   :global(.#{$class-prefix}paint-color-#{$colors}) {
     background-color: $v !important;
   }
+  :global(.#{$class-prefix}text-color-#{$colors}) {
+    color: $v !important;
+  }
 
   $mypalette: map-merge($mypalette, (#{$colors}: $v));
 
