@@ -29,13 +29,13 @@
     flex-direction: column;
   }
   .tones-container {
-        display: flex;
+    display: flex;
     flex-direction: column;
     // grid-template-columns: repeat(3, minmax(30px, 50px));
     list-style: none;
     margin: 0;
     padding: 0;
-    font-size: .9rem;
+    font-size: 0.9rem;
     font-weight: 400;
     text-align: left;
     text-transform: uppercase;
