@@ -1,21 +1,20 @@
 @import "./functions";
 @import "./test";
 
-$color-green: rgb(100, 255, 100);
-$color-olive: rgb(100, 200, 150);
-$color-orange: rgb(200, 100, 100);
-$color-saddle: rgb(175, 100, 25);
-$color-gold: rgb(175, 125, 55);
-$color-blue: rgb(100, 100, 255);
+$color-primary-blue: rgb(0,152,255);
+$color-primary-royal: rgb(7,33,126);
+$color-accent-orange: rgb(255,109,45);
+$color-secondary-redblack: rgb(39,2,0);
+$color-secondary-blueblack: rgb(18,6,61);
+// $color-blue: rgb(100, 100, 255);
 
 $palette: (
   colors: (
-    "jungle": $color-green,
-    "olive": $color-olive,
-    "sunset": $color-orange,
-    "saddle": $color-saddle,
-    "gold": $color-gold,
-    "sky": $color-blue
+    "primary-blue": $color-primary-blue,
+    "primary-royal": $color-primary-royal,
+    "accent-orange": $color-accent-orange,
+    "secondary-redblack": $color-secondary-redblack,
+    "secondary-blueblack": $color-secondary-blueblack,
   ),
   tones: (
     'dark': 10,

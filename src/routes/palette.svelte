@@ -1,5 +1,5 @@
 <script>
-  let colors = ["jungle", "olive", "sky", "gold", "sunset", "saddle"];
+  let colors = ["primary-blue", "primary-royal", "accent-orange", "secondary-redblack", "secondary-blueblack"];
   let tones = ["dark", "normal", "light"];
   let alphas = ["low", "medium", "high"];
 </script>
