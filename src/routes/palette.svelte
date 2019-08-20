@@ -33,7 +33,7 @@
   }
   .palette-container {
     display: grid;
-    grid-template-columns: repeat(2, minmax(150px, 350px));
+    grid-template-columns: repeat(2, minmax(25vw, 50vw));
     grid-gap: 1rem;
     list-style: none;
     margin: 0;
@@ -58,9 +58,11 @@
   .colors-container {
     display: flex;
     flex-direction: column;
+    align-items: center;
     &.contrast {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
+      align-items: stretch;
       &.image-bg {
         grid-template-columns: repeat(5, 1fr);
       }
@@ -123,8 +125,8 @@
     }
   }
 
-  $swatch-radius: 5rem;
-  $swatch-small: 2rem;
+  $swatch-radius: 9vw;
+  $swatch-small: 3vw;
   .swatch {
     width: $swatch-radius;
     height: $swatch-radius;
