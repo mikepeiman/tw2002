@@ -14,6 +14,37 @@
     "cascade-clouds-cool-wallpaper-210186.jpg",
     "perspective.jpg"
   ];
+  let logos = [
+    "purpose-logo-compass-rose-v1.png",
+    "purpose-logo-compass-rose-v1.2.png",
+    "purpose-logo-compass-rose-v1.4.png",
+    "purpose-logo-compass-rose-v1.5.png",
+    "purpose-logo-compass-rose-v1.6.png",
+    "purpose-logo-compass-rose-v1.6b.png",
+    "purpose-logo-compass-rose-v1.6c.png",
+    "purpose-logo-compass-rose-v1.6d.png",
+    "purpose-logo-compass-rose-v1.6e.png",
+    "purpose-logo-compass-rose-v1.6f.png",
+    "purpose-logo-compass-rose-v1.6g.png",
+    "purpose-logo-compass-rose-v1.6h.png",
+    "purpose-logo-compass-rose-v1.6i.png",
+    "purpose-logo-compass-rose-v1.6j.png",
+    "purpose-logo-compass-rose-v1.6k.png",
+    "purpose-logo-compass-rose-v1.7.png",
+    "purpose-logo-compass-rose-v1.7b.png",
+    "purpose-logo-compass-rose-v1.7c.png",
+    "purpose-logo-compass-rose-v1.7d.png",
+    "purpose-logo-compass-rose-v1.7e.png",
+    "purpose-logo-compass-rose-v1.7f.png",
+    "purpose-logo-compass-rose-v1.7g.png"
+  ];
+  let topFiveLogos = [
+    "purpose-logo-compass-rose-v1.7d.png",
+    "purpose-logo-compass-rose-v1.png",
+    "purpose-logo-compass-rose-v1.7e.png",
+    "purpose-logo-compass-rose-v1.7f.png",
+    "purpose-logo-compass-rose-v1.7g.png"
+  ];
   let l = colors.length;
   function loopArray(outer, inner) {
     let sequence = outer + inner;
@@ -30,7 +61,19 @@
     color: color(accent-orange, true);
     padding: 0.75rem;
     border-radius: 0.75rem;
+    font-family: "Archivo Black";
   }
+  h1.purpose-heading {
+    font-family: "Cinzel","Red Hat Display";
+    text-align: center;
+    font-size: 3rem;
+  }
+  h2.purpose-subheading {
+    font-family: "Libre Caslon Text";
+    text-align: center;
+    font-size: 2rem;
+  }
+
   .palette-container {
     display: grid;
     grid-template-columns: repeat(2, minmax(25vw, 50vw));
@@ -144,6 +187,18 @@
 
   .thanks-to-freddy {
     color: color("primary-royal", true);
+    font-family: "Quicksand";
+  }
+  .logo {
+    // width: 10vw;
+    // height: auto;
+    background-size: cover;
+  }
+
+  .logo-container {
+    display: grid;
+    background: #333;
+    padding: 1rem;
   }
 </style>
 
@@ -153,6 +208,8 @@
 
 <div>
   <h1 class="palette-title">Color Palette Generator</h1>
+  <h1 class="purpose-heading">PURPOSE</h1>
+  <h2 class="purpose-subheading">Investment Group</h2>
   <p class="thanks-to-freddy">
     Huge thanks to
     <a
@@ -161,6 +218,28 @@
     </a>
     for the code and inspiration!
   </p>
+
+  <div
+    class="logo-container"
+    style="grid-template-columns: repeat({logos.length}, 1fr);">
+    {#each logos as logo}
+      <div
+        class="logo"
+        style="background-image: url('{logo}'); width: {80 / logos.length}vw;
+        height: {80 / logos.length}vw;" />
+    {/each}
+  </div>
+  <div
+    class="logo-container"
+    style="grid-template-columns: repeat({topFiveLogos.length}, 1fr);">
+    {#each topFiveLogos as logo}
+      <div
+        class="logo large"
+        style="background-image: url('{logo}'); width: {80 / topFiveLogos.length}vw;
+        height: {80 / topFiveLogos.length}vw;" />
+    {/each}
+  </div>
+
   <div class="palette-container">
     {#each colors as color}
       <li class="colors-container">
