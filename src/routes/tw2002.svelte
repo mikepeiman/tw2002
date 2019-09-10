@@ -7,11 +7,7 @@
   import { onMount } from "svelte";
   import seedrandom from "seedrandom";
 // import '../components/galaxy-generator.js'
-// 1. Create a Sector class
-// 2. Generate 10,000 sectors as data file
-// 3. Create Ship class
-// 4. Place player ship in sector 1
-// 5. Enable navigation of universe by clicking sectors or typing them into command line
+
 let universe = []
 
 function generateGalaxy() {
@@ -1852,9 +1848,8 @@ function generateGalaxy() {
 
 function generateOptsList() {
   var planetFragment = document.createDocumentFragment(); 
-  universe.forEach((sector, index) => {
-       
-        var opt = document.createElement("option");
+  universe.forEach((sector, index) => {       
+      var opt = document.createElement("option");
       opt.innerHTML = index + " - " + sector.name;
       opt.value = index;
       planetFragment.appendChild(opt);
@@ -1863,6 +1858,33 @@ function generateOptsList() {
       planet.innerHTML = "";
     planet.appendChild(planetFragment);
 
+}
+
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function setNumOutlinks(sector) {
+  let min = 1
+  let max = 6
+  sector.numOutlinks = getRandomInt(min, max)
+  console.log(`sector.numOutlinks: ${sector.numOutlinks}`)
+}
+
+function checkInlinks(sector) {
+
+}
+
+
+function sectorOutlinks(sector) {
+  // 2. check for any sectors that link TO currentSector (***inlinks***)
+  //     1. For each ***inlink*** to currentSector, create an ***outlink*** with a chance not to link (creating a one-way warp. chance determined by variable oneWayProbability, which will be given as one out of a thousand chance)
+  // 3. create ***outlinks***
+  //     1. Generate ***n*** number of ***outlinks*** based on min & max variables given, ie. 1-6 warps per sector; subtract existing outlinks from step #2
+  //     2. Algorithm to select ***n*** unique random sectors to link to
+  //         1. ***optional:*** Ensure target sector does not exceed maximum inlinks
 }
 
 onMount(() => {
