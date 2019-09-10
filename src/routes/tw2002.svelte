@@ -9,8 +9,9 @@
 // import '../components/galaxy-generator.js'
 
 let universe = []
+let universeSize = 50
 
-function generateGalaxy() {
+function generateGalaxy(galsize) {
   
   var base0 = 0x5a4a;
   var base1 = 0x0248;
@@ -1513,6 +1514,10 @@ function generateGalaxy() {
       thissys.productivity = ((thissys.economy ^ 7) + 3) * (thissys.govtype + 4);
       thissys.productivity *= thissys.population * 8;
 
+      thissys.numOutlinks = getRandomInt(1, 6)
+      thissys.outlinks = []
+      thissys.inlinks = []
+
       thissys.radius = 256 * (((seed.w2 >> 8) & 15) + 11) + thissys.x;
 
       thissys.goatsoupseed = {};
@@ -1709,9 +1714,9 @@ function generateGalaxy() {
 
     prisys(planetnum, element) {
       // print Galaxy info
-      console.log(`this.galaxy ${this.galaxy}`)
-      console.log(`planetnum ${planetnum}`)
-      console.log(planetnum)
+      // console.log(`this.galaxy ${this.galaxy}`)
+      // console.log(`planetnum ${planetnum}`)
+      // console.log(planetnum)
       var plsy = this.galaxy[planetnum] || this.galaxy[0];
       var systemString = "System (";
       if (this.useAlternate) {
@@ -1818,7 +1823,9 @@ function generateGalaxy() {
       opt.innerHTML = index + " - " + element.name;
       opt.value = index;
       planetFragment.appendChild(opt);
-      let sector = new Sector(index, element.name, [])
+      // console.log(`galaxy_generator.galaxy.forEach((element, index) => element ${element}`)
+      // console.log(element)
+      let sector = new Sector(index, element.name, element.numOutlinks, element.outlinks, element.inlinks)
       universe.push(sector)
     });
     planet.innerHTML = "";
@@ -1829,7 +1836,7 @@ function generateGalaxy() {
   }
 
     var galaxy_generator = new EliteGalaxyGenerator(base0, base1, base2);
-
+  galaxy_generator.galsize = galsize
   var galaxy = document.getElementById("galaxy");
   var alternate = document.getElementById("alternate");
   var planet = document.getElementById("planet");
@@ -1848,16 +1855,17 @@ function generateGalaxy() {
 
 function generateOptsList() {
   var planetFragment = document.createDocumentFragment(); 
-  universe.forEach((sector, index) => {       
-      var opt = document.createElement("option");
-      opt.innerHTML = index + " - " + sector.name;
-      opt.value = index;
-      planetFragment.appendChild(opt);
+  universe.forEach((sector, index) => { 
+      setNumOutlinks(sector);
+      // var opt = document.createElement("option");
+      // opt.innerHTML = index + " - " + sector.name;
+      // opt.value = index;
+      // planetFragment.appendChild(opt);
+      console.log(`generateOptsList`)
       console.log(index, sector)
   })
       planet.innerHTML = "";
     planet.appendChild(planetFragment);
-
 }
 
 function getRandomInt(min, max) {
@@ -1869,12 +1877,30 @@ function getRandomInt(min, max) {
 function setNumOutlinks(sector) {
   let min = 1
   let max = 6
-  sector.numOutlinks = getRandomInt(min, max)
-  console.log(`sector.numOutlinks: ${sector.numOutlinks}`)
+  // sector.numOutlinks = getRandomInt(min, max)
+  console.log(`sector.numOutlinks: ${sector.numOutlinks}`);
 }
 
 function checkInlinks(sector) {
+  // console.log(`sector inlinks? ${!sector.inlinks}`);
+  let warps = sector.inlinks
+  if(sector.inlinks.length === 0) {
+    for(let i = 0; i < sector.numOutlinks; i++) {
+      console.log(`sector ${sector.name} should have ${sector.numOutlinks} outlinks; currently has ${sector.outlinks.length} oulinks and ${sector.inlinks.length} inlinks`)
+      // console.log(i)
+      // create temp array of random numbers within range of universe size, as sector IDs
+      var randomItem = universe[Math.floor(Math.random()*universe.length)];
+      console.log(`random sector number ${randomItem.id}`)
+      // next, set outlinks
+    }
+  } else {
+    console.log(`no inlinks on ${sector.name}`)
+    // console.log(`sector ${sector.name} should have ${sector.numOutlinks} outlinks; currently has ${sector.outlinks}`)
+  }
+}
 
+function getSector(id) {
+  return universe[id]
 }
 
 
@@ -1888,18 +1914,25 @@ function sectorOutlinks(sector) {
 }
 
 onMount(() => {
-  let rnd = seedrandom('Mike')
-  console.log(`seedrandom for Mike: ${rnd()}`)
-  generateGalaxy();
-  console.log(universe)
+  generateGalaxy(universeSize);
+  // console.log(universe)
   // generateOptsList();
+  universe.forEach(sector => {
+    // console.log('universe.forEach onMount() getSector')
+    // console.log(sector.id)
+    // console.log(getSector(sector.id))
+    checkInlinks(sector)
+  })
+  console.log(`universe size ${universe.length}`)
 })
 
 class Sector {
-  constructor(id, name, warps) {
+  constructor(id, name, numOutlinks, outlinks, inlinks) {
     this.id = id
     this.name = name
-    this.warps = warps
+    this.numOutlinks = numOutlinks
+    this.outlinks = outlinks
+    this.inlinks = inlinks
   }
 
   getWarps() {
