@@ -1374,7 +1374,7 @@ function generateGalaxy() {
       this.base1 = base1 || 0x0248;
       this.base2 = base2 || 0xb753;
 
-      this.galsize = 10000;
+      this.galsize = 256;
       this.galaxy = [];
       this.seed = {};
       this.rnd_seed = {};
@@ -1713,7 +1713,10 @@ function generateGalaxy() {
 
     prisys(planetnum, element) {
       // print Galaxy info
-      var plsy = this.galaxy[planetnum];
+      console.log(`this.galaxy ${this.galaxy}`)
+      console.log(`planetnum ${planetnum}`)
+      console.log(planetnum)
+      var plsy = this.galaxy[planetnum] || this.galaxy[0];
       var systemString = "System (";
       if (this.useAlternate) {
         systemString += "Alternate";
@@ -1790,6 +1793,8 @@ function generateGalaxy() {
     var galaxy_info = document.getElementById("galaxy_info");
 
     galaxy_info.innerHTML = "";
+    console.log(`before calling galaxy_generator.prisys, planet object: ${planet}`)
+    console.log(planet)
     galaxy_generator.prisys(planet.value, galaxy_info);
   }
 
@@ -1817,6 +1822,8 @@ function generateGalaxy() {
       opt.innerHTML = index + " - " + element.name;
       opt.value = index;
       planetFragment.appendChild(opt);
+      let sector = new Sector(index, element.name, [])
+      universe.push(sector)
     });
     planet.innerHTML = "";
     planet.appendChild(planetFragment);
@@ -1843,16 +1850,33 @@ function generateGalaxy() {
   });
 }
 
+function generateOptsList() {
+  var planetFragment = document.createDocumentFragment(); 
+  universe.forEach((sector, index) => {
+       
+        var opt = document.createElement("option");
+      opt.innerHTML = index + " - " + sector.name;
+      opt.value = index;
+      planetFragment.appendChild(opt);
+      console.log(index, sector)
+  })
+      planet.innerHTML = "";
+    planet.appendChild(planetFragment);
+
+}
+
 onMount(() => {
   let rnd = seedrandom('Mike')
   console.log(`seedrandom for Mike: ${rnd()}`)
   generateGalaxy();
+  console.log(universe)
+  // generateOptsList();
 })
 
 class Sector {
-  constructor(id, region, warps) {
+  constructor(id, name, warps) {
     this.id = id
-    this.region = region
+    this.name = name
     this.warps = warps
   }
 
@@ -1880,7 +1904,7 @@ class Ship {
 //   universe.push(sector)
 // }
 
-// console.log(universe)
+
 
 </script>
 
@@ -1911,7 +1935,7 @@ class Ship {
   </div>
   <div class="col">
     <label for="planet">Planet:</label>
-    <select id="planet" name="planet">
+    <select id="planet" name="planet" value="0">0
     </select>
   </div>
   <div id="info" class="col">
