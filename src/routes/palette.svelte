@@ -45,6 +45,18 @@
     "purpose-logo-compass-rose-v1.7f.png",
     "purpose-logo-compass-rose-v1.7g.png"
   ];
+  let bannerLogos = [
+    "purpose-logo-north-star-v1.0x8.png",
+    "purpose-logo-north-star-v1.0x7.png",
+    "purpose-logo-north-star-v1.2D.png",
+    "purpose-logo-north-star-v1.0x4.png",
+    "purpose-logo-north-star-v1.0x6.png",
+    "purpose-logo-north-star-v1.5-dark-o.png",
+    
+
+
+
+  ];
   let l = colors.length;
   function loopArray(outer, inner) {
     let sequence = outer + inner;
@@ -67,9 +79,10 @@
     font-family: "Cinzel","Red Hat Display";
     text-align: center;
     font-size: 3rem;
+    font-weight: 700;
   }
   h2.purpose-subheading {
-    font-family: "Libre Caslon Text";
+    font-family: "Comfortaa","Libre Caslon Text";
     text-align: center;
     font-size: 2rem;
   }
@@ -237,6 +250,15 @@
         class="logo large"
         style="background-image: url('{logo}'); width: {80 / topFiveLogos.length}vw;
         height: {80 / topFiveLogos.length}vw;" />
+    {/each}
+  </div>
+
+    <div
+    class="logo-container">
+    {#each bannerLogos as logo}
+      <div
+        class="logo large"
+        style="background-image: url('{logo}'); width: auto; height: 300px; background-size: cover;" />
     {/each}
   </div>
 

@@ -7,11 +7,18 @@
 		border-bottom: 1px solid rgba(255,62,0,0.1);
 		font-weight: 300;
 		padding: 0 1em;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    z-index: 1;
+    background: white;
 	}
 
 	ul {
 		margin: 0;
 		padding: 0;
+    height: 100%;
 	}
 
 	/* clearfix */
