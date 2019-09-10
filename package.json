@@ -19,6 +19,7 @@
     "polka": "next",
     "postcss": "^7.0.17",
     "rollup-plugin-postcss": "^2.0.3",
+    "seedrandom": "^3.0.3",
     "sirv": "^0.4.0",
     "svelte-preprocess": "^2.15.1",
     "svelte-preprocess-css-global": "0.0.1",
