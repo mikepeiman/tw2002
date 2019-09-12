@@ -26,4 +26,4 @@ const createWritableStore = (key, startValue) => {
   };
 }
 
-export let galaxy = createWritableStore('galaxy', []) 
+export let galaxy = writable('galaxy', []) 

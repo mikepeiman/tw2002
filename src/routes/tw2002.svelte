@@ -7,7 +7,10 @@
 
 //  galaxy = galaxy.useLocalStorage()
   $: galaxy = [];
-  let numberOfSectors = 5;
+  $: numberOfSectors = 25;
+  $: warpMin = 1;
+  $: warpMax = 6;
+  // let numberOfSectors = 5;
 
 
   onMount(() => {
@@ -18,18 +21,40 @@
     // })
     // localStorage.setItem("galaxy", []);
     // galaxy = JSON.parse(localStorage.getItem("galaxy"));
-    generateGalaxy(25,1,6).then(g => {
+    generateGalaxy(numberOfSectors, warpMin, warpMax).then(g => {
       // localStorage.setItem("galaxy", JSON.stringify(g))
       linkGalaxy(g)
       localStorage.setItem("galaxy", JSON.stringify(g));
-      galaxy = g
+      // return galaxy = g
+      initGalaxy()
     })
+    // initGalaxy()
+    // return galaxy = new Promise(resolve => {
+    //   resolve(JSON.parse(localStorage.getItem("galaxy")))
+    //   return galaxy = galaxy
+    // })
     // galaxy = JSON.parse(localStorage.getItem("galaxy"));
     // galaxy.forEach(sector => {
     //   console.log(`######## SECOND galaxy forEach onMount: ${sector}`)
     //   console.log(sector)
     // })
   });
+
+  function newGalaxy() {
+      generateGalaxy(numberOfSectors, warpMin, warpMax).then(g => {
+      // localStorage.setItem("galaxy", JSON.stringify(g))
+      linkGalaxy(g)
+      localStorage.setItem("galaxy", JSON.stringify(g));
+      // return galaxy = g
+      initGalaxy()
+    })
+  }
+  
+  async function initGalaxy() {
+        galaxy = JSON.parse(localStorage.getItem("galaxy"));
+    console.log(galaxy)
+    return galaxy = galaxy
+  }
 
   function loadGalaxy() {
     console.log('loadGalaxy clicked')
@@ -111,7 +136,7 @@
         getValidSectorToLinkTo(count, sector, galaxy)
       }
     // count--
-        console.log(``)
+      console.log(``)
       console.log(``)
 
 
@@ -236,7 +261,7 @@
 
   <p>Because I'm not done playing yet.</p>
   <div class="game-menu">
-    <button id="generate-game" on:click={generateGalaxy(10, 1, 6)}>
+    <button id="generate-game" on:click={newGalaxy}>
       Generate New Universe
     </button>
     <button id="generate-links" on:click={loadGalaxy}>Load Local Galaxy</button>
@@ -268,7 +293,7 @@
         <label for="planet">Planet:</label>
         <select id="planet" name="planet" value="0">0</select>
       </div>
-      <div id="info" class="col" />
+      <!-- <div id="info" class="col" /> -->
     </div>
 
   </div>
