@@ -1,19 +1,43 @@
 <script>
   import { onMount } from "svelte";
+  import { writable } from "svelte/store"
+  import { galaxy } from "../store"
   import seedrandom from "seedrandom";
   // import '../components/galaxy-generator.js'
 
-  let galaxy = []; 
-  let numberOfSectors = 50;
+//  galaxy = galaxy.useLocalStorage()
+  $: galaxy = [];
+  let numberOfSectors = 5;
 
 
   onMount(() => {
-    galaxy = JSON.parse(localStorage.getItem("galaxy"));
-    generateGalaxy(50,1,6).then(g => {
-      localStorage.setItem("galaxy", JSON.stringify(g))
+    // console.log(`galaxy global var onMount: ${galaxy}`)
+    // galaxy.forEach(sector => {
+    //   console.log(`galaxy forEach onMount: ${sector}`)
+    //   console.log(sector)
+    // })
+    // localStorage.setItem("galaxy", []);
+    // galaxy = JSON.parse(localStorage.getItem("galaxy"));
+    generateGalaxy(25,1,6).then(g => {
+      // localStorage.setItem("galaxy", JSON.stringify(g))
       linkGalaxy(g)
+      localStorage.setItem("galaxy", JSON.stringify(g));
+      galaxy = g
     })
+    // galaxy = JSON.parse(localStorage.getItem("galaxy"));
+    // galaxy.forEach(sector => {
+    //   console.log(`######## SECOND galaxy forEach onMount: ${sector}`)
+    //   console.log(sector)
+    // })
   });
+
+  function loadGalaxy() {
+    console.log('loadGalaxy clicked')
+    // galaxy = [{id: 0, name: "test"},{id: 1, name: "Mike"}]
+    galaxy = JSON.parse(localStorage.getItem("galaxy"));
+    console.log(galaxy)
+    return galaxy = galaxy
+  }
 
   async function generateGalaxy(numberOfSectors, warpMin, warpMax) {
     // more possible settings:
@@ -22,7 +46,7 @@
     for (let syscount = 0; syscount < numberOfSectors; syscount++) {
       galaxy[syscount] = await makeSector(syscount, warpMin, warpMax);
     }
-    localStorage.setItem("galaxy", JSON.stringify(galaxy));
+    // localStorage.setItem("galaxy", JSON.stringify(galaxy));
     return galaxy
   }
 
@@ -41,14 +65,17 @@
   }
 
 
-  function linkGalaxy() {
-    let galaxy = JSON.parse(localStorage.getItem("galaxy"));
+  function linkGalaxy(galaxy) {
+    // let galaxy = JSON.parse(localStorage.getItem("galaxy"));
     console.log(`from linkGalaxy(), localStorage galaxy: `)
     console.log(galaxy)
     galaxy.forEach(sector => {
       setOutlinks(sector, galaxy)
     });
-    localStorage.setItem("galaxy", JSON.stringify(galaxy));
+    // localStorage.setItem("galaxy", JSON.stringify(galaxy));
+    //     console.log(`from linkGalaxy(), localStorage galaxy: `)
+    // console.log(galaxy)
+    return galaxy
   }
 
   async function setOutlinks(sector, galaxy) {
@@ -61,21 +88,36 @@
     while(count > 0) {
       // get random sector
       let rand = getRandomSector(galaxy)
+      console.log(`%%%%%  sector.id ${sector.id}  %%%%%  count ${count}  %%%%%  sector.warpsQuota ${sector.warpsQuota}`)
       // check if it is valid:
       //    does not match current sector
       //    is not already in outlinks
       //    target has not hit warpsQuota >= inlinks.length or outlinks.length
+
+      console.log(`rand.id ${rand.id} !== sector.id ${sector.id} --- ${rand.id !== sector.id}`)
+      console.log(`!sector.outlinks[ ${sector.outlinks} ].includes(rand.id) ${rand.id} --- ${!sector.outlinks.includes(rand.id)}`)
+      console.log(`rand.outlinks.length ${rand.outlinks.length} <= rand.warpsQuota ${rand.warpsQuota} --- ${rand.outlinks.length <= rand.warpsQuota}`)
+
       if(rand.id !== sector.id
         && !sector.outlinks.includes(rand.id)
-        && !rand.outlinks.length >= rand.warpsQuota) {
-
-      }
-
-
+        && rand.outlinks.length <= rand.warpsQuota) {
+          console.log(`We passed all tests for ${rand.id}`)
       warps.push(rand.id)
+      console.log(`Warps array currently: ${warps}`)
       count--
+      } else {
+        console.log(`##########  We MAY have a problem #############`)
+        console.log(``)
+        getValidSectorToLinkTo(count, sector, galaxy)
+      }
+    // count--
+        console.log(``)
+      console.log(``)
+
+
     }
     sector.outlinks = warps
+    sector.inlinks = warps
     return warps
   }
 
@@ -194,10 +236,10 @@
 
   <p>Because I'm not done playing yet.</p>
   <div class="game-menu">
-    <button id="generate-game" on:click={generateGalaxy(50, 1, 6)}>
+    <button id="generate-game" on:click={generateGalaxy(10, 1, 6)}>
       Generate New Universe
     </button>
-    <button id="generate-links" on:click>Generate Sector Links</button>
+    <button id="generate-links" on:click={loadGalaxy}>Load Local Galaxy</button>
     <button id="start-game">Start Game</button>
     <div id="controls" class="section group">
       <div class="col">
@@ -230,7 +272,7 @@
     </div>
 
   </div>
-
+<!-- {#if process.browser} -->
   <div class="sector-list">
     <div id="galaxy_info" />
   </div>
@@ -251,4 +293,5 @@
       </div>
     {/each}
   </div>
+  <!-- {/if} -->
 </section>
