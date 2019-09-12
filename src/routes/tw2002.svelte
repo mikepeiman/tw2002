@@ -8,7 +8,7 @@
   import seedrandom from "seedrandom";
 // import '../components/galaxy-generator.js'
 
-let universe = []
+let universe = [] // || [{id: 0, name: 'Mike'},{id: 1, name: 'Matt'},{id: 2, name: 'Max'},]
 let numberOfSectors = 10
 
 function generateGalaxy(numberOfSectors) {
@@ -1827,24 +1827,28 @@ function generateGalaxy(numberOfSectors) {
     var t1 = performance.now();
 
     info.innerHTML = "Generated in " + ((t1 - t0) | 0) + " ms";
-galaxy_generator.galaxy.forEach((element, index) => {
-  console.log(`galaxy_generator.galaxy.forEach((element, index) => ${element}`)
-  console.log(element)
-})
+
+
+    // galaxy_generator.galaxy.forEach((element, index) => {
+    //   console.log(`galaxy_generator.galaxy.forEach((element, index) => ${element}`)
+    //   console.log(element)
+    // })
     galaxy_generator.galaxy.forEach((element, index) => {
       var opt = document.createElement("option");
       opt.innerHTML = index + " - " + element.name;
       opt.value = index;
       planetFragment.appendChild(opt);
       element.id = index
+      element.complete = false;
       
       // console.log(`galaxy_generator.galaxy.forEach((element, index) => element ${element}`)
       // console.log(element)
-      generateWarps(galaxy_generator.galaxy, element)
-      let sector = new Sector(element.id, element.name, element.numOutlinks, element.outlinks, element.inlinks)
+      // warpMaker(galaxy_generator.galaxy, element)
+      // let sector = new Sector(element.id, element.name, element.numOutlinks, element.outlinks, element.inlinks)
       universe.push(element)
     });
     localStorage.setItem("universe", JSON.stringify(universe))
+    // warpMaker(universe)
     planet.innerHTML = "";
     planet.appendChild(planetFragment);
     planet.value = planetnum;
@@ -1870,135 +1874,147 @@ galaxy_generator.galaxy.forEach((element, index) => {
   });
 }
 
-function generateWarps(galaxy, sector) {
-// for each sector in galaxy, create (min-max) links to random sectors
-// for each linked sector, create a link back to the originating sector
+async function getValidSectorToWarpTo(sector, galaxy) {
+  let getRandomPromise = new Promise((resolve, reject) => {
+    resolve(getRandomInt(0,galaxy.length-1))
+  })
+  let randomId = await getRandomPromise
+  let randomSector = await galaxy[randomId]
+  // I set the "newSector" variable to the return value of a recursive function
+  // that function begins by choosing a randomSector, 
+  console.log('%%%%%%%%%%%%%%%%%%%% getValidSectorToWarpTo(sector) head %%%%%%%%%%%%%%%%%%%%%%')
+  console.log(`sector.warpsQuota ${sector.warpsQuota}`)
+  console.log(`sector.outlinks [${sector.outlinks}]`)
+  console.log(`sector.inlinks [${sector.inlinks}]`)
+  console.log(`randomSector.id ${randomSector.id}`)
+  console.log(`randomInt: ${randomId}`)
 
-// let warps = sector.warps.twoWay
-// let warpsIn = sector.warps.in
-// let warpsOut = sector.warps.out
-  let warpsIn = sector.inlinks
-  let warpsOut = sector.outlinks
-  let warpsQuota = getRandomInt(1,6)
-  sector.warps.quota = warpsQuota
-  console.log(`inside generateWarps, called from generateGalaxy`)
-  console.log(`##########################    [${sector.id}].warpsQuota: ${warpsQuota}   ##############################`)
-  console.log(`warps out *** ${warpsOut} *** in *** ${warpsIn} ***`)
-
-
-// need to check if random sector is duplicate of existing warp out
-
-  sector.warpsQuota = warpsQuota
-  let needsMoreWarps = warpsQuota - warpsOut.length
-  needsMoreWarps > 0 ? console.log(`This sector needs ${needsMoreWarps} more warps`) : console.log(`!!!!!!!!!!!!!!!! needsMoreWarps: ${needsMoreWarps} !!!!!!!!!!!!!!!!!!!!!`)
-  for(let i = 0; i < needsMoreWarps; i++) {
-    var randomSector = galaxy[Math.floor(Math.random()*galaxy.length)];
-    // need to check if random sector is same as calling sector and get new value if so
-    console.log(`randomSector is ${randomSector.id}`)
+  // console.log(`randomSector: `)
+  // console.log(randomSector)
+  // and then checks against violations:
+  if(randomSector.id !== sector.id
+  && !sector.outlinks.includes(randomSector.id)
+  && !sector.inlinks.includes(randomSector.id)
+  ) {
+    // return the current value
+    console.log('%%%%%%%%%%%%%%%%%%%% We passed all the conditions for an acceptable warp! %%%%%%%%%%%%%%%%%%%%%%')
+    console.log(`[[[${randomSector.id}]]]\n\n\n`)
+    return randomSector.id
+  } else {
+    // run me again with current value adjusted (change parameter values) 
+    // --> this is done automatically by the random function at head of function
+    console.log("@@@@@@@@@@@@@@@!!! We failed some condition, so we're going again....@@@@@@@@@@@@@@@@@@@@@@@@@!!!")
+    console.log(`sector[${sector.id}].warpsQuota ${sector.warpsQuota}`)
+    console.log(`sector[${sector.id}].outlinks [${sector.outlinks}]`)
+    console.log(`sector[${sector.id}].inlinks [${sector.inlinks}]`)
+    console.log(`randomSector.id ${randomSector.id}`)
     console.log(randomSector)
-    if(randomSector.id !== sector.id) {
-      if(!warpsOut.includes(randomSector.id)) {
-        warpsOut.push(randomSector.id)
-        warpsIn.push(randomSector.id)
-        randomSector.inlinks.push(sector.id)
-        randomSector.outlinks.push(sector.id)
-      }
-    }
-
+    console.log(`.\n.\n.`)
+    getValidSectorToWarpTo(sector, galaxy)
   }
-    console.log(`inside generateWarps, called from generateGalaxy, [${sector.id}].warpsQuota: ${warpsQuota}`)
-  console.log(`                     ####    [${sector.id}]warps: out ${warpsOut.length} [${warpsOut}] in ${warpsIn.length} [${warpsIn}]`)
-
-
-
-//   if(warpsOut.length < warpsQuota) {
-//     let needsMoreLinks = warpsQuota - warpsOut
-//     if(warpsIn.length > 0) {
-//       console.log(`we have inlinks on ${sector.name} (${sector.id})!`)
-//       console.log(sector.inlinks)
-//       warpsIn.forEach(link => {
-//         console.log(`a link inside sector.inlinks.forEach ${link}`)
-//         // var randomSector = universe[Math.floor(Math.random()*universe.length)];
-//         // randomSector.id === sector.id ? randomSector.id + 1 : randomSector
-
-//       })
-//     } else {
-//       for(let i = 0; i < needsMoreLinks; i++) {
-//         console.log(`sector ${sector.name} (${sector.id}) should have ${sector.numOutlinks} outlinks; currently has ${sector.outlinks.length} oulinks and ${sector.inlinks.length} inlinks`)
-//         console.log(galaxy.length)
-//         // create temp array of random numbers within range of universe size, as sector IDs
-//         var randomSector = galaxy[Math.floor(Math.random()*galaxy.length)];
-//         console.log(`random sector number ${randomSector.id}`)
-//         randomSector.id === sector.id ? randomSector.id++ : randomSector
-
-//         // next, set outlinks
-//         sector.outlinks.push(randomSector.id)
-//         randomSector.inlinks.push(sector.id)
-//       }
-//     }
-//   } else {
-//     console.log(`sector outlinks are already full at ${sector.outlinks.length} of ${sector.numOutlinks} on ${sector.id}: ${sector.name}`)
-//       console.log(`Final check on sectors: Sector ${sector.id} contains the outlinks ${sector.outlinks} and the inlinks ${sector.inlinks}`)
-//   sector.outlinks.forEach(link => {
-//     console.log(`This sector ${link} contains the following outlinks ${universe[link].outlinks}`)
-//   })
-//   }
+  return "ERROR!"
+  // return getValidSectorToWarpTo(sector, galaxy)
 }
 
-
-function generateLinks() {
-  universe.forEach(sector => {
-    // console.log('universe.forEach onMount() getSector')
-    // console.log(sector.id)
-    // console.log(getSector(sector.id))
-    checkInlinks(sector)
-  })
-  console.log(`universe size ${universe.length}`)
-  localStorage.setItem("universe", JSON.stringify(universe))
+function getRandomSector(galaxy) {
+  return galaxy[Math.floor(Math.random()*galaxy.length)];
 }
 
-function generateOptsList() {
-  var planetFragment = document.createDocumentFragment(); 
-  universe.forEach((sector, index) => { 
-      setNumOutlinks(sector);
-      // var opt = document.createElement("option");
-      // opt.innerHTML = index + " - " + sector.name;
-      // opt.value = index;
-      // planetFragment.appendChild(opt);
-      console.log(`generateOptsList`)
-      console.log(index, sector)
+function setWarpsQuotas(galaxy) {
+  galaxy.forEach(sector => {
+    let warpsQuota = getRandomInt(1,6)
+    sector.warpsQuota = warpsQuota
   })
-      planet.innerHTML = "";
-    planet.appendChild(planetFragment);
+}
+
+async function setWarps(galaxy) {
+  galaxy.forEach(sector => {
+    // let warpsIn = sector.inlinks
+    // let warpsOut = sector.outlinks
+    let quota = sector.warpsQuota
+    let needsMoreWarps = quota - sector.outlinks.length
+    console.log(`*******************************     sector[${sector.id}] ******************************`)
+    console.log(`*******************************     sector[${sector.id}] ******************************`)
+    console.log(`*******************************     sector[${sector.id}] ******************************`)
+    console.log(sector)
+    console.log(` needsMoreWarps ${needsMoreWarps} = quota ${quota} - sector.outlinks.length ${sector.outlinks.length}`)
+    console.log(` outlinks ${sector.outlinks} inlinks ${sector.inlinks} of active sector`)
+
+    console.log(`.\n.\n.`)
+
+    if(needsMoreWarps > 0) {
+      for(let i = 0; i < needsMoreWarps; i++) {
+        console.log(`#######===>    ITER ${i}    <===############# before getValidSectorToWarpTo: current sector ${sector.id} with outlinks [${sector.outlinks}]`)
+      // var randomSector = galaxy[Math.floor(Math.random()*galaxy.length)];
+      // let validWarp = new Promise((resolve,reject) => {
+      //   resolve(getValidSectorToWarpTo(sector, galaxy))
+      // })
+      let newSectorId = getValidSectorToWarpTo(sector, galaxy);//validWarp()
+      // getValidSectorToWarpTo(sector, galaxy).then(value => {
+      //   console.log(`Returning the warp promise as thenable: ${value}`)
+      // return value
+      // })
+      console.log(`*******************************     sector[${sector.id}] ******************************`)
+      console.log(` needsMoreWarps ${needsMoreWarps} = quota ${quota} - sector.outlinks.length ${sector.outlinks.length}`)
+      console.log(`newSectorId variable assigned the return value of getValidSectorToWarpTo`)
+      console.log(newSectorId)
+      let newSector = galaxy[newSectorId]
+      console.log(newSector)
+      console.log(`.\n.\n.`)
+      // var randomSector = galaxy[Math.floor(Math.random()*galaxy.length)];
+      sector.outlinks.push(newSectorId)
+      sector.inlinks.push(newSectorId)
+
+      setTimeout(() => {
+      newSector.inlinks.push(sector.id)
+      newSector.outlinks.push(sector.id)
+      }, 500);
+
+      console.log(`sector.warpsQuota ${sector.warpsQuota}`)
+      console.log(`sector.outlinks [${sector.outlinks}]`)
+      console.log(`sector.inlinks [${sector.inlinks}]`)
+      console.log(`*******************************     sector[${sector.id}] ******************************`)
+      }
+    } else if(needsMoreWarps === 0) {
+      console.log(`||||||||||||||||||||||||||||||||    We have PRECISELY the correct amount of warps: needs ${needsMoreWarps} more or less   |||||||||||||||||||||||||||||`)
+    } else {
+      console.log(`||||||||||||||||||||||||||||||||    apparently we have too many warps! ${needsMoreWarps} 
+      |||||||||||||||||||||||||||||`)
+    }
+    console.log(`AFTER setWarps: sector: outlinks ${sector.outlinks} inlinks ${sector.inlinks}`)
+  })
+  localStorage.setItem("universe", JSON.stringify(galaxy))
+}
+
+function pruneLinks(sector, type) {
+  if(type === "inlinks") {
+    console.log(`prune inlinks for ${sector.id}`)
+  } else {
+    console.log(`prune outlinks for ${sector.id}`)
+  }
 }
 
 function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-
-function setOneWayWarps() {
-
+    let prng = seedrandom();
+    let randomInRange = Math.floor(prng() * (max - min + 1)) + min;
+    // console.log(`getRandomInt prng: ${prng()}, in range ${randomInRange}`)
+    return randomInRange
 }
 
 function getSector(id) {
-  return universe[id]
-}
-
-
-function sectorOutlinks(sector) {
-  // 2. check for any sectors that link TO currentSector (***inlinks***)
-  //     1. For each ***inlink*** to currentSector, create an ***outlink*** with a chance not to link (creating a one-way warp. chance determined by variable oneWayProbability, which will be given as one out of a thousand chance)
-  // 3. create ***outlinks***
-  //     1. Generate ***n*** number of ***outlinks*** based on min & max variables given, ie. 1-6 warps per sector; subtract existing outlinks from step #2
-  //     2. Algorithm to select ***n*** unique random sectors to link to
-  //         1. ***optional:*** Ensure target sector does not exceed maximum inlinks
+  return galaxy[id]
 }
 
 onMount(() => {
-
+let galaxy = JSON.parse(localStorage.getItem("universe"))
+console.log(`galaxy from ls`)
+console.log(galaxy)
+// warpMaker(galaxy)
+setWarpsQuotas(galaxy)
+setWarps(galaxy)
+universe = JSON.parse(localStorage.getItem("universe"))
 })
 
 class Sector {
@@ -2036,8 +2052,8 @@ class Ship {
   
   <p>Because I'm not done playing yet.</p>
 <div class="game-menu">
-    <button id="generate-game" on:click="{generateGalaxy(50)}">Generate New Universe</button>
-    <button id="generate-links" on:click="{generateLinks}">Generate Sector Links</button>
+    <button id="generate-game" on:click="{generateGalaxy(numberOfSectors)}">Generate New Universe</button>
+    <button id="generate-links" on:click="">Generate Sector Links</button>
     <button id="start-game">Start Game</button>
     <div id="controls" class="section group">
   <div class="col">
@@ -2074,8 +2090,14 @@ class Ship {
     <div class="sector-list"> 
   {#each universe as sector}
   <div class="svelte-universe">
-  {universe}
-  <span>Sector {sector.id}: {sector.name}</span>
+  <span class="sector-details">Sector {sector.id}: {sector.name} ||| </span>
+  <span class="sector-warps:">
+    warps quota: 
+    <span class="warp">{sector.warpsQuota}</span>
+    warps: {#each sector.outlinks as warp}
+    <span class="warp">{warp}</span>
+    {/each} 
+  </span>
   </div>
   {/each}
   </div>
@@ -2116,6 +2138,25 @@ button {
   height: auto;
   padding: 1rem;
   background: rgba(55,155,175,0.35);
+}
+
+.svelte-universe {
+  display: grid;
+  grid-template-columns: 20% 1fr;
+}
+.warp {
+  padding: .25rem;
+  margin-right: .25rem;
+  width: 5ch;
+  background: rgba(0,0,0,0.1);
+  border-radius: 3px;
+  border-bottom: 1px solid rgba(0,50,250,1);
+  &:after {
+    content: " - ";
+  }
+  &:last-child:after {
+    content: "";
+  }
 }
 </style>
 
