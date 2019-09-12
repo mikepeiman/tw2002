@@ -7,9 +7,9 @@
 
 //  galaxy = galaxy.useLocalStorage()
   $: galaxy = [];
-  $: numberOfSectors = 25;
+  $: numberOfSectors = 15;
   $: warpMin = 1;
-  $: warpMax = 6;
+  $: warpMax = 5;
   // let numberOfSectors = 5;
 
 
@@ -129,17 +129,17 @@
           console.log(`We passed all tests for ${rand.id}`)
       warps.push(rand.id)
       console.log(`Warps array currently: ${warps}`)
+      sector.outlinks = warps
+      sector.inlinks = warps
       count--
       } else {
         console.log(`##########  We MAY have a problem #############`)
         console.log(``)
+        console.log(``)
         getValidSectorToLinkTo(count, sector, galaxy)
       }
-    // count--
       console.log(``)
       console.log(``)
-
-
     }
     sector.outlinks = warps
     sector.inlinks = warps
