@@ -7,8 +7,8 @@
 
   //  galaxy = galaxy.useLocalStorage()
   $: galaxy = [];
-  $: galSize = 15;
-  $: warpMin = 1;
+  $: galSize = 50;
+  $: warpMin = 5;
   $: warpMax = 5;
   // let galSize = 5;
 
@@ -82,27 +82,45 @@
       let needsLinks = sector.warpsQuota - sector.outlinks;
       let warps = [];
       let overflow = 0;
-      getValidSectorToLinkTo(needsLinks, overflow, warps, sector, galaxy);
+
+      // don't run link generator if this sector is already full
+      if (needsLinks > 0) {
+        getValidSectorToLinkTo(needsLinks, overflow, warps, sector, galaxy);
+      }
+
       sector.inlinks.sort(sortNumericArray)
       sector.outlinks.sort(sortNumericArray)
     });
-    // galaxy.forEach(sector => {
-    //   console.log(`BEFORE sorting sector links: inlinks ${sector.inlinks} outlinks ${sector.outlinks} `)
-    //   sector.inlinks.sort(sortNumericArray)
-    //   sector.outlinks.sort(sortNumericArray)
-    //   console.log(`AFTER sorting sector links: inlinks ${sector.inlinks} outlinks ${sector.outlinks} `)
-    // });
     return galaxy;
   }
 
   async function getValidSectorToLinkTo(
-    count,
+    needsLinks,
     overflow,
     warps,
     sector,
     galaxy
   ) {
-    while (count > 0) {
+    
+// first check if this sector already has inlinks.
+// if so, for each inlink, add it to the outlinks array if it is not already there.
+// then, assign new needsLinks value for while loop
+
+    if(sector.inlinks.length > 0) {
+      console.log(`some inlinks on sector [${sector.id}] with quota [${sector.warpsQuota}]`)
+      sector.inlinks.forEach(link => {
+        console.log(`link [${link}]`)
+        if(!sector.outlinks.includes(link)) {
+          sector.outlinks.push(link)
+        }
+      })
+    }
+    needsLinks = sector.warpsQuota - sector.outlinks.length
+    console.log(`new outlinks: [${sector.outlinks}] and needsLinks ${needsLinks}`)
+
+// end inlinks check, now main while loop to randomly generate outlinks
+
+    while (needsLinks > 0) {
       let rand = getRandomSector(galaxy);
 
       if (
@@ -138,9 +156,15 @@
         console.log(`Warps array currently: ${warps}`);
         sector.outlinks.push(rand.id);
         sector.inlinks.push(rand.id);
-        count--;
+
+        // only push inlink to the outlinked (rand) sector if it is not already at quota
+        // if(rand.inlinks >= rand.warpsQuota) {
+          rand.inlinks.push(sector.id); 
+        // }
+
+        needsLinks--;
         overflow = 0;
-        getValidSectorToLinkTo(count, overflow, warps, sector, galaxy)
+        getValidSectorToLinkTo(needsLinks, overflow, warps, sector, galaxy)
       } else {
         ++overflow;
         console.log("\n\n");
@@ -177,12 +201,12 @@
           return "Overflow error"
           // warps = []
           
-          count = 0;
+          needsLinks = 0;
           break;
           return -1
         } else {
-          // setTimeout(getValidSectorToLinkTo(count, overflow, warps, sector, galaxy), 1);
-          getValidSectorToLinkTo(count, overflow, warps, sector, galaxy)
+          // setTimeout(getValidSectorToLinkTo(needsLinks, overflow, warps, sector, galaxy), 1);
+          getValidSectorToLinkTo(needsLinks, overflow, warps, sector, galaxy)
         }
       }
       return -1
@@ -270,19 +294,45 @@
   .sector-list {
     width: 100vw;
     height: auto;
-    padding: 1rem;
+    // padding: 1rem;
     background: rgba(55, 155, 175, 0.35);
   }
+  
+  .sector-details {
+    padding: .25rem;
+    color: rgba(0,0,0,0.75);
+    &.sector-name {
+      background: rgba(155,55,55,0.75);
+    }
+    &.warps-quota {
+      background: rgba(55,55,155,0.75);
+    }
+
+  }
+
+ .sector-number {
+      color: #eee;
+    }
+
 
   .svelte-universe {
     display: grid;
-    grid-template-columns: 20% 1fr;
-    grid-template-rows: 2rem auto;
+    padding: 0.5rem 1rem;
+    grid-template-columns: 20% 80%;
+    // grid-template-rows: 2rem auto;
+    &:nth-child(even) {
+      background: rgba(0,0,0,0.1);
+    }
   }
 
+  .warps-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
   .sector-warps {
     display: grid;
-    grid-template-columns: 100px 75px 75px repeat(10, 5.25ch);
+    grid-template-columns: repeat(12, 5.25ch);
     grid-gap: 1ch;
   }
   .warp {
@@ -297,6 +347,7 @@
       border-bottom: 3px solid rgba(0, 50, 250, 0.75);
     }
   }
+
 </style>
 
 <svelte:head>
@@ -315,15 +366,15 @@
       <div class="col">
         <label for="galSize">
           Galaxy size:
-          <input type="number" value="15" name="galSize" id="galSize" />
+          <input type="number" value="50" name="galSize" id="galSize" />
         </label>
         <label for="warpsMin">
           Min warps:
-          <input type="number" value="2" name="warpsMin" id="warpsMin" />
+          <input type="number" value="5" name="warpsMin" id="warpsMin" />
         </label>
         <label for="warpsMin">
           Max warps:
-          <input type="number" value="6" name="warpsMax" id="warpsMax" />
+          <input type="number" value="5" name="warpsMax" id="warpsMax" />
         </label>
       </div>
     </div>
@@ -336,17 +387,28 @@
   <div class="sector-list">
     {#each galaxy as sector}
       <div class="svelte-universe">
-        <span class="sector-details">
-          Sector {sector.id}: {sector.name} |||
-        </span>
-        <span class="sector-warps">
-          warps quota:
-          <span class="warp">{sector.warpsQuota}</span>
-          warps:
-          {#each sector.outlinks as warp}
-            <span class="warp">{warp}</span>
-          {/each}
-        </span>
+        <div class="warps-group">
+          <span class="sector-details sector-name">
+            Sector <span class="sector-number">{sector.id}</span>
+          </span>
+          <span class="sector-details warps-quota">
+            warps quota: <span class="warps-quota-number">{sector.warpsQuota}</span>
+          </span>
+        </div>
+        <div class="warps-group">
+          <span class="sector-warps">
+            OUT:
+            {#each sector.outlinks as warp}
+              <span class="warp">{warp}</span>
+            {/each}
+            </span>
+            <span class="sector-warps">
+            IN:
+            {#each sector.inlinks as warp}
+              <span class="warp">{warp}</span>
+            {/each}
+          </span>
+        </div>
       </div>
     {/each}
   </div>
