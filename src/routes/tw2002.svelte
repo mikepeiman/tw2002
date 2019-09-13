@@ -1,62 +1,61 @@
 <script>
   import { onMount } from "svelte";
-  import { writable } from "svelte/store"
-  import { galaxy } from "../store"
+  import { writable } from "svelte/store";
+  // import { galaxy } from "../store"
   import seedrandom from "seedrandom";
   // import '../components/galaxy-generator.js'
 
-//  galaxy = galaxy.useLocalStorage()
+  //  galaxy = galaxy.useLocalStorage()
   $: galaxy = [];
   $: galSize = 15;
   $: warpMin = 1;
   $: warpMax = 5;
   // let galSize = 5;
 
-
   onMount(() => {
-    warpMin = document.getElementById('warpsMin').value
-    warpMax = document.getElementById('warpsMax').value
-    galSize = document.getElementById('galSize').value
+    warpMin = document.getElementById("warpsMin").value;
+    warpMax = document.getElementById("warpsMax").value;
+    galSize = document.getElementById("galSize").value;
     generateGalaxy(galSize, warpMin, warpMax).then(g => {
-    linkGalaxy(g)
-    localStorage.setItem("galaxy", JSON.stringify(g));
-    initGalaxy()
-    })
+      linkGalaxy(g);
+      localStorage.setItem("galaxy", JSON.stringify(g));
+      initGalaxy();
+    });
   });
 
   function newGalaxy() {
-    warpMin = document.getElementById('warpsMin').value
-    warpMax = document.getElementById('warpsMax').value
-    galSize = document.getElementById('galSize').value
+    warpMin = document.getElementById("warpsMin").value;
+    warpMax = document.getElementById("warpsMax").value;
+    galSize = document.getElementById("galSize").value;
 
     generateGalaxy(galSize, warpMin, warpMax).then(g => {
-    linkGalaxy(g)
-    localStorage.setItem("galaxy", JSON.stringify(g));
-    initGalaxy()
-    })
+      linkGalaxy(g);
+      localStorage.setItem("galaxy", JSON.stringify(g));
+      initGalaxy();
+    });
   }
-  
-  async function initGalaxy() {
+
+  function initGalaxy() {
     galaxy = JSON.parse(localStorage.getItem("galaxy"));
-    console.log(galaxy)
+    console.log(galaxy);
     return galaxy = galaxy
   }
 
   function loadGalaxy() {
-    console.log('loadGalaxy clicked')
+    console.log("loadGalaxy clicked");
     galaxy = JSON.parse(localStorage.getItem("galaxy"));
-    console.log(galaxy)
-    return galaxy = galaxy
+    console.log(galaxy);
+    // return galaxy = galaxy
   }
 
   async function generateGalaxy(galSize, warpMin, warpMax) {
     // more possible settings:
     // warpDensity, oneWayWarpDensity
-    let galaxy = []
+    let galaxy = [];
     for (let syscount = 0; syscount < galSize; syscount++) {
       galaxy[syscount] = await makeSector(syscount, warpMin, warpMax);
     }
-    return galaxy
+    return galaxy;
   }
 
   function makeSector(syscount, warpMin, warpMax) {
@@ -68,54 +67,129 @@
     sector.accepting = {
       inlinks: true,
       outlinks: true
-    }
-    return sector
+    };
+    return sector;
   }
 
-  function linkGalaxy(galaxy) {
-    console.log(`from linkGalaxy(), localStorage galaxy: `)
-    console.log(galaxy)
+  function sortNumericArray(a,b) {
+    return a - b;
+  }
+
+  async function linkGalaxy(galaxy) {
+    console.log(`from linkGalaxy(), localStorage galaxy: `);
+    console.log(galaxy);
     galaxy.forEach(sector => {
-      setOutlinks(sector, galaxy)
+      let needsLinks = sector.warpsQuota - sector.outlinks;
+      let warps = [];
+      let overflow = 0;
+      getValidSectorToLinkTo(needsLinks, overflow, warps, sector, galaxy);
+      sector.inlinks.sort(sortNumericArray)
+      sector.outlinks.sort(sortNumericArray)
     });
-    return galaxy
+    // galaxy.forEach(sector => {
+    //   console.log(`BEFORE sorting sector links: inlinks ${sector.inlinks} outlinks ${sector.outlinks} `)
+    //   sector.inlinks.sort(sortNumericArray)
+    //   sector.outlinks.sort(sortNumericArray)
+    //   console.log(`AFTER sorting sector links: inlinks ${sector.inlinks} outlinks ${sector.outlinks} `)
+    // });
+    return galaxy;
   }
 
-  async function setOutlinks(sector, galaxy) {
-    let needsLinks = sector.warpsQuota - sector.outlinks
-      getValidSectorToLinkTo(needsLinks, sector, galaxy)
-  }
+  async function getValidSectorToLinkTo(
+    count,
+    overflow,
+    warps,
+    sector,
+    galaxy
+  ) {
+    while (count > 0) {
+      let rand = getRandomSector(galaxy);
 
-  async function getValidSectorToLinkTo(count, sector, galaxy) {
-    let warps = []
-    while(count > 0) {
-      let rand = getRandomSector(galaxy)
-      console.log(`%%%%%  sector.id ${sector.id}  %%%%%  count ${count}  %%%%%  sector.warpsQuota ${sector.warpsQuota}`)
-      console.log(`rand.id ${rand.id} !== sector.id ${sector.id} --- ${rand.id !== sector.id}`)
-      console.log(`!sector.outlinks[ ${sector.outlinks} ].includes(rand.id) ${rand.id} --- ${!sector.outlinks.includes(rand.id)}`)
-      console.log(`rand.outlinks.length ${rand.outlinks.length} <= rand.warpsQuota ${rand.warpsQuota} --- ${rand.outlinks.length <= rand.warpsQuota}`)
-
-      if(rand.id !== sector.id
-        && !sector.outlinks.includes(rand.id)
-        && rand.outlinks.length <= rand.warpsQuota) {
-          console.log(`We passed all tests for ${rand.id}`)
-      warps.push(rand.id)
-      console.log(`Warps array currently: ${warps}`)
-      sector.outlinks = warps
-      sector.inlinks = warps
-      count--
+      if (
+        rand.id !== sector.id &&
+        !sector.outlinks.includes(rand.id) &&
+        rand.outlinks.length <= rand.warpsQuota
+      ) {
+        console.log(
+          `@@@@@@@@@@@@@@@@@       sector [[[ ${sector.id} ]]] warp ### ${rand.id} ###  passed all tests  @@@@@@@@@@@@@@@@@@@@`
+        );
+        if (rand.id !== sector.id) {
+          console.log(
+            `rand.id ${rand.id} !== sector.id ${sector.id} --- ${rand.id !==
+              sector.id}`
+          );
+        }
+        if (!sector.outlinks.includes(rand.id)) {
+          console.log(
+            `!sector.outlinks[ ${sector.outlinks} ].includes(rand.id) ${
+              rand.id
+            } --- ${!sector.outlinks.includes(rand.id)}`
+          );
+        }
+        if (rand.outlinks.length <= rand.warpsQuota) {
+          console.log(
+            `rand.outlinks.length ${rand.outlinks.length} <= rand.warpsQuota ${
+              rand.warpsQuota
+            } --- ${rand.outlinks.length <= rand.warpsQuota}`
+          );
+        }
+        warps.push(rand.id);
+        warps.sort();
+        console.log(`Warps array currently: ${warps}`);
+        sector.outlinks.push(rand.id);
+        sector.inlinks.push(rand.id);
+        count--;
+        overflow = 0;
+        getValidSectorToLinkTo(count, overflow, warps, sector, galaxy)
       } else {
-        console.log(`##########  We MAY have a problem #############`)
-        console.log(``)
-        console.log(``)
-        getValidSectorToLinkTo(count, sector, galaxy)
+        ++overflow;
+        console.log("\n\n");
+        console.log(
+          `##########  We seem to have a problem with sector [[[ ${sector.id} ]]]  >>> WARP #${rand.id} <<<  OVERFLOW @${overflow} ### Not passing tests #############`
+        );
+        if (rand.id === sector.id) {
+          console.log(
+            `rand.id ${rand.id} === sector.id ${sector.id} --- ${rand.id ===
+              sector.id}`
+          );
+        }
+        if (sector.outlinks.includes(rand.id)) {
+          console.log(
+            `sector.outlinks[ ${sector.outlinks} ].includes(rand.id) ${
+              rand.id
+            } --- ${sector.outlinks.includes(rand.id)}`
+          );
+        }
+        if (rand.outlinks.length > rand.warpsQuota) {
+          console.log(
+            `rand.outlinks.length ${rand.outlinks.length} > rand.warpsQuota ${
+              rand.warpsQuota
+            } --- ${rand.outlinks.length > rand.warpsQuota}`
+          );
+          // sector.outlinks = [];
+        }
+        console.log("\n\n");
+
+        if (overflow > 10) {
+          console.log(
+            "Hit overflow of over 10 failed link tests! Galaxy size must be too small to accomodate warp conditions."
+          );
+          return "Overflow error"
+          // warps = []
+          
+          count = 0;
+          break;
+          return -1
+        } else {
+          // setTimeout(getValidSectorToLinkTo(count, overflow, warps, sector, galaxy), 1);
+          getValidSectorToLinkTo(count, overflow, warps, sector, galaxy)
+        }
       }
-      console.log(``)
-      console.log(``)
+      return -1
     }
-    sector.outlinks = warps
-    sector.inlinks = warps
-    return warps
+    // sector.outlinks = warps
+    // sector.inlinks = warps
+    // return warps
   }
 
   function getRandomSector(galaxy) {
@@ -216,11 +290,11 @@
     margin-right: 0.25rem;
     width: 5ch;
     background: rgba(0, 0, 0, 0.1);
-    border-bottom: 3px solid rgba(0, 50, 250, .5);
-    transition: all .15s;
+    border-bottom: 3px solid rgba(0, 50, 250, 0.5);
+    transition: all 0.15s;
     &:hover {
-      background: rgba(255,155,205, 0.25);
-      border-bottom: 3px solid rgba(0, 50, 250, .75);
+      background: rgba(255, 155, 205, 0.25);
+      border-bottom: 3px solid rgba(0, 50, 250, 0.75);
     }
   }
 </style>
@@ -232,25 +306,30 @@
   <h1>TW2002: Redux</h1>
 
   <p>Because I'm not done playing yet.</p>
- <div class="game-menu">
+  <div class="game-menu">
     <button id="generate-game" on:click={newGalaxy}>
       Generate New Universe
     </button>
     <button id="generate-links" on:click={loadGalaxy}>Load Local Galaxy</button>
-        <div id="controls" class="section group">
+    <div id="controls" class="section group">
       <div class="col">
-              <label for="galSize">Galaxy size:
-        <input type="number" value="10" name="galSize" id="galSize" /></label>
-        <label for="warpsMin">Min warps:
-        <input type="number" value="2" name="warpsMin" id="warpsMin" /></label>
-        <label for="warpsMin">Max warps:
-        <input type="number" value="6" name="warpsMax" id="warpsMax" /></label>
+        <label for="galSize">
+          Galaxy size:
+          <input type="number" value="15" name="galSize" id="galSize" />
+        </label>
+        <label for="warpsMin">
+          Min warps:
+          <input type="number" value="2" name="warpsMin" id="warpsMin" />
+        </label>
+        <label for="warpsMin">
+          Max warps:
+          <input type="number" value="6" name="warpsMax" id="warpsMax" />
+        </label>
       </div>
     </div>
 
-
   </div>
-<!-- {#if process.browser} -->
+  <!-- {#if process.browser} -->
   <div class="sector-list">
     <div id="galaxy_info" />
   </div>
