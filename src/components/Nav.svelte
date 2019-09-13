@@ -4,13 +4,14 @@
 
 <style>
 	nav {
-		border-bottom: 1px solid rgba(255,62,0,0.1);
+		/* border-bottom: 1px solid rgba(255,62,0,0.1); */
 		font-weight: 300;
 		padding: 0 1em;
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
+    height: 10vh;
     z-index: 1;
     background: white;
 	}
@@ -39,13 +40,13 @@
 	}
 
 	.selected::after {
-		position: absolute;
+		/* position: absolute; */
 		content: '';
-		width: calc(100% - 1em);
+		/* width: calc(100% - 1em); */
 		height: 2px;
 		background-color: rgb(255,62,0);
 		display: block;
-		bottom: -1px;
+		/* bottom: -1px; */
 	}
 
 	a {

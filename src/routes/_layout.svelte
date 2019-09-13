@@ -9,8 +9,10 @@
 		position: relative;
 		/* max-width: 56em; */
 		background-color: white;
-		padding: 2em;
-		margin: 3rem auto 0;
+		/* padding: 2em; */
+		/* margin: 3rem auto; */
+    top: 10vh;
+    height: 90vh;
 		box-sizing: border-box;
 	}
 </style>
