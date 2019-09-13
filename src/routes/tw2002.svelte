@@ -5,12 +5,10 @@
   import seedrandom from "seedrandom";
   // import '../components/galaxy-generator.js'
 
-  //  galaxy = galaxy.useLocalStorage()
   $: galaxy = [];
   $: galSize = 50;
   $: warpMin = 5;
   $: warpMax = 5;
-  // let galSize = 5;
 
   onMount(() => {
     warpMin = document.getElementById("warpsMin").value;
@@ -37,7 +35,6 @@
 
   function initGalaxy() {
     galaxy = JSON.parse(localStorage.getItem("galaxy"));
-    console.log(galaxy);
     return galaxy = galaxy
   }
 
@@ -101,24 +98,21 @@
     sector,
     galaxy
   ) {
-    
-// first check if this sector already has inlinks.
-// if so, for each inlink, add it to the outlinks array if it is not already there.
-// then, assign new needsLinks value for while loop
+        
+    // first check if this sector already has inlinks.
+    // if so, for each inlink, add it to the outlinks array if it is not already there.
+    // then, assign new needsLinks value for while loop
 
     if(sector.inlinks.length > 0) {
-      console.log(`some inlinks on sector [${sector.id}] with quota [${sector.warpsQuota}]`)
       sector.inlinks.forEach(link => {
-        console.log(`link [${link}]`)
         if(!sector.outlinks.includes(link)) {
           sector.outlinks.push(link)
         }
       })
     }
     needsLinks = sector.warpsQuota - sector.outlinks.length
-    console.log(`new outlinks: [${sector.outlinks}] and needsLinks ${needsLinks}`)
 
-// end inlinks check, now main while loop to randomly generate outlinks
+    // end inlinks check, now main while loop to randomly generate outlinks
 
     while (needsLinks > 0) {
       let rand = getRandomSector(galaxy);
@@ -128,32 +122,8 @@
         !sector.outlinks.includes(rand.id) &&
         rand.outlinks.length <= rand.warpsQuota
       ) {
-        console.log(
-          `@@@@@@@@@@@@@@@@@       sector [[[ ${sector.id} ]]] warp ### ${rand.id} ###  passed all tests  @@@@@@@@@@@@@@@@@@@@`
-        );
-        if (rand.id !== sector.id) {
-          console.log(
-            `rand.id ${rand.id} !== sector.id ${sector.id} --- ${rand.id !==
-              sector.id}`
-          );
-        }
-        if (!sector.outlinks.includes(rand.id)) {
-          console.log(
-            `!sector.outlinks[ ${sector.outlinks} ].includes(rand.id) ${
-              rand.id
-            } --- ${!sector.outlinks.includes(rand.id)}`
-          );
-        }
-        if (rand.outlinks.length <= rand.warpsQuota) {
-          console.log(
-            `rand.outlinks.length ${rand.outlinks.length} <= rand.warpsQuota ${
-              rand.warpsQuota
-            } --- ${rand.outlinks.length <= rand.warpsQuota}`
-          );
-        }
         warps.push(rand.id);
         warps.sort();
-        console.log(`Warps array currently: ${warps}`);
         sector.outlinks.push(rand.id);
         sector.inlinks.push(rand.id);
 
@@ -162,58 +132,22 @@
           rand.inlinks.push(sector.id); 
         // }
 
-        needsLinks--;
+        needsLinks--; 
         overflow = 0;
         getValidSectorToLinkTo(needsLinks, overflow, warps, sector, galaxy)
       } else {
         ++overflow;
-        console.log("\n\n");
-        console.log(
-          `##########  We seem to have a problem with sector [[[ ${sector.id} ]]]  >>> WARP #${rand.id} <<<  OVERFLOW @${overflow} ### Not passing tests #############`
-        );
-        if (rand.id === sector.id) {
-          console.log(
-            `rand.id ${rand.id} === sector.id ${sector.id} --- ${rand.id ===
-              sector.id}`
-          );
-        }
-        if (sector.outlinks.includes(rand.id)) {
-          console.log(
-            `sector.outlinks[ ${sector.outlinks} ].includes(rand.id) ${
-              rand.id
-            } --- ${sector.outlinks.includes(rand.id)}`
-          );
-        }
-        if (rand.outlinks.length > rand.warpsQuota) {
-          console.log(
-            `rand.outlinks.length ${rand.outlinks.length} > rand.warpsQuota ${
-              rand.warpsQuota
-            } --- ${rand.outlinks.length > rand.warpsQuota}`
-          );
-          // sector.outlinks = [];
-        }
-        console.log("\n\n");
-
         if (overflow > 10) {
-          console.log(
-            "Hit overflow of over 10 failed link tests! Galaxy size must be too small to accomodate warp conditions."
-          );
           return "Overflow error"
-          // warps = []
-          
           needsLinks = 0;
           break;
           return -1
         } else {
-          // setTimeout(getValidSectorToLinkTo(needsLinks, overflow, warps, sector, galaxy), 1);
           getValidSectorToLinkTo(needsLinks, overflow, warps, sector, galaxy)
         }
       }
       return -1
     }
-    // sector.outlinks = warps
-    // sector.inlinks = warps
-    // return warps
   }
 
   function getRandomSector(galaxy) {
@@ -225,7 +159,6 @@
     max = Math.floor(max);
     let prng = seedrandom();
     let randomInRange = Math.floor(prng() * (max - min + 1)) + min;
-    // console.log(`getRandomInt prng: ${prng()}, in range ${randomInRange}`)
     return randomInRange;
   }
 
