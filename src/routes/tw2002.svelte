@@ -7,75 +7,58 @@
 
 //  galaxy = galaxy.useLocalStorage()
   $: galaxy = [];
-  $: numberOfSectors = 15;
+  $: galSize = 15;
   $: warpMin = 1;
   $: warpMax = 5;
-  // let numberOfSectors = 5;
+  // let galSize = 5;
 
 
   onMount(() => {
-    // console.log(`galaxy global var onMount: ${galaxy}`)
-    // galaxy.forEach(sector => {
-    //   console.log(`galaxy forEach onMount: ${sector}`)
-    //   console.log(sector)
-    // })
-    // localStorage.setItem("galaxy", []);
-    // galaxy = JSON.parse(localStorage.getItem("galaxy"));
-    generateGalaxy(numberOfSectors, warpMin, warpMax).then(g => {
-      // localStorage.setItem("galaxy", JSON.stringify(g))
-      linkGalaxy(g)
-      localStorage.setItem("galaxy", JSON.stringify(g));
-      // return galaxy = g
-      initGalaxy()
+    warpMin = document.getElementById('warpsMin').value
+    warpMax = document.getElementById('warpsMax').value
+    galSize = document.getElementById('galSize').value
+    generateGalaxy(galSize, warpMin, warpMax).then(g => {
+    linkGalaxy(g)
+    localStorage.setItem("galaxy", JSON.stringify(g));
+    initGalaxy()
     })
-    // initGalaxy()
-    // return galaxy = new Promise(resolve => {
-    //   resolve(JSON.parse(localStorage.getItem("galaxy")))
-    //   return galaxy = galaxy
-    // })
-    // galaxy = JSON.parse(localStorage.getItem("galaxy"));
-    // galaxy.forEach(sector => {
-    //   console.log(`######## SECOND galaxy forEach onMount: ${sector}`)
-    //   console.log(sector)
-    // })
   });
 
   function newGalaxy() {
-      generateGalaxy(numberOfSectors, warpMin, warpMax).then(g => {
-      // localStorage.setItem("galaxy", JSON.stringify(g))
-      linkGalaxy(g)
-      localStorage.setItem("galaxy", JSON.stringify(g));
-      // return galaxy = g
-      initGalaxy()
+    warpMin = document.getElementById('warpsMin').value
+    warpMax = document.getElementById('warpsMax').value
+    galSize = document.getElementById('galSize').value
+
+    generateGalaxy(galSize, warpMin, warpMax).then(g => {
+    linkGalaxy(g)
+    localStorage.setItem("galaxy", JSON.stringify(g));
+    initGalaxy()
     })
   }
   
   async function initGalaxy() {
-        galaxy = JSON.parse(localStorage.getItem("galaxy"));
+    galaxy = JSON.parse(localStorage.getItem("galaxy"));
     console.log(galaxy)
     return galaxy = galaxy
   }
 
   function loadGalaxy() {
     console.log('loadGalaxy clicked')
-    // galaxy = [{id: 0, name: "test"},{id: 1, name: "Mike"}]
     galaxy = JSON.parse(localStorage.getItem("galaxy"));
     console.log(galaxy)
     return galaxy = galaxy
   }
 
-  async function generateGalaxy(numberOfSectors, warpMin, warpMax) {
+  async function generateGalaxy(galSize, warpMin, warpMax) {
     // more possible settings:
     // warpDensity, oneWayWarpDensity
     let galaxy = []
-    for (let syscount = 0; syscount < numberOfSectors; syscount++) {
+    for (let syscount = 0; syscount < galSize; syscount++) {
       galaxy[syscount] = await makeSector(syscount, warpMin, warpMax);
     }
-    // localStorage.setItem("galaxy", JSON.stringify(galaxy));
     return galaxy
   }
 
-  
   function makeSector(syscount, warpMin, warpMax) {
     let sector = {};
     sector.id = syscount;
@@ -89,17 +72,12 @@
     return sector
   }
 
-
   function linkGalaxy(galaxy) {
-    // let galaxy = JSON.parse(localStorage.getItem("galaxy"));
     console.log(`from linkGalaxy(), localStorage galaxy: `)
     console.log(galaxy)
     galaxy.forEach(sector => {
       setOutlinks(sector, galaxy)
     });
-    // localStorage.setItem("galaxy", JSON.stringify(galaxy));
-    //     console.log(`from linkGalaxy(), localStorage galaxy: `)
-    // console.log(galaxy)
     return galaxy
   }
 
@@ -111,14 +89,8 @@
   async function getValidSectorToLinkTo(count, sector, galaxy) {
     let warps = []
     while(count > 0) {
-      // get random sector
       let rand = getRandomSector(galaxy)
       console.log(`%%%%%  sector.id ${sector.id}  %%%%%  count ${count}  %%%%%  sector.warpsQuota ${sector.warpsQuota}`)
-      // check if it is valid:
-      //    does not match current sector
-      //    is not already in outlinks
-      //    target has not hit warpsQuota >= inlinks.length or outlinks.length
-
       console.log(`rand.id ${rand.id} !== sector.id ${sector.id} --- ${rand.id !== sector.id}`)
       console.log(`!sector.outlinks[ ${sector.outlinks} ].includes(rand.id) ${rand.id} --- ${!sector.outlinks.includes(rand.id)}`)
       console.log(`rand.outlinks.length ${rand.outlinks.length} <= rand.warpsQuota ${rand.warpsQuota} --- ${rand.outlinks.length <= rand.warpsQuota}`)
@@ -260,41 +232,22 @@
   <h1>TW2002: Redux</h1>
 
   <p>Because I'm not done playing yet.</p>
-  <div class="game-menu">
+ <div class="game-menu">
     <button id="generate-game" on:click={newGalaxy}>
       Generate New Universe
     </button>
     <button id="generate-links" on:click={loadGalaxy}>Load Local Galaxy</button>
-    <button id="start-game">Start Game</button>
-    <div id="controls" class="section group">
+        <div id="controls" class="section group">
       <div class="col">
-        <label for="galaxy">Galaxy:</label>
-        <select id="galaxy" name="galaxy">
-          <option value="1">Galaxy 1</option>
-          <option value="2">Galaxy 2</option>
-          <option value="3">Galaxy 3</option>
-          <option value="4">Galaxy 4</option>
-          <option value="5">Galaxy 5</option>
-          <option value="6">Galaxy 6</option>
-          <option value="7">Galaxy 7</option>
-          <option value="8">Galaxy 8</option>
-        </select>
+              <label for="galSize">Galaxy size:
+        <input type="number" value="10" name="galSize" id="galSize" /></label>
+        <label for="warpsMin">Min warps:
+        <input type="number" value="2" name="warpsMin" id="warpsMin" /></label>
+        <label for="warpsMin">Max warps:
+        <input type="number" value="6" name="warpsMax" id="warpsMax" /></label>
       </div>
-      <div class="col">
-        <label for="alternate">Alternate:</label>
-        <input
-          type="checkbox"
-          id="alternate"
-          name="alternate"
-          value="1"
-          checked />
-      </div>
-      <div class="col">
-        <label for="planet">Planet:</label>
-        <select id="planet" name="planet" value="0">0</select>
-      </div>
-      <!-- <div id="info" class="col" /> -->
     </div>
+
 
   </div>
 <!-- {#if process.browser} -->

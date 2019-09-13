@@ -2014,13 +2014,13 @@ function getSector(id) {
 }
 
 onMount(() => {
-let galaxy = JSON.parse(localStorage.getItem("universe"))
+// let galaxy = JSON.parse(localStorage.getItem("universe"))
 console.log(`galaxy from ls`)
 console.log(galaxy)
 // warpMaker(galaxy)
 setWarpsQuotas(galaxy)
 setWarps(galaxy)
-universe = JSON.parse(localStorage.getItem("universe"))
+// universe = JSON.parse(localStorage.getItem("universe"))
 })
 
 class Sector {
