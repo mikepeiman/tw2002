@@ -1,6 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
+  import shipsData from "../store/shipsData.json"
   // import { galaxy } from "../store"
   import seedrandom from "seedrandom";
   // import '../components/galaxy-generator.js'
@@ -9,6 +10,10 @@
   $: galSize = 50;
   $: warpMin = 5;
   $: warpMax = 5;
+  $: currentSector = 0;
+  $: currentGalaxyTrace = [];
+  $: allShipsInGame = [];
+  $: preGameSetup = true;
 
   onMount(() => {
     warpMin = document.getElementById("warpsMin").value;
@@ -21,7 +26,7 @@
     });
   });
 
-  function testKeyup(e) {
+  function generateGalaxyWithNewProps(e) {
     console.log(e.keyCode);
     console.log("key pressed");
     e.keyCode === 13 ? newGalaxy() : console.log("other key pressed");
@@ -29,6 +34,48 @@
 
   function startGame() {
     console.log(`startGame() triggered`);
+    // create player
+    let player = new Player("Mike")
+    // create player's starting ship
+    let ship = new ShipFactory(0, player)
+    console.log(shipsData)
+    console.log(`Ship type name: ${ship.type.name}`)
+    console.log(`Ship owner name: ${ship.owner.name}`)
+    console.log(`Ship ID: ${ship.id}`)
+    // (load and save functionality will come later)
+    // place player/ship in sector 0
+    ship.location = 0;
+    currentGalaxyTrace = []
+    currentGalaxyTrace = [...currentGalaxyTrace, galaxy[ship.location]]
+    console.log(currentGalaxyTrace)
+    preGameSetup = false;
+    // start async game ticker @ 1s
+    let end = 10
+    // runGameWatcher(end)
+    // listen for commands, run a "move" function when sectors are keyed in
+    // add "move" function to click listeners on warps
+  }
+
+async function runGameWatcher(end) {
+  for(let i = 0; i < end; i++) {
+      setTimeout(() => {
+    console.log(`runGameWatcher ticking...`)
+  }, 1000)
+  }
+}
+async function test() {
+  setTimeout(() => {
+    console.log(`runGameWatcher ticking...`)
+  }, 1000)
+}
+
+function getShipId() {
+  let id = allShipsInGame.length
+  return id
+}
+
+  function gameCommand() {
+    console.log("gameCommand entered")
   }
 
   function newGalaxy() {
@@ -51,8 +98,9 @@
   function loadGalaxy() {
     console.log("loadGalaxy clicked");
     galaxy = JSON.parse(localStorage.getItem("galaxy"));
+    preGameSetup = true;
     console.log(galaxy);
-    // return galaxy = galaxy
+    return galaxy = galaxy
   }
 
   async function generateGalaxy(galSize, warpMin, warpMax) {
@@ -176,6 +224,12 @@
     return galaxy[id];
   }
 
+  class Player {
+    constructor(name) {
+      this.name = name
+    }
+  }
+
   class Sector {
     constructor(id, name, numOutlinks, outlinks, inlinks) {
       this.id = id;
@@ -187,6 +241,22 @@
 
     getWarps() {
       return `Warps from this sector are ${this.warps}`;
+    }
+  }
+
+  class ShipFactory {
+    constructor(type, owner) {
+      this.type = shipsData[type]
+      this.owner = owner
+      this.id = getShipId();
+      // this.name = name;
+      // this.baseCost = baseCost;
+      // this.holds = holds;
+      // this.moves = moves;
+    }
+
+    getCost() {
+      return `Today's price is $${baseCost * 1.5}}`;
     }
   }
 
@@ -226,6 +296,10 @@
     // height: 70vh;
     overflow-y: scroll;
     background: rgba(55, 155, 175, 0.35);
+    // display: flex;
+    justify-content: flex-end;
+    // align-items: flex-end;
+    flex-direction: column;
   }
 
 
@@ -308,14 +382,15 @@
   button {
     background: rgba(0, 0, 255, 0.25);
     outline: none;
-    border: none; // 1px solid rgba(155, 25, 255, 1);
+    border: 1px solid rgba(155, 25, 255, 0);
     padding: 0 0.5rem;
     margin: .25rem;
     height: 3rem;
     box-shadow: none;
     transition: all 0.25s;
     &:hover {
-      background: rgba(255, 255, 255, 0.25);
+      background: rgba(155, 25, 255, .25);
+      border: 1px solid rgba(155, 25, 255, 1);
     }
   }
 
@@ -386,7 +461,6 @@
   <div class="game">
     <div class="game-menu">
       <div class="controls">
-
         <button id="generate-game" on:click={newGalaxy}>
           Generate New Universe
         </button>
@@ -402,7 +476,7 @@
               value="50"
               name="galSize"
               id="galSize"
-              on:keyup={testKeyup} />
+              on:keyup={generateGalaxyWithNewProps} />
           </label>
           <label for="warpsMin">
             Min warps:
@@ -411,7 +485,7 @@
               value="5"
               name="warpsMin"
               id="warpsMin"
-              on:keyup={testKeyup} />
+              on:keyup={generateGalaxyWithNewProps} />
           </label>
           <label for="warpsMax">
             Max warps:
@@ -420,7 +494,7 @@
               value="5"
               name="warpsMax"
               id="warpsMax"
-              on:keyup={testKeyup} />
+              on:keyup={generateGalaxyWithNewProps} />
           </label>
         </div>
       </div>
@@ -433,9 +507,10 @@
           value=""
           name="command"
           id="command-input"
-          on:keyup={testKeyup} />
+          on:keyup={gameCommand} />
       </label>
     </div>
+    {#if preGameSetup}
     <div class="sector-list">
       {#each galaxy as sector}
         <div class="svelte-universe">
@@ -466,6 +541,39 @@
         </div>
       {/each}
     </div>
+    {/if}
+    {#if !preGameSetup}
+    <div class="sector-list">
+      {#each currentGalaxyTrace as sector}
+        <div class="svelte-universe">
+          <div class="warps-group">
+            <span class="sector-details sector-name">
+              Sector
+              <span class="sector-number">{sector.id}</span>
+            </span>
+            <span class="sector-details warps-quota">
+              warps quota:
+              <span class="warps-quota-number">{sector.warpsQuota}</span>
+            </span>
+          </div>
+          <div class="warps-group">
+            <span class="sector-warps">
+              OUT:
+              {#each sector.outlinks as warp}
+                <span class="warp">{warp}</span>
+              {/each}
+            </span>
+            <span class="sector-warps">
+              IN:
+              {#each sector.inlinks as warp}
+                <span class="warp">{warp}</span>
+              {/each}
+            </span>
+          </div>
+        </div>
+      {/each}
+    </div>
+    {/if}
   </div>
 
 </section>
