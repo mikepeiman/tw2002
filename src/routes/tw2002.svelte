@@ -14,6 +14,7 @@
   $: currentGalaxyTrace = [];
   $: allShipsInGame = [];
   $: preGameSetup = true;
+  // $: sectorList = document.getElementById('sector-list');
 
   onMount(() => {
     warpMin = document.getElementById("warpsMin").value;
@@ -24,6 +25,8 @@
       localStorage.setItem("galaxy", JSON.stringify(g));
       initGalaxy();
     });
+    let sectorList = document.getElementById('sector-list');
+    sectorList.addEventListener('animationstart', insertionListener, false)
   });
 
   function generateGalaxyWithNewProps(e) {
@@ -51,18 +54,69 @@
     preGameSetup = false;
     // start async game ticker @ 1s
     let end = 10
-    // runGameWatcher(end)
+    runGameWatcher(end)
     // listen for commands, run a "move" function when sectors are keyed in
     // add "move" function to click listeners on warps
   }
 
+function travel() {
+  let newSector = getRandomSector(galaxy)
+  currentGalaxyTrace = [...currentGalaxyTrace, newSector]
+  console.log(`new sector:`)
+  console.log(newSector)
+  console.log(`last of currentGalaxyTrace: `)
+  console.log(currentGalaxyTrace[currentGalaxyTrace.length-1])
+
+  setTimeout(() => {
+    let sectorList = document.getElementById('sector-list')
+    let sectors = sectorList.children
+    console.dir(sectors)
+    console.log(sectors)
+    console.log(sectors.length)
+    let sectorListLength = sectors.length
+    let lastSector = currentGalaxyTrace[sectorListLength-1]
+    let lastSectorEl = sectors[sectorListLength-1]
+    console.log(`last sector:`)
+    console.log(lastSector)
+    console.log(`last sector el:`)
+    console.log(sectors[sectorListLength-1])
+    console.log(`lastSectorEl.offsetHeight ${lastSectorEl.offsetHeight} + lastSectorEl.offsetTop ${lastSectorEl.offsetTop}`)
+    sectorList.scrollTop = lastSectorEl.offsetHeight + lastSectorEl.offsetTop
+  },1)
+  // let lastSector = new Promise((resolve, reject) => {
+  //   resolve(sectorList.children[sectorList.children.length-1])
+  //   reject('no data there')
+  // })
+  // lastSector.then(sector => {
+  //   console.log(`in promise.then, sector: ${sector.id}`)
+  // })
+
+  // document.getElementById('scroll').scrollTop = message.offsetHeight + message.offsetTop;
+  // sectorList.scrollTop = lastSector.offsetHeight + lastSector.offsetTop
+  
+}
+
+function getLocationOfLastSector() {
+    let sectorList = document.getElementById('sector-list')
+  console.log(sectorList)
+}
+
 async function runGameWatcher(end) {
   for(let i = 0; i < end; i++) {
-      setTimeout(() => {
+    let t = setInterval(() => {
     console.log(`runGameWatcher ticking...`)
   }, 1000)
+  clearInterval(t)
   }
 }
+
+var insertionListener = function(event) {
+  // Making sure that this is the animation we want.
+  if (event.animationName === "nodeInserted") {
+    console.log("Node has been inserted: " + event.target);
+  }
+}
+
 async function test() {
   setTimeout(() => {
     console.log(`runGameWatcher ticking...`)
@@ -422,6 +476,8 @@ function getShipId() {
     &:nth-child(even) {
       background: rgba(0, 0, 0, 0.1);
     }
+     animation-duration: 0.1s;
+      animation-name: nodeInserted;
   }
 
   .warps-group {
@@ -446,6 +502,11 @@ function getShipId() {
       border-bottom: 3px solid rgba(0, 50, 250, 0.75);
     }
   }
+
+@keyframes nodeInserted { 
+ from { opacity: 0; }
+ to { opacity: 1; } 
+}
 </style>
 
 <svelte:head>
@@ -468,6 +529,7 @@ function getShipId() {
           Load Local Galaxy
         </button>
         <button id="generate-links" on:click={startGame}>Start Game</button>
+        <button id="generate-links" on:click={travel}>Go To Random Sector</button>
         <div id="game-settings" class="controls subgroup">
           <label for="galSize">
             Galaxy size:
@@ -511,7 +573,7 @@ function getShipId() {
       </label>
     </div>
     {#if preGameSetup}
-    <div class="sector-list">
+    <div id="sector-list"  class="sector-list">
       {#each galaxy as sector}
         <div class="svelte-universe">
           <div class="warps-group">
@@ -543,7 +605,7 @@ function getShipId() {
     </div>
     {/if}
     {#if !preGameSetup}
-    <div class="sector-list">
+    <div id="sector-list" class="sector-list">
       {#each currentGalaxyTrace as sector}
         <div class="svelte-universe">
           <div class="warps-group">
