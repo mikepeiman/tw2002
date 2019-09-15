@@ -82,7 +82,11 @@ function travel() {
     console.log(`last sector el:`)
     console.log(sectors[sectorListLength-1])
     console.log(`lastSectorEl.offsetHeight ${lastSectorEl.offsetHeight} + lastSectorEl.offsetTop ${lastSectorEl.offsetTop}`)
-    sectorList.scrollTop = lastSectorEl.offsetTop // + lastSectorEl.offsetHeight 
+    // sectorList.scrollTop = lastSectorEl.offsetTop // + lastSectorEl.offsetHeight 
+    sectorList.scrollBy({
+      top: lastSectorEl.offsetHeight,
+      behavior: 'smooth'
+    })
   },1)
   // let lastSector = new Promise((resolve, reject) => {
   //   resolve(sectorList.children[sectorList.children.length-1])

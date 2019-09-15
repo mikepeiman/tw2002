@@ -1,8 +1,9 @@
 <script>
+import { fade } from 'svelte/transition';
 export let sector
 </script>
 
-<div class="svelte-universe">
+<div class="svelte-universe" transition:fade >
   <div class="warps-group">
     <span class="sector-details sector-name">
       Sector
