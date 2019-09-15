@@ -7,6 +7,12 @@
   import seedrandom from "seedrandom";
   // import '../components/galaxy-generator.js'
 
+// export default {
+//   components: {
+//     SectorComponent
+//   }
+// }
+
   $: galaxy = [];
   $: galSize = 50;
   $: warpMin = 5;
@@ -26,8 +32,8 @@
       localStorage.setItem("galaxy", JSON.stringify(g));
       initGalaxy();
     });
-    let sectorList = document.getElementById('sector-list');
-    sectorList.addEventListener('animationstart', insertionListener, false)
+    // let sectorList = document.getElementById('sector-list');
+    // sectorList.addEventListener('animationstart', insertionListener, false)
   });
 
   function generateGalaxyWithNewProps(e) {
@@ -50,56 +56,37 @@
     // place player/ship in sector 0
     ship.location = 0;
     currentGalaxyTrace = []
-    currentGalaxyTrace = [...currentGalaxyTrace, galaxy[ship.location]]
+    // currentGalaxyTrace = [...currentGalaxyTrace, galaxy[ship.location]]
     console.log(currentGalaxyTrace)
     preGameSetup = false;
     // start async game ticker @ 1s
-    let end = 10
-    runGameWatcher(end)
+    // let end = 10
+    // runGameWatcher(end)
     // listen for commands, run a "move" function when sectors are keyed in
     // add "move" function to click listeners on warps
   }
 
 function travel() {
-  let newSector = getRandomSector(galaxy)
+  let newSector = getRandomSector(galaxy) // galaxy[id] ? galaxy[id] : 
   currentGalaxyTrace = [...currentGalaxyTrace, newSector]
-  console.log(`new sector:`)
-  console.log(newSector)
-  console.log(`last of currentGalaxyTrace: `)
-  console.log(currentGalaxyTrace[currentGalaxyTrace.length-1])
+  console.log(`currentGalaxyTrace ${currentGalaxyTrace}`)
 
   setTimeout(() => {
     let sectorList = document.getElementById('sector-list')
     let sectors = sectorList.children
-    console.dir(sectors)
-    console.log(sectors)
-    console.log(sectors.length)
     let sectorListLength = sectors.length
     let lastSector = currentGalaxyTrace[sectorListLength-1]
     let lastSectorEl = sectors[sectorListLength-1]
-    console.log(`last sector:`)
-    console.log(lastSector)
-    console.log(`last sector el:`)
-    console.log(sectors[sectorListLength-1])
-    console.log(`lastSectorEl.offsetHeight ${lastSectorEl.offsetHeight} + lastSectorEl.offsetTop ${lastSectorEl.offsetTop}`)
-    // sectorList.scrollTop = lastSectorEl.offsetTop // + lastSectorEl.offsetHeight 
     sectorList.scrollBy({
       top: lastSectorEl.offsetHeight,
       behavior: 'smooth'
     })
-  },1)
-  // let lastSector = new Promise((resolve, reject) => {
-  //   resolve(sectorList.children[sectorList.children.length-1])
-  //   reject('no data there')
-  // })
-  // lastSector.then(sector => {
-  //   console.log(`in promise.then, sector: ${sector.id}`)
-  // })
-
-  // document.getElementById('scroll').scrollTop = message.offsetHeight + message.offsetTop;
-  // sectorList.scrollTop = lastSector.offsetHeight + lastSector.offsetTop
-  
+  }, 1)
 }
+
+// function travelTo(id) {
+
+// }
 
 function getLocationOfLastSector() {
     let sectorList = document.getElementById('sector-list')
@@ -535,7 +522,7 @@ function getShipId() {
     {#if !preGameSetup}
     <div id="sector-list" class="sector-list">
       {#each currentGalaxyTrace as sector}
-      <SectorComponent sector="{sector}" />
+      <SectorComponent sector={sector} galaxy={galaxy} currentGalaxyTrace={currentGalaxyTrace} on:warp="{travel(sector.id)}" />
       {/each}
     </div>
     {/if}
