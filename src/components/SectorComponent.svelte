@@ -1,6 +1,7 @@
 <script>
 import { fade } from 'svelte/transition';
 export let sector
+let warp
 </script>
 
 <div class="svelte-universe" transition:fade >
@@ -18,13 +19,13 @@ export let sector
     <span class="sector-warps">
       OUT:
       {#each sector.outlinks as warp}
-        <span class="warp">{warp}</span>
+        <slot name="outlinks" warp={warp} class="warp">No outlinks here!</slot>
       {/each}
     </span>
     <span class="sector-warps">
       IN:
       {#each sector.inlinks as warp}
-        <span class="warp">{warp}</span>
+        <slot name="inlinks" warp={warp}>No outlinks here!</slot>
       {/each}
     </span>
   </div>
@@ -70,18 +71,6 @@ export let sector
     display: grid;
     grid-template-columns: repeat(12, 5.25ch);
     grid-gap: 1ch;
-  }
-  .warp {
-    padding: 0.25rem;
-    margin-right: 0.25rem;
-    width: 5ch;
-    background: rgba(0, 0, 0, 0.1);
-    border-bottom: 3px solid rgba(0, 50, 250, 0.5);
-    transition: all 0.15s;
-    &:hover {
-      background: rgba(255, 155, 205, 0.25);
-      border-bottom: 3px solid rgba(0, 50, 250, 0.75);
-    }
   }
 
 </style>

@@ -88,17 +88,40 @@ function travel() {
       behavior: 'smooth'
     })
   },1)
-  // let lastSector = new Promise((resolve, reject) => {
-  //   resolve(sectorList.children[sectorList.children.length-1])
-  //   reject('no data there')
-  // })
-  // lastSector.then(sector => {
-  //   console.log(`in promise.then, sector: ${sector.id}`)
-  // })
+}
 
-  // document.getElementById('scroll').scrollTop = message.offsetHeight + message.offsetTop;
-  // sectorList.scrollTop = lastSector.offsetHeight + lastSector.offsetTop
-  
+function warpTo(id) {
+  console.log(`warp outlink id ${id}`)
+
+// try using onMount to set the click event listeners on the array of warp elements the vanilla-js way
+// 
+  let newSector = galaxy[id]
+  currentGalaxyTrace = [...currentGalaxyTrace, newSector]
+  console.log(`new sector:`)
+  console.log(newSector)
+  console.log(`last of currentGalaxyTrace: `)
+  console.log(currentGalaxyTrace[currentGalaxyTrace.length-1])
+
+  setTimeout(() => {
+    let sectorList = document.getElementById('sector-list')
+    let sectors = sectorList.children
+    console.dir(sectors)
+    console.log(sectors)
+    console.log(sectors.length)
+    let sectorListLength = sectors.length
+    let lastSector = currentGalaxyTrace[sectorListLength-1]
+    let lastSectorEl = sectors[sectorListLength-1]
+    console.log(`last sector:`)
+    console.log(lastSector)
+    console.log(`last sector el:`)
+    console.log(sectors[sectorListLength-1])
+    console.log(`lastSectorEl.offsetHeight ${lastSectorEl.offsetHeight} + lastSectorEl.offsetTop ${lastSectorEl.offsetTop}`)
+    // sectorList.scrollTop = lastSectorEl.offsetTop // + lastSectorEl.offsetHeight 
+    sectorList.scrollBy({
+      top: lastSectorEl.offsetHeight,
+      behavior: 'smooth'
+    })
+  },1)
 }
 
 function getLocationOfLastSector() {
@@ -453,8 +476,19 @@ function getShipId() {
     }
   }
 
-  #start-game {
+  .warp {
+    padding: 0.25rem;
+    margin-right: 0.25rem;
+    width: 5ch;
+    background: rgba(0, 0, 0, 0.1);
+    border-bottom: 3px solid rgba(0, 50, 250, 0.5);
+    transition: all 0.15s;
+    &:hover {
+      background: rgba(255, 155, 205, 0.25);
+      border-bottom: 3px solid rgba(0, 50, 250, 0.75);
+    }
   }
+
 
 @keyframes nodeInserted { 
  from { opacity: 0; }
@@ -528,14 +562,20 @@ function getShipId() {
     {#if preGameSetup}
     <div id="sector-list"  class="sector-list">
       {#each galaxy as sector}
-        <SectorComponent sector="{sector}" />
+      <SectorComponent sector={sector} let:warp={warp}>
+        <span slot="outlinks" class="warp" on:click={() => warpTo(warp)}>{warp}</span>
+        <span slot="inlinks" class="warp" >{warp}</span>
+      </SectorComponent>
       {/each}
     </div>
     {/if}
     {#if !preGameSetup}
     <div id="sector-list" class="sector-list">
       {#each currentGalaxyTrace as sector}
-      <SectorComponent sector="{sector}" />
+      <SectorComponent sector={sector} let:warp={warp}>
+        <span slot="outlinks" class="warp" on:click={() => warpTo(warp)}>{warp}</span>
+        <span slot="inlinks" class="warp" >{warp}</span>
+      </SectorComponent>
       {/each}
     </div>
     {/if}
