@@ -1,32 +1,7 @@
 <script>
 import { fade } from 'svelte/transition';
 export let sector
-// export let galaxy
-// export let currentGalaxyTrace
-// export let travel
-
-// let currentGalaxyTrace = [];
-
-// function travel(id) {
-//   let newSector = galaxy[id] ? galaxy[id] : getRandomSector(galaxy)
-//   currentGalaxyTrace = [...currentGalaxyTrace, newSector]
-//   console.log(`travel() from warp`)
-
-//   setTimeout(() => {
-//     let sectorList = document.getElementById('sector-list')
-//     let sectors = sectorList.children
-//     let sectorListLength = sectors.length
-//     let lastSector = currentGalaxyTrace[sectorListLength-1]
-//     let lastSectorEl = sectors[sectorListLength-1]
-//     sectorList.scrollBy({
-//       top: lastSectorEl.offsetHeight,
-//       behavior: 'smooth'
-//     })
-//   }, 1)
-// }
-function test(id) {
-    console.log(`warp #${id} element clicked`)
-}
+let warp
 </script>
 
 <div class="svelte-universe" transition:fade >
@@ -44,13 +19,13 @@ function test(id) {
     <span class="sector-warps">
       OUT:
       {#each sector.outlinks as warp}
-        <span class="warp outlink" on:warp="{test(warp)}">{warp}</span>
+        <slot name="outlinks" warp={warp} class="warp">No outlinks here!</slot>
       {/each}
     </span>
     <span class="sector-warps">
       IN:
       {#each sector.inlinks as warp}
-        <span class="warp">{warp}</span>
+        <slot name="inlinks" warp={warp}>No outlinks here!</slot>
       {/each}
     </span>
   </div>
@@ -96,24 +71,6 @@ function test(id) {
     display: grid;
     grid-template-columns: repeat(12, 5.25ch);
     grid-gap: 1ch;
-  }
-  .warp {
-    padding: 0.25rem;
-    margin-right: 0.25rem;
-    width: 5ch;
-    background: rgba(0, 0, 0, 0.1);
-    border-bottom: 3px solid rgba(0, 50, 250, 0.5);
-    transition: all 0.15s;
-    &:hover {
-      background: rgba(255, 155, 205, 0.25);
-      border-bottom: 3px solid rgba(0, 50, 255, 0.75);
-    }
-    &.outlink {
-      &:hover {
-        background: rgba(255, 155, 205, 0.75);
-        border-bottom: 3px solid rgba(0,50,255, 0.75);
-      }
-    }
   }
 
 </style>
