@@ -66,10 +66,10 @@
     // add "move" function to click listeners on warps
   }
 
-function travel() {
-  let newSector = getRandomSector(galaxy) // galaxy[id] ? galaxy[id] : 
-  currentGalaxyTrace = [...currentGalaxyTrace, newSector]
-  console.log(`currentGalaxyTrace ${currentGalaxyTrace}`)
+function travelTo() {
+  // let newSector = getRandomSector(galaxy) // galaxy[id] ? galaxy[id] : 
+  // currentGalaxyTrace = [...currentGalaxyTrace, newSector]
+  // console.log(`currentGalaxyTrace ${currentGalaxyTrace}`)
 
   setTimeout(() => {
     let sectorList = document.getElementById('sector-list')
@@ -85,37 +85,32 @@ function travel() {
 }
 
 function warpTo(id) {
-  console.log(`warp outlink id ${id}`)
+  updateCurrentGalaxyTrace(id)
+  travelTo()
+}
 
-// try using onMount to set the click event listeners on the array of warp elements the vanilla-js way
-// 
-  let newSector = galaxy[id]
+function updateCurrentGalaxyTrace(id) {
+  if(id !== "random") { console.log(`there is an id in warpTo(id) ${id}`)
+    let newSector = galaxy[id] 
   currentGalaxyTrace = [...currentGalaxyTrace, newSector]
-  console.log(`new sector:`)
-  console.log(newSector)
-  console.log(`last of currentGalaxyTrace: `)
-  console.log(currentGalaxyTrace[currentGalaxyTrace.length-1])
 
-  setTimeout(() => {
-    let sectorList = document.getElementById('sector-list')
-    let sectors = sectorList.children
-    console.dir(sectors)
-    console.log(sectors)
-    console.log(sectors.length)
-    let sectorListLength = sectors.length
-    let lastSector = currentGalaxyTrace[sectorListLength-1]
-    let lastSectorEl = sectors[sectorListLength-1]
-    console.log(`last sector:`)
-    console.log(lastSector)
-    console.log(`last sector el:`)
-    console.log(sectors[sectorListLength-1])
-    console.log(`lastSectorEl.offsetHeight ${lastSectorEl.offsetHeight} + lastSectorEl.offsetTop ${lastSectorEl.offsetTop}`)
-    // sectorList.scrollTop = lastSectorEl.offsetTop // + lastSectorEl.offsetHeight 
-    sectorList.scrollBy({
-      top: lastSectorEl.offsetHeight,
-      behavior: 'smooth'
-    })
-  },1)
+  // setTimeout(() => {
+  //   let sectorList = document.getElementById('sector-list')
+  //   let sectors = sectorList.children
+  //   let sectorListLength = sectors.length
+  //   let lastSector = currentGalaxyTrace[sectorListLength-1]
+  //   let lastSectorEl = sectors[sectorListLength-1]
+  //   sectorList.scrollBy({
+  //     top: lastSectorEl.offsetHeight,
+  //     behavior: 'smooth'
+  //   })
+  // },1) }
+
+} else {
+  console.log('else random sector')
+  let newSector = getRandomSector(galaxy)
+  currentGalaxyTrace = [...currentGalaxyTrace, newSector]
+}
 }
 
 // function travelTo(id) {
@@ -514,7 +509,7 @@ function getShipId() {
           Load Local Galaxy
         </button>
         <button id="generate-links" on:click={startGame}>Start Game</button>
-        <button id="generate-links" on:click={travel}>Go To Random Sector</button>
+        <button id="generate-links" on:click={() => warpTo("random")}>Go To Random Sector</button>
         <div id="game-settings" class="controls subgroup">
           <label for="galSize">
             Galaxy size:
