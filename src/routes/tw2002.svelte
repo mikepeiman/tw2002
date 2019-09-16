@@ -118,6 +118,7 @@ function updateCurrentGalaxyTrace(id) {
 function insertNotification() {
   console.log(`insertNotification`)
   let el = document.createElement('div')
+  el.classList = ('warning invalid-sector')
   el.textContent = "Error! Error! Not a valid warp! ABORTING * * *"
   let sectorList = document.getElementById('sector-list')
   sectorList.appendChild(el)
@@ -135,13 +136,6 @@ async function runGameWatcher(end) {
     console.log(`runGameWatcher ticking...`)
   }, 1000)
   clearInterval(t)
-  }
-}
-
-var insertionListener = function(event) {
-  // Making sure that this is the animation we want.
-  if (event.animationName === "nodeInserted") {
-    console.log("Node has been inserted: " + event.target);
   }
 }
 
@@ -357,7 +351,7 @@ function getShipId() {
   }
 </script>
 
-<style lang="scss">
+<style lang="scss" global>
   .tw2002 {
     // background: rgba(0, 0, 0, 0.15);
     // padding: 1rem;
@@ -489,10 +483,14 @@ function getShipId() {
     }
   }
 
-
-@keyframes nodeInserted { 
- from { opacity: 0; }
- to { opacity: 1; } 
+.warning {
+    // display: grid;
+    padding: 0.5rem 1rem .5rem 0;
+    border-left: 5px solid rgba(255, 25, 25, 1);
+    background-image: linear-gradient(90deg, rgba(155, 25, 250, .5), rgba(255, 25, 25, .5));
+    // grid-template-columns: 20% 80%;
+    color: white;
+    padding-left: 1rem;
 }
 </style>
 

@@ -58,8 +58,6 @@ let warp
     &:nth-child(even) {
       background: rgba(0, 0, 0, 0.1);
     }
-     animation-duration: 0.1s;
-      animation-name: nodeInserted;
   }
 
   .warps-group {
