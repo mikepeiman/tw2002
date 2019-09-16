@@ -17,7 +17,7 @@
   $: galSize = 50;
   $: warpMin = 5;
   $: warpMax = 5;
-  $: currentSector = 0;
+  $: currentSectorId = 0;
   $: currentGalaxyTrace = [];
   $: allShipsInGame = [];
   $: preGameSetup = true;
@@ -66,11 +66,12 @@
     // add "move" function to click listeners on warps
   }
 
-function travelTo() {
+function travelTo(id) {
   // let newSector = getRandomSector(galaxy) // galaxy[id] ? galaxy[id] : 
   // currentGalaxyTrace = [...currentGalaxyTrace, newSector]
   // console.log(`currentGalaxyTrace ${currentGalaxyTrace}`)
-
+  // currentSectorId = id ? id : currentSectorId
+  // console.log(`in travelTo after conditional, currentSectorId ${currentSectorId}`)
   setTimeout(() => {
     let sectorList = document.getElementById('sector-list')
     let sectors = sectorList.children
@@ -85,37 +86,43 @@ function travelTo() {
 }
 
 function warpTo(id) {
-  updateCurrentGalaxyTrace(id)
-  travelTo()
+  let valid = updateCurrentGalaxyTrace(id)
+  travelTo(valid)
 }
 
 function updateCurrentGalaxyTrace(id) {
-  if(id !== "random") { console.log(`there is an id in warpTo(id) ${id}`)
-    let newSector = galaxy[id] 
-  currentGalaxyTrace = [...currentGalaxyTrace, newSector]
-
-  // setTimeout(() => {
-  //   let sectorList = document.getElementById('sector-list')
-  //   let sectors = sectorList.children
-  //   let sectorListLength = sectors.length
-  //   let lastSector = currentGalaxyTrace[sectorListLength-1]
-  //   let lastSectorEl = sectors[sectorListLength-1]
-  //   sectorList.scrollBy({
-  //     top: lastSectorEl.offsetHeight,
-  //     behavior: 'smooth'
-  //   })
-  // },1) }
-
-} else {
+  if(id !== "random") { 
+    console.log(`############################################`)
+    console.log(`warpTo requested: ${id}`)
+    console.log(`currentSectorId: ${currentSectorId}`)
+      if(galaxy[currentSectorId].outlinks.includes(id)) {
+        currentSectorId = id
+      let newSector = galaxy[id] 
+      currentGalaxyTrace = [...currentGalaxyTrace, newSector]
+        console.log(`warpTo requested: ${id}`)
+        console.log(`currentSectorId: ${currentSectorId}`)
+        return id
+      } else {
+        console.log('... sorry, it is not a direct jump from our sector')
+        insertNotification()
+        return false
+      }
+  } else {
   console.log('else random sector')
   let newSector = getRandomSector(galaxy)
   currentGalaxyTrace = [...currentGalaxyTrace, newSector]
+  return newSector.id
 }
 }
 
-// function travelTo(id) {
+function insertNotification() {
+  console.log(`insertNotification`)
+  let el = document.createElement('div')
+  el.textContent = "Error! Error! Not a valid warp! ABORTING * * *"
+  let sectorList = document.getElementById('sector-list')
+  sectorList.appendChild(el)
 
-// }
+}
 
 function getLocationOfLastSector() {
     let sectorList = document.getElementById('sector-list')
