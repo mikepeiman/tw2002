@@ -150,8 +150,24 @@ function getShipId() {
   return id
 }
 
-  function gameCommand() {
-    console.log("gameCommand entered")
+  function gameCommand(e) {
+    console.log(`gameCommand entered with key ${e.keyCode}`)
+    
+    let input = document.getElementById('command-input')
+    let val = input.value
+
+    console.log(`full input value: ${val}`)
+    let arr = val.split('')
+     let lastChar = arr[val.length-1]
+     console.log(`last character: ${lastChar}`)
+    if(parseInt(val)) {
+      console.log(`is an int`)
+    } else {
+      if(val === "q") {alert(`Do you really want to quit?`)}
+      input.value = ''
+      console.log(`not an int, clearing input`)
+      }
+
   }
 
   function newGalaxy() {
