@@ -8,12 +8,6 @@
   import seedrandom from "seedrandom";
   // import '../components/galaxy-generator.js'
 
-// export default {
-//   components: {
-//     SectorComponent
-//   }
-// }
-
   $: galaxy = [];
   $: galSize = 50;
   $: warpMin = 5;
@@ -168,7 +162,10 @@ function getShipId() {
     if(parseInt(val)) {
       console.log(`is an int`)
     } else {
-      if(val === "q") {alert(`Do you really want to quit?`)}
+      if(val === "q") {
+        // alert(`Do you really want to quit?`)
+        document.getElementById('modal-quit').classList.toggle('hidden')
+        }
       input.value = ''
       console.log(`not an int, clearing input`)
       }
@@ -569,7 +566,8 @@ function getShipId() {
       </div>
     </div>
     <div class="commands-window">
-<Modal />
+      <Modal id="modal-one" modalContent="Test successful!" buttonContent="Test modal" buttonId="test" instances={{id: "quit"}}/>
+      <Modal id="modal-quit" modalContent="Do you really want to quit?" buttonContent="QUIT GAME" buttonId="quit" />
       <label for="command-input">
         Enter command:
         <input
