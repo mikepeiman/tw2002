@@ -68,6 +68,7 @@
 .hidden {
   visibility: hidden;
   opacity: 0;
+  transition: all .25s;
 }
 
 #modal_opener:hover {
@@ -84,6 +85,7 @@
   width: 100%;
   height: 100%;
   z-index: 990;
+  transition: all .25s;
 }
 
 .modal .overlay {
