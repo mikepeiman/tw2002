@@ -1,6 +1,6 @@
-# Mike Peiman
+# TradeWars2002 Redux
 
-Exploring and learning Svelte and Sapper as tools to build my websites and apps
+I loved playing the classic text-based BBS game TW2002 back in the 90's
 
 # sapper-template
 
