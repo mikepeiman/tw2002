@@ -1,6 +1,8 @@
 # TradeWars2002 Redux
 
-I loved playing the classic text-based BBS game TW2002 back in the 90's
+I loved playing the classic text-based BBS game TW2002 back in the 90's. I've long wanted to bring it into modern times, so I am, using JS, and the Svelte/Sapper compiler framework.
+
+I'm first exploring a DOM element-based model. I expect to integrate some SVG animations and graphics. Probably not HTML Canvas on this one. I'm going for a hybrid text/graphics experience that puts gameplay first and augments it with some visual flair and useful UI.
 
 # sapper-template
 
