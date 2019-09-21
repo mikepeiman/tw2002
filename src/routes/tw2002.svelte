@@ -3,6 +3,7 @@
   import { writable } from "svelte/store";
   import shipsData from "../store/shipsData.json"
   import SectorComponent from ".././components/SectorComponent.svelte"
+  import Modal from ".././components/Modal.svelte"
   // import { galaxy } from "../store"
   import seedrandom from "seedrandom";
   // import '../components/galaxy-generator.js'
@@ -32,6 +33,10 @@
       localStorage.setItem("galaxy", JSON.stringify(g));
       initGalaxy();
     });
+
+    // btn = document.getElementById("modal_opener");
+    // modal = document.querySelector(".modal");
+    // btn.addEventListener("click", toggleModal);
     // let sectorList = document.getElementById('sector-list');
     // sectorList.addEventListener('animationstart', insertionListener, false)
   });
@@ -563,6 +568,7 @@ function getShipId() {
       </div>
     </div>
     <div class="commands-window">
+<Modal />
       <label for="command-input">
         Enter command:
         <input
