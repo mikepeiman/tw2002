@@ -405,6 +405,7 @@ function getShipId() {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+    position: relative;
     & label {
       color: rgba(155, 25, 255, 1);
       display: flex;

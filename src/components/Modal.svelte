@@ -5,7 +5,8 @@
   onMount(() => {
        btn = document.getElementById("modal_opener");
   modal = document.querySelector(".modal");
-
+  console.log(`modal`)
+  console.dir(modal)
   btn.addEventListener("click", toggleModal);
   })
 
@@ -26,14 +27,16 @@
   }
 
   function toggleModal() {
-    var currentState = modal.style.display;
-
+    var currentState = modal.classList.contains('hidden')
+    console.log(`modal classlist includes hidden: ${currentState}`)
     // If modal is visible, hide it. Else, display it.
-    if (currentState === "none") {
-      modal.style.display = "block";
+    if (currentState) {
+      // modal.style.display = "block";
+      modal.classList.toggle('hidden')
       attachModalListeners(modal);
     } else {
-      modal.style.display = "none";
+      modal.classList.toggle('hidden')
+      // modal.style.display = "none";
       detachModalListeners(modal);
     }
   }
@@ -45,42 +48,37 @@
 #modal_opener {
   background: #3498db;
   padding: 4px 0;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translateX(-50%) translateY(-50%);
+  margin-bottom: 1rem;
+  /* position: fixed; */
+  /* left: 50%; */
+  /* top: 50%; */
+  /* transform: translateX(-50%) translateY(-50%); */
   border-radius: 3px;
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  /* font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; */
   text-align: center;
   text-transform: uppercase;
   color: #fff;
-  font-size: 16px;
+  font-size: 1rem;
   padding: 10px 20px;
+  height: auto;
   border: none;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
+}
+
+.hidden {
+  visibility: hidden;
+  opacity: 0;
 }
 
 #modal_opener:hover {
   cursor: pointer;
   background: #469fdb;
 }
-  
-#modal_opener::after {
-  content: "";
-  display: block;
-  position: absolute;
-  left: 50%;
-  width: 100%;
-  height: 10%;
-  border-radius: 50%;
-  background-color: rgba(0,0,0,0.4);
-  opacity: 0.4;
-  transform: translateX(-50%) translateY(-50%);
-  bottom: -30px;
-}
 
 .modal {
   position: fixed;
+    /* visibility: visible; */
+  /* opacity: 1; */
   left: 0;
   top: 0;
   width: 100%;
@@ -95,7 +93,7 @@
   width: 100%;
   height: 100%;
   z-index: 995;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0,0,0,0.5);
 }
 
 .modal .modal_content {
@@ -144,7 +142,7 @@
 
 <button id="modal_opener">Click Me! I Don't Bite... 😛</button>
 
-<div class="modal" style="display: none">
+<div class="modal hidden" >
   <div class="overlay" />
   <div class="modal_content">
     <!-- Dynamic Section -->
