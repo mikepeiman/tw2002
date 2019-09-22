@@ -1,113 +1,122 @@
 <script>
   import { onMount } from "svelte";
-  export let modalContent;
-  export let buttonContent;
-  export let buttonId;
-  export let instances;
+  // export let modalContent;
+  export let buttonContent, buttonId, instances, command;
+  export let keyTrigger = '';
+  export let modalId, modal, modalOpener, modalContent, modalOverlay
 
-  let btns, modal;
-  let counter = 1
+  // let btns, modal;
+  $: command
+  $: count = localStorage.setItem("modalCount", JSON.stringify(0));
+  $: ids = localStorage.setItem("modalIds", JSON.stringify([]))
+  $: buttons = localStorage.setItem("modalButtons", JSON.stringify([]))
+  $: setIds = () => {
+    console.log(`inside reactive setIds, buttons:`)
+    console.log(buttons)
+  }
+  $: modal = () => {
+    console.log(`bound :this modal called`)
+  }
+
   onMount(() => {
-    console.log(`Modal.svelte onMount count: ${counter}`)
-    counter++
-    btns = document.querySelectorAll(".modal_opener");
+    let props = Object.entries($$props)
+    // console.log(`props: ${props}`)
+    count = JSON.parse(localStorage.getItem('modalCount'))
+    count++
+    console.log(`Modal.svelte onMount count: ${count}`)
+    console.log(`^^^^^^^^^^^^^^^^^^^^^^^ Modal.svelte onMount keyTrigger: ${keyTrigger}`)
+    localStorage.setItem("modalCount", JSON.stringify(count));
+
+    ids = JSON.parse(localStorage.getItem('modalIds'))
+    console.log(`buttonIds from getItem: ${ids}`)
+    ids.push(buttonId)
+    localStorage.setItem("modalIds", JSON.stringify(ids))
+    console.log(`Modal.svelte buttonIds: ${ids}`)
+
+    buttons = document.querySelectorAll(".modal_opener");
+    localStorage.setItem("modalButtons", JSON.stringify(buttons))
 
     // modal = document.querySelector(`#${buttonId}`);
     console.log(`Modal.svelte onMount. props:`);
     console.log(`${modalContent} ${buttonContent} ${buttonId} + instances:`);
     console.log(instances)
-    // console.log(`this`);
-    // console.dir(this);
-    btns.forEach(btn => {
-          btn.setAttribute('id',buttonId )
-      console.log(`btn`);
-      console.dir(btn);
-      btn.addEventListener("click", openModal);
-    });
+        console.log(`modal ##########################################`);
+    console.dir(modal);
+
+    props.forEach(prop => {
+      console.log(`props loop: key: ${prop[0]} val: ${prop[1]}`)
+      if(prop[0] === "buttonId") { 
+        // setListeners(prop[1])
+        console.log(`called setListners for button ID ### ${prop[1]}`)
+         }
+
+    })
+    // btns.forEach((btn, index) => {
+    //   btn.setAttribute('id',buttonId )
+    //   console.log(`btn at index ${index}`);
+    //   console.log(`buttonId at index ${ids[index]}`);
+    //   console.dir(btn);
+    //   btn.addEventListener("click", openModal);
+    // });
   });
+
+  function handleKeydown(e) {
+    console.log(`handleKeydown called from Modal component svelte:window directive with $$$ e ${e}, id ${modalId}, current keyTrigger ${keyTrigger}`)
+    console.log(e)
+    if(e.key === keyTrigger) {
+      console.log(`trigger ${keyTrigger} matches modal ${modalId}`)
+      toggleModal(modalId)
+    }
+  }
+
+  function setListeners(id, keyTrigger) {
+    let el = document.getElementById(id)
+    el.addEventListener('click', toggleModal(id))
+    keyTrigger ? el.addEventListener('keydown', handleKeydown()) : false
+  }  
 
   function attachModalListeners(modalElm) {
     modalElm
       .querySelector(".close_modal")
-      .addEventListener("click", closeModal);
-    modalElm.querySelector(".overlay").addEventListener("click", closeModal);
+      .addEventListener("click", closeModal());
+    modalElm.querySelector(".overlay").addEventListener("click", closeModal());
   }
 
   function detachModalListeners(modalElm) {
     modalElm
       .querySelector(".close_modal")
-      .removeEventListener("click", closeModal);
+      .removeEventListener("click", closeModal(id));
     modalElm
       .querySelector(".overlay")
-      .removeEventListener("click", closeModal);
+      .removeEventListener("click", closeModal(id));
   }
 
-    function openModal(e) {
-    modal = e.target.nextElementSibling
-    // modal = e.target.parentElement
+  function openModal(e) {
+    modal = document.getElementById(modalId)
     var currentState = modal.classList.contains("hidden");
     console.log(`modal classlist includes hidden: ${currentState}`);
-    console.log(`openModal click e`);
-    console.log(e);
-        console.log(`openModal click e.target`);
-    console.dir(e.target);
-    console.log(`openModal click e.target.nextElementSibling`);
-    console.dir(e.target.nextElementSibling);
-        console.log(`openModal click e.target.parentElement`);
-    console.dir(e.target.parentElement);
-    
-    // If modal is visible, hide it. Else, display it.
-
+    console.log(`openModal() modalId ${modalId}, id ${e}, and this:`)
+    console.log(modal)
       modal.classList.toggle("hidden");
       attachModalListeners(modal);
 
   }
       function closeModal(e) {
-    // modal = e.target.nextElementSibling
-    modal = e.target.parentElement
-    var currentState = modal.classList.contains("hidden");
-    console.log(`modal classlist includes hidden: ${currentState}`);
-    console.log(`closeModal click e`);
-    console.log(e);
-        console.log(`closeModal click e.target`);
-    console.dir(e.target);
-    console.log(`closeModal click e.target.nextElementSibling`);
-    console.dir(e.target.nextElementSibling);
-        console.log(`closeModal click e.target.parentElement`);
-    console.dir(e.target.parentElement);
-    
-    // If modal is visible, hide it. Else, display it.
-      modal.classList.toggle("hidden");
-      // modal.style.display = "none";
-      detachModalListeners(modal);
+        modal = document.getElementById(modalId)
 
+        // modal = e.target.nextElementSibling
+        var currentState = modal.classList.contains("hidden");
+        modal.classList.toggle("hidden");
+        detachModalListeners(modal);
+        console.log(`closeModal called`);
+        console.log(modal)
   }
 
-  // function toggleModal(e) {
-  //   // modal = e.target.nextElementSibling
-  //   modal = e.target.parentElement
-  //   var currentState = modal.classList.contains("hidden");
-  //   console.log(`modal classlist includes hidden: ${currentState}`);
-  //   console.log(`toggleModal click e`);
-  //   console.log(e);
-  //       console.log(`toggleModal click e.target`);
-  //   console.dir(e.target);
-  //   console.log(`toggleModal click e.target.nextElementSibling`);
-  //   console.dir(e.target.nextElementSibling);
-  //       console.log(`toggleModal click e.target.parentElement`);
-  //   console.dir(e.target.parentElement);
-    
-  //   // If modal is visible, hide it. Else, display it.
-  //   if (currentState) {
-  //     // modal.style.display = "block";
-  //     modal.classList.toggle("hidden");
-  //     attachModalListeners(modal);
-  //   } else {
-  //     modal.classList.toggle("hidden");
-  //     // modal.style.display = "none";
-  //     detachModalListeners(modal);
-  //   }
-  // }
+  function toggleModal() {
+    modal = document.getElementById(modalId)
+    modal.classList.toggle("hidden");
+  }
+
 </script>
 
 <style>
@@ -207,20 +216,23 @@
     opacity: 0.9;
   }
 </style>
+<!-- {#each Object.entries($$props) as [key, val]} -->
 
-<button class="modal_opener">
+<svelte:window on:keydown={handleKeydown} />
+<button bind:this={modalOpener} on:click={toggleModal} class="modal_opener" id={buttonId}>
   <slot name="buttonContent">{buttonContent}</slot>
 </button>
 
-<div class="modal hidden" id="{buttonId}">
-  <div class="overlay" />
+<div bind:this={modal} class="modal hidden" id={modalId} on:click={toggleModal}>
+  <div bind:this={modalOverlay} class="overlay"  />
   <div class="modal_content">
-    <!-- <h2>{}</h2> -->
+    <h2>MODAL</h2>
     <slot name="modalContent">
       <div class="modal-content">{modalContent}</div>
     </slot>
     <button title="Close" class="close_modal">
-      <i class="fas fa-times" />
+      X
     </button>
   </div>
 </div>
+<!-- {/each} -->

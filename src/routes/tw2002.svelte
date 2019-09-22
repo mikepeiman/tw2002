@@ -4,6 +4,7 @@
   import shipsData from "../store/shipsData.json"
   import SectorComponent from ".././components/SectorComponent.svelte"
   import Modal from ".././components/Modal.svelte"
+
   // import { galaxy } from "../store"
   import seedrandom from "seedrandom";
   // import '../components/galaxy-generator.js'
@@ -16,15 +17,17 @@
   $: currentGalaxyTrace = [];
   $: allShipsInGame = [];
   $: preGameSetup = true;
+  $: command = ''
+  let modal, keyTrigger
   // $: sectorList = document.getElementById('sector-list');
 
   onMount(() => {
     warpMin = document.getElementById("warpsMin").value;
     warpMax = document.getElementById("warpsMax").value;
     galSize = document.getElementById("galSize").value;
-    generateGalaxy(galSize, warpMin, warpMax).then(g => {
-      linkGalaxy(g);
-      localStorage.setItem("galaxy", JSON.stringify(g));
+    generateGalaxy(galSize, warpMin, warpMax).then(galaxy => {
+      linkGalaxy(galaxy);
+      localStorage.setItem("galaxy", JSON.stringify(galaxy));
       initGalaxy();
     });
 
@@ -149,11 +152,16 @@ function getShipId() {
   return id
 }
 
+// I can add a "keyListener" data property to my Modal instances, and set which key(s) that specific modal will be triggered by
+// in the Modal, simply pull in that variable as an argument for attaching the event listeners
+
   function gameCommand(e) {
     console.log(`gameCommand entered with key ${e.keyCode}`)
     
     let input = document.getElementById('command-input')
+    
     let val = input.value
+    command = val
 
     console.log(`full input value: ${val}`)
     let arr = val.split('')
@@ -566,13 +574,13 @@ function getShipId() {
       </div>
     </div>
     <div class="commands-window">
-      <Modal id="modal-one" modalContent="Test successful!" buttonContent="Test modal" buttonId="test" instances={{id: "quit"}}/>
-      <Modal id="modal-quit" modalContent="Do you really want to quit?" buttonContent="QUIT GAME" buttonId="quit" />
+      <Modal modalId="modal-test" keyTrigger="t" modalContent="Test successful!" buttonContent="Test modal" buttonId="test" instances={{id: "test"}}/>
+      <Modal modalId="modal-quit" keyTrigger="q" modalContent="Do you really want to quit?" buttonContent="QUIT GAME" buttonId="quit" />
       <label for="command-input">
         Enter command:
         <input
           type="text"
-          value=""
+          bind:value={command}
           name="command"
           id="command-input"
           on:keyup={gameCommand} />
