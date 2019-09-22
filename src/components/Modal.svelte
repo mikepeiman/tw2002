@@ -1,64 +1,17 @@
 <script>
   import { onMount } from "svelte";
-  // export let modalContent;
-  export let buttonContent, buttonId, instances, command;
+
+  export let buttonContent, buttonId, instances, command, modalId, modal, modalOpener, modalContent, modalOverlay
   export let keyTrigger = '';
-  export let modalId, modal, modalOpener, modalContent, modalOverlay
 
-  // let btns, modal;
-  $: command
-  $: count = localStorage.setItem("modalCount", JSON.stringify(0));
-  $: ids = localStorage.setItem("modalIds", JSON.stringify([]))
-  $: buttons = localStorage.setItem("modalButtons", JSON.stringify([]))
-  $: setIds = () => {
-    console.log(`inside reactive setIds, buttons:`)
-    console.log(buttons)
-  }
-  $: modal = () => {
-    console.log(`bound :this modal called`)
-  }
+  // $: command
+  // $: count = localStorage.setItem("modalCount", JSON.stringify(0));
+  // $: ids = localStorage.setItem("modalIds", JSON.stringify([]))
+  // $: buttons = localStorage.setItem("modalButtons", JSON.stringify([]))
 
-  onMount(() => {
-    let props = Object.entries($$props)
-    // console.log(`props: ${props}`)
-    count = JSON.parse(localStorage.getItem('modalCount'))
-    count++
-    console.log(`Modal.svelte onMount count: ${count}`)
-    console.log(`^^^^^^^^^^^^^^^^^^^^^^^ Modal.svelte onMount keyTrigger: ${keyTrigger}`)
-    localStorage.setItem("modalCount", JSON.stringify(count));
-
-    ids = JSON.parse(localStorage.getItem('modalIds'))
-    console.log(`buttonIds from getItem: ${ids}`)
-    ids.push(buttonId)
-    localStorage.setItem("modalIds", JSON.stringify(ids))
-    console.log(`Modal.svelte buttonIds: ${ids}`)
-
-    buttons = document.querySelectorAll(".modal_opener");
-    localStorage.setItem("modalButtons", JSON.stringify(buttons))
-
-    // modal = document.querySelector(`#${buttonId}`);
-    console.log(`Modal.svelte onMount. props:`);
-    console.log(`${modalContent} ${buttonContent} ${buttonId} + instances:`);
-    console.log(instances)
-        console.log(`modal ##########################################`);
-    console.dir(modal);
-
-    props.forEach(prop => {
-      console.log(`props loop: key: ${prop[0]} val: ${prop[1]}`)
-      if(prop[0] === "buttonId") { 
-        // setListeners(prop[1])
-        console.log(`called setListners for button ID ### ${prop[1]}`)
-         }
-
-    })
-    // btns.forEach((btn, index) => {
-    //   btn.setAttribute('id',buttonId )
-    //   console.log(`btn at index ${index}`);
-    //   console.log(`buttonId at index ${ids[index]}`);
-    //   console.dir(btn);
-    //   btn.addEventListener("click", openModal);
-    // });
-  });
+  // onMount(() => {
+    // let props = Object.entries($$props)
+  // });
 
   function handleKeydown(e) {
     console.log(`handleKeydown called from Modal component svelte:window directive with $$$ e ${e}, id ${modalId}, current keyTrigger ${keyTrigger}`)
@@ -69,53 +22,30 @@
     }
   }
 
-  function setListeners(id, keyTrigger) {
-    let el = document.getElementById(id)
-    el.addEventListener('click', toggleModal(id))
-    keyTrigger ? el.addEventListener('keydown', handleKeydown()) : false
-  }  
-
-  function attachModalListeners(modalElm) {
-    modalElm
-      .querySelector(".close_modal")
-      .addEventListener("click", closeModal());
-    modalElm.querySelector(".overlay").addEventListener("click", closeModal());
-  }
-
-  function detachModalListeners(modalElm) {
-    modalElm
-      .querySelector(".close_modal")
-      .removeEventListener("click", closeModal(id));
-    modalElm
-      .querySelector(".overlay")
-      .removeEventListener("click", closeModal(id));
-  }
-
-  function openModal(e) {
-    modal = document.getElementById(modalId)
-    var currentState = modal.classList.contains("hidden");
-    console.log(`modal classlist includes hidden: ${currentState}`);
-    console.log(`openModal() modalId ${modalId}, id ${e}, and this:`)
-    console.log(modal)
-      modal.classList.toggle("hidden");
-      attachModalListeners(modal);
-
-  }
-      function closeModal(e) {
-        modal = document.getElementById(modalId)
-
-        // modal = e.target.nextElementSibling
-        var currentState = modal.classList.contains("hidden");
-        modal.classList.toggle("hidden");
-        detachModalListeners(modal);
-        console.log(`closeModal called`);
-        console.log(modal)
-  }
-
   function toggleModal() {
     modal = document.getElementById(modalId)
+    let currentState = modal.classList.contains("hidden");
+    // currentState ?  attachModalListeners(modal) : detachModalListeners(modal)
     modal.classList.toggle("hidden");
   }
+
+  // function attachModalListeners(modalElm) {
+  //   modalElm
+  //     .querySelector(".close_modal")
+  //     .addEventListener("click", toggleModal());
+  //   modalElm.querySelector(".overlay").addEventListener("click", toggleModal());
+  // }
+
+  // function detachModalListeners(modalElm) {
+  //   modalElm
+  //     .querySelector(".close_modal")
+  //     .removeEventListener("click", toggleModal());
+  //   modalElm
+  //     .querySelector(".overlay")
+  //     .removeEventListener("click", toggleModal());
+  // }
+
+
 
 </script>
 
@@ -216,23 +146,22 @@
     opacity: 0.9;
   }
 </style>
-<!-- {#each Object.entries($$props) as [key, val]} -->
 
 <svelte:window on:keydown={handleKeydown} />
-<button bind:this={modalOpener} on:click={toggleModal} class="modal_opener" id={buttonId}>
+<button on:click={toggleModal} class="modal_opener" id={buttonId}>
   <slot name="buttonContent">{buttonContent}</slot>
 </button>
 
-<div bind:this={modal} class="modal hidden" id={modalId} on:click={toggleModal}>
-  <div bind:this={modalOverlay} class="overlay"  />
+<div class="modal hidden" id={modalId} >
+  <div class="overlay" on:click={toggleModal} />
   <div class="modal_content">
     <h2>MODAL</h2>
     <slot name="modalContent">
       <div class="modal-content">{modalContent}</div>
     </slot>
-    <button title="Close" class="close_modal">
+    <button title="Close" class="close_modal" on:click={toggleModal}>
       X
     </button>
   </div>
 </div>
-<!-- {/each} -->
+
