@@ -574,8 +574,8 @@ function getShipId() {
       </div>
     </div>
     <div class="commands-window">
-      <Modal modalId="modal-test" keyTrigger="t" modalContent="Test successful!" buttonContent="Test modal" buttonId="test" instances={{id: "test"}}/>
-      <Modal modalId="modal-quit" keyTrigger="q" modalContent="Do you really want to quit?" buttonContent="QUIT GAME" buttonId="quit" />
+      <Modal modalId="modal-test" keyTrigger="t" modalHeading="TEST" modalContent="Test successful!" buttonContent="Test modal" buttonId="test" instances={{id: "test"}}/>
+      <Modal modalId="modal-quit" keyTrigger="q" modalHeading="QUIT" modalContent="Do you really want to quit?" buttonContent="QUIT GAME" buttonId="quit" />
       <label for="command-input">
         Enter command:
         <input

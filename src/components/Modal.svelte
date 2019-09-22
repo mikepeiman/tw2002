@@ -1,52 +1,20 @@
 <script>
   import { onMount } from "svelte";
 
-  export let buttonContent, buttonId, instances, command, modalId, modal, modalOpener, modalContent, modalOverlay
+  export let buttonContent, buttonId, command, modalId, modalHeading, modalContent
   export let keyTrigger = '';
 
-  // $: command
-  // $: count = localStorage.setItem("modalCount", JSON.stringify(0));
-  // $: ids = localStorage.setItem("modalIds", JSON.stringify([]))
-  // $: buttons = localStorage.setItem("modalButtons", JSON.stringify([]))
-
-  // onMount(() => {
-    // let props = Object.entries($$props)
-  // });
-
   function handleKeydown(e) {
-    console.log(`handleKeydown called from Modal component svelte:window directive with $$$ e ${e}, id ${modalId}, current keyTrigger ${keyTrigger}`)
-    console.log(e)
     if(e.key === keyTrigger) {
-      console.log(`trigger ${keyTrigger} matches modal ${modalId}`)
       toggleModal(modalId)
     }
   }
 
   function toggleModal() {
-    modal = document.getElementById(modalId)
+    let modal = document.getElementById(modalId)
     let currentState = modal.classList.contains("hidden");
-    // currentState ?  attachModalListeners(modal) : detachModalListeners(modal)
     modal.classList.toggle("hidden");
   }
-
-  // function attachModalListeners(modalElm) {
-  //   modalElm
-  //     .querySelector(".close_modal")
-  //     .addEventListener("click", toggleModal());
-  //   modalElm.querySelector(".overlay").addEventListener("click", toggleModal());
-  // }
-
-  // function detachModalListeners(modalElm) {
-  //   modalElm
-  //     .querySelector(".close_modal")
-  //     .removeEventListener("click", toggleModal());
-  //   modalElm
-  //     .querySelector(".overlay")
-  //     .removeEventListener("click", toggleModal());
-  // }
-
-
-
 </script>
 
 <style>
@@ -155,7 +123,7 @@
 <div class="modal hidden" id={modalId} >
   <div class="overlay" on:click={toggleModal} />
   <div class="modal_content">
-    <h2>MODAL</h2>
+    <h2>{modalHeading}</h2>
     <slot name="modalContent">
       <div class="modal-content">{modalContent}</div>
     </slot>
