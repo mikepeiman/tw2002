@@ -30,12 +30,6 @@
       localStorage.setItem("galaxy", JSON.stringify(galaxy));
       initGalaxy();
     });
-
-    // btn = document.getElementById("modal_opener");
-    // modal = document.querySelector(".modal");
-    // btn.addEventListener("click", toggleModal);
-    // let sectorList = document.getElementById('sector-list');
-    // sectorList.addEventListener('animationstart', insertionListener, false)
   });
 
   function generateGalaxyWithNewProps(e) {
@@ -157,28 +151,34 @@ function getShipId() {
 
   function gameCommand(e) {
     console.log(`gameCommand entered with key ${e.keyCode}`)
-    
     let input = document.getElementById('command-input')
-    
     let val = input.value
     command = val
-
-    console.log(`full input value: ${val}`)
-    let arr = val.split('')
+    console.log(`current sector: ^^^<<<   ${currentSectorId}   >>>^^^ full input value: ${val}`)
+    console.log(`full sector warps list:`)
+    console.log(galaxy[currentSectorId].outlinks)
+     let arr = val.split('')
      let lastChar = arr[val.length-1]
      console.log(`last character: ${lastChar}`)
-    if(parseInt(val)) {
-      console.log(`is an int`)
+     console.log(`is int? val ${isInt(val)}`)
+    if(isInt(val)) {
+      console.log(`is an int ${val}`)
     } else {
-      if(val === "q") {
-        // alert(`Do you really want to quit?`)
-        document.getElementById('modal-quit').classList.toggle('hidden')
-        }
+      console.log(`${val} is not an int, clearing input`)
       input.value = ''
-      console.log(`not an int, clearing input`)
       }
 
   }
+
+  // Short-circuiting, and saving a parse operation
+function isInt(value) {
+  var x;
+  if (isNaN(value)) {
+    return false;
+  }
+  x = parseFloat(value);
+  return (x | 0) === x;
+}
 
   function newGalaxy() {
     warpMin = document.getElementById("warpsMin").value;
@@ -574,7 +574,7 @@ function getShipId() {
       </div>
     </div>
     <div class="commands-window">
-      <Modal modalId="modal-test" keyTrigger="t" modalHeading="TEST" modalContent="Test successful!" buttonContent="Test modal" buttonId="test" instances={{id: "test"}}/>
+      <Modal modalId="modal-test" keyTrigger="t" modalHeading="TEST" modalContent="Test successful!" buttonContent="Test modal" buttonId="test"/>
       <Modal modalId="modal-quit" keyTrigger="q" modalHeading="QUIT" modalContent="Do you really want to quit?" buttonContent="QUIT GAME" buttonId="quit" />
       <label for="command-input">
         Enter command:
