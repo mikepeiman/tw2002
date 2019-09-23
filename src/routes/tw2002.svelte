@@ -1,9 +1,9 @@
 <script>
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
-  import shipsData from "../store/shipsData.json"
-  import SectorComponent from ".././components/SectorComponent.svelte"
-  import Modal from ".././components/Modal.svelte"
+  import shipsData from "../store/shipsData.json";
+  import SectorComponent from ".././components/SectorComponent.svelte";
+  import Modal from ".././components/Modal.svelte";
 
   // import { galaxy } from "../store"
   import seedrandom from "seedrandom";
@@ -14,11 +14,12 @@
   $: warpMin = 5;
   $: warpMax = 5;
   $: currentSectorId = 0;
+  $: currentSectorMatch = false;
   $: currentGalaxyTrace = [];
   $: allShipsInGame = [];
   $: preGameSetup = true;
-  $: command = ''
-  let modal, keyTrigger
+  $: command = "";
+  let modal, keyTrigger;
   // $: sectorList = document.getElementById('sector-list');
 
   onMount(() => {
@@ -41,19 +42,19 @@
   function startGame() {
     console.log(`startGame() triggered`);
     // create player
-    let player = new Player("Mike")
+    let player = new Player("Mike");
     // create player's starting ship
-    let ship = new ShipFactory(0, player)
-    console.log(shipsData)
-    console.log(`Ship type name: ${ship.type.name}`)
-    console.log(`Ship owner name: ${ship.owner.name}`)
-    console.log(`Ship ID: ${ship.id}`)
+    let ship = new ShipFactory(0, player);
+    console.log(shipsData);
+    console.log(`Ship type name: ${ship.type.name}`);
+    console.log(`Ship owner name: ${ship.owner.name}`);
+    console.log(`Ship ID: ${ship.id}`);
     // (load and save functionality will come later)
     // place player/ship in sector 0
     ship.location = 0;
-    currentGalaxyTrace = []
-    currentGalaxyTrace = [...currentGalaxyTrace, galaxy[ship.location]]
-    console.log(currentGalaxyTrace)
+    currentGalaxyTrace = [];
+    currentGalaxyTrace = [...currentGalaxyTrace, galaxy[ship.location]];
+    console.log(currentGalaxyTrace);
     preGameSetup = false;
     // start async game ticker @ 1s
     // let end = 10
@@ -62,123 +63,140 @@
     // add "move" function to click listeners on warps
   }
 
-function travelTo(id) {
-  // let newSector = getRandomSector(galaxy) // galaxy[id] ? galaxy[id] : 
-  // currentGalaxyTrace = [...currentGalaxyTrace, newSector]
-  // console.log(`currentGalaxyTrace ${currentGalaxyTrace}`)
-  // currentSectorId = id ? id : currentSectorId
-  // console.log(`in travelTo after conditional, currentSectorId ${currentSectorId}`)
-  setTimeout(() => {
-    let sectorList = document.getElementById('sector-list')
-    let sectors = sectorList.children
-    let sectorListLength = sectors.length
-    let lastSector = currentGalaxyTrace[sectorListLength-1]
-    let lastSectorEl = sectors[sectorListLength-1]
-    sectorList.scrollBy({
-      top: lastSectorEl.offsetHeight,
-      behavior: 'smooth'
-    })
-  },1)
-}
-
-function warpTo(id) {
-  let valid = updateCurrentGalaxyTrace(id)
-  travelTo(valid)
-}
-
-function updateCurrentGalaxyTrace(id) {
-  if(id !== "random") { 
-    console.log(`############################################`)
-    console.log(`warpTo requested: ${id}`)
-    console.log(`currentSectorId: ${currentSectorId}`)
-      if(galaxy[currentSectorId].outlinks.includes(id)) {
-        currentSectorId = id
-      let newSector = galaxy[id] 
-      currentGalaxyTrace = [...currentGalaxyTrace, newSector]
-        console.log(`warpTo requested: ${id}`)
-        console.log(`currentSectorId: ${currentSectorId}`)
-        return id
-      } else {
-        console.log('... sorry, it is not a direct jump from our sector')
-        insertNotification()
-        return false
-      }
-  } else {
-  console.log('else random sector')
-  let newSector = getRandomSector(galaxy)
-  currentGalaxyTrace = [...currentGalaxyTrace, newSector]
-  return newSector.id
-}
-}
-
-function insertNotification() {
-  console.log(`insertNotification`)
-  let el = document.createElement('div')
-  el.classList = ('warning invalid-sector')
-  el.textContent = "Error! Error! Not a valid warp! ABORTING * * *"
-  let sectorList = document.getElementById('sector-list')
-  sectorList.appendChild(el)
-
-}
-
-function getLocationOfLastSector() {
-    let sectorList = document.getElementById('sector-list')
-  console.log(sectorList)
-}
-
-async function runGameWatcher(end) {
-  for(let i = 0; i < end; i++) {
-    let t = setInterval(() => {
-    console.log(`runGameWatcher ticking...`)
-  }, 1000)
-  clearInterval(t)
+  function travelTo(id) {
+    // let newSector = getRandomSector(galaxy) // galaxy[id] ? galaxy[id] :
+    // currentGalaxyTrace = [...currentGalaxyTrace, newSector]
+    // console.log(`currentGalaxyTrace ${currentGalaxyTrace}`)
+    // currentSectorId = id ? id : currentSectorId
+    // console.log(`in travelTo after conditional, currentSectorId ${currentSectorId}`)
+    setTimeout(() => {
+      let sectorList = document.getElementById("sector-list");
+      let sectors = sectorList.children;
+      let sectorListLength = sectors.length;
+      let lastSector = currentGalaxyTrace[sectorListLength - 1];
+      let lastSectorEl = sectors[sectorListLength - 1];
+      sectorList.scrollBy({
+        top: lastSectorEl.offsetHeight,
+        behavior: "smooth"
+      });
+    }, 1);
   }
-}
 
-async function test() {
-  setTimeout(() => {
-    console.log(`runGameWatcher ticking...`)
-  }, 1000)
-}
+  function warpTo(id) {
+    let valid = updateCurrentGalaxyTrace(id);
+    travelTo(valid);
+  }
 
-function getShipId() {
-  let id = allShipsInGame.length
-  return id
-}
+  function updateCurrentGalaxyTrace(id) {
+    if (id !== "random") {
+      console.log(`############################################`);
+      console.log(`warpTo requested: ${id}`);
+      console.log(`currentSectorId: ${currentSectorId}`);
+      if (galaxy[currentSectorId].outlinks.includes(id)) {
+        currentSectorId = id;
+        let newSector = galaxy[id];
+        currentGalaxyTrace = [...currentGalaxyTrace, newSector];
+        console.log(`warpTo requested: ${id}`);
+        console.log(`currentSectorId: ${currentSectorId}`);
+        return id;
+      } else {
+        console.log("... sorry, it is not a direct jump from our sector");
+        insertNotification();
+        return false;
+      }
+    } else {
+      console.log("else random sector");
+      let newSector = getRandomSector(galaxy);
+      currentGalaxyTrace = [...currentGalaxyTrace, newSector];
+      return newSector.id;
+    }
+  }
 
-// I can add a "keyListener" data property to my Modal instances, and set which key(s) that specific modal will be triggered by
-// in the Modal, simply pull in that variable as an argument for attaching the event listeners
+  function insertNotification() {
+    console.log(`insertNotification`);
+    let el = document.createElement("div");
+    el.classList = "warning invalid-sector";
+    el.textContent = "Error! Error! Not a valid warp! ABORTING * * *";
+    let sectorList = document.getElementById("sector-list");
+    sectorList.appendChild(el);
+  }
+
+  function getLocationOfLastSector() {
+    let sectorList = document.getElementById("sector-list");
+    console.log(sectorList);
+  }
+
+  async function runGameWatcher(end) {
+    for (let i = 0; i < end; i++) {
+      let t = setInterval(() => {
+        console.log(`runGameWatcher ticking...`);
+      }, 1000);
+      clearInterval(t);
+    }
+  }
+
+  async function test() {
+    setTimeout(() => {
+      console.log(`runGameWatcher ticking...`);
+    }, 1000);
+  }
+
+  function getShipId() {
+    let id = allShipsInGame.length;
+    return id;
+  }
+
+  // I can add a "keyListener" data property to my Modal instances, and set which key(s) that specific modal will be triggered by
+  // in the Modal, simply pull in that variable as an argument for attaching the event listeners
 
   function gameCommand(e) {
-    console.log(`gameCommand entered with key ${e.keyCode}`)
-    let input = document.getElementById('command-input')
-    let val = input.value
-    command = val
-    console.log(`current sector: ^^^<<<   ${currentSectorId}   >>>^^^ full input value: ${val}`)
-    console.log(`full sector warps list:`)
-    console.log(galaxy[currentSectorId].outlinks)
-     let arr = val.split('')
-     let lastChar = arr[val.length-1]
-     console.log(`last character: ${lastChar}`)
-     console.log(`is int? val ${isInt(val)}`)
-    if(isInt(val)) {
-      console.log(`is an int ${val}`)
+    console.log(`gameCommand entered with key ${e.keyCode}`);
+    let input = document.getElementById("command-input");
+    let val = input.value;
+    command = val;
+    console.log(
+      `current sector: ^^^<<<   ${currentSectorId}   >>>^^^ full input value: ${val}`
+    );
+    console.log(`full sector warps list:`);
+    console.log(galaxy[currentSectorId].outlinks);
+    let outlinks = galaxy[currentSectorId].outlinks;
+    let arr = val.split("");
+    let lastChar = arr[val.length - 1];
+    console.log(`last character: ${lastChar}`);
+    console.log(`is int? val ${isInt(val)}`);
+    if (isInt(val)) {
+      console.log(`is an int ${val}`);
+      outlinks.forEach(warp => {
+        if (parseInt(val) === parseInt(warp)) {
+          console.log(`!@!@!@@!@!@!@!@!@  You matched a valid warp out!`);
+          warpTo(warp);
+        } else {
+          // (warp.toString()+'').indexOf(val) > -1
+          if (warp.toString().startsWith(val)) {
+            console.log(`current sector ${warp} check startsWith: PASSED`);
+            currentSectorMatch = true;
+            return;
+          } else {
+            console.log(`current sector ${warp} check FAILED`);
+          }
+        }
+      });
+      currentSectorMatch ? (currentSectorMatch = false) : (input.value = "");
     } else {
-      console.log(`${val} is not an int, clearing input`)
-      input.value = ''
-      }
-
+      console.log(`${val} is not an int, clearing input`);
+      input.value = "";
+    }
   }
-
+  //  thank you, Stack Overflow! https://stackoverflow.com/questions/14636536/how-to-check-if-a-variable-is-an-integer-in-javascript
   // Short-circuiting, and saving a parse operation
-function isInt(value) {
-  var x;
-  if (isNaN(value)) {
-    return false;
+  function isInt(value) {
+    var x;
+    if (isNaN(value)) {
+      return false;
+    }
+    x = parseFloat(value);
+    return (x | 0) === x;
   }
-  x = parseFloat(value);
-  return (x | 0) === x;
-}
 
   function newGalaxy() {
     warpMin = document.getElementById("warpsMin").value;
@@ -194,7 +212,7 @@ function isInt(value) {
 
   function initGalaxy() {
     galaxy = JSON.parse(localStorage.getItem("galaxy"));
-    return galaxy = galaxy;
+    return (galaxy = galaxy);
   }
 
   function loadGalaxy() {
@@ -202,7 +220,7 @@ function isInt(value) {
     galaxy = JSON.parse(localStorage.getItem("galaxy"));
     preGameSetup = true;
     console.log(galaxy);
-    return galaxy = galaxy
+    return (galaxy = galaxy);
   }
 
   async function generateGalaxy(galSize, warpMin, warpMax) {
@@ -328,7 +346,7 @@ function isInt(value) {
 
   class Player {
     constructor(name) {
-      this.name = name
+      this.name = name;
     }
   }
 
@@ -348,8 +366,8 @@ function isInt(value) {
 
   class ShipFactory {
     constructor(type, owner) {
-      this.type = shipsData[type]
-      this.owner = owner
+      this.type = shipsData[type];
+      this.owner = owner;
       this.id = getShipId();
       // this.name = name;
       // this.baseCost = baseCost;
@@ -392,7 +410,6 @@ function isInt(value) {
     height: calc(80% + 5px);
   }
 
-  
   .sector-list {
     width: auto;
     // height: 70vh;
@@ -403,7 +420,6 @@ function isInt(value) {
     // align-items: flex-end;
     flex-direction: column;
   }
-
 
   .commands-window {
     border-left: 5px solid rgba(155, 25, 255, 1);
@@ -487,12 +503,12 @@ function isInt(value) {
     outline: none;
     border: 1px solid rgba(155, 25, 255, 0);
     padding: 0 0.5rem;
-    margin: .25rem;
+    margin: 0.25rem;
     height: 3rem;
     box-shadow: none;
     transition: all 0.25s;
     &:hover {
-      background: rgba(155, 25, 255, .25);
+      background: rgba(155, 25, 255, 0.25);
       border: 1px solid rgba(155, 25, 255, 1);
     }
   }
@@ -510,15 +526,19 @@ function isInt(value) {
     }
   }
 
-.warning {
+  .warning {
     // display: grid;
-    padding: 0.5rem 1rem .5rem 0;
+    padding: 0.5rem 1rem 0.5rem 0;
     border-left: 5px solid rgba(255, 25, 25, 1);
-    background-image: linear-gradient(90deg, rgba(155, 25, 250, .5), rgba(255, 25, 25, .5));
+    background-image: linear-gradient(
+      90deg,
+      rgba(155, 25, 250, 0.5),
+      rgba(255, 25, 25, 0.5)
+    );
     // grid-template-columns: 20% 80%;
     color: white;
     padding-left: 1rem;
-}
+  }
 </style>
 
 <svelte:head>
@@ -541,7 +561,9 @@ function isInt(value) {
           Load Local Galaxy
         </button>
         <button id="generate-links" on:click={startGame}>Start Game</button>
-        <button id="generate-links" on:click={() => warpTo("random")}>Go To Random Sector</button>
+        <button id="generate-links" on:click={() => warpTo('random')}>
+          Go To Random Sector
+        </button>
         <div id="game-settings" class="controls subgroup">
           <label for="galSize">
             Galaxy size:
@@ -574,8 +596,20 @@ function isInt(value) {
       </div>
     </div>
     <div class="commands-window">
-      <Modal modalId="modal-test" keyTrigger="t" modalHeading="TEST" modalContent="Test successful!" buttonContent="Test modal" buttonId="test"/>
-      <Modal modalId="modal-quit" keyTrigger="q" modalHeading="QUIT" modalContent="Do you really want to quit?" buttonContent="QUIT GAME" buttonId="quit" />
+      <Modal
+        modalId="modal-test"
+        keyTrigger="t"
+        modalHeading="TEST"
+        modalContent="Test successful!"
+        buttonContent="Test modal"
+        buttonId="test" />
+      <Modal
+        modalId="modal-quit"
+        keyTrigger="q"
+        modalHeading="QUIT"
+        modalContent="Do you really want to quit?"
+        buttonContent="QUIT GAME"
+        buttonId="quit" />
       <label for="command-input">
         Enter command:
         <input
@@ -587,24 +621,28 @@ function isInt(value) {
       </label>
     </div>
     {#if preGameSetup}
-    <div id="sector-list"  class="sector-list">
-      {#each galaxy as sector}
-      <SectorComponent sector={sector} let:warp={warp}>
-        <span slot="outlinks" class="warp" on:click={() => warpTo(warp)}>{warp}</span>
-        <span slot="inlinks" class="warp" >{warp}</span>
-      </SectorComponent>
-      {/each}
-    </div>
+      <div id="sector-list" class="sector-list">
+        {#each galaxy as sector}
+          <SectorComponent {sector} let:warp>
+            <span slot="outlinks" class="warp" on:click={() => warpTo(warp)}>
+              {warp}
+            </span>
+            <span slot="inlinks" class="warp">{warp}</span>
+          </SectorComponent>
+        {/each}
+      </div>
     {/if}
     {#if !preGameSetup}
-    <div id="sector-list" class="sector-list">
-      {#each currentGalaxyTrace as sector}
-      <SectorComponent sector={sector} let:warp={warp}>
-        <span slot="outlinks" class="warp" on:click={() => warpTo(warp)}>{warp}</span>
-        <span slot="inlinks" class="warp" >{warp}</span>
-      </SectorComponent>
-      {/each}
-    </div>
+      <div id="sector-list" class="sector-list">
+        {#each currentGalaxyTrace as sector}
+          <SectorComponent {sector} let:warp>
+            <span slot="outlinks" class="warp" on:click={() => warpTo(warp)}>
+              {warp}
+            </span>
+            <span slot="inlinks" class="warp">{warp}</span>
+          </SectorComponent>
+        {/each}
+      </div>
     {/if}
   </div>
 
