@@ -1,16 +1,15 @@
 <script>
 import { fade } from 'svelte/transition';
-export let sector
-let warp
+export let sector, warp
 </script>
 
-<div class="svelte-universe" transition:fade >
-  <div class="warps-group">
-    <span class="sector-details sector-name">
+<div class="svelte-universe" transition:fade  id="sector-{sector.id}">
+  <div class="sector-details">
+    <span class="sector-name">
       Sector
-      <span class="sector-number">{sector.id}</span>
+      <span class="sector-number" >{sector.id}</span>
     </span>
-    <span class="sector-details warps-quota">
+    <span class="warps-quota">
       warps quota:
       <span class="warps-quota-number">{sector.warpsQuota}</span>
     </span>
@@ -19,7 +18,7 @@ let warp
     <span class="sector-warps">
       OUT:
       {#each sector.outlinks as warp}
-        <slot name="outlinks" warp={warp} class="warp">No outlinks here!</slot>
+        <slot name="outlinks" warp={warp} class="warp" id="{sector.id}-{warp}">No outlinks here!</slot>
       {/each}
     </span>
     <span class="sector-warps">
@@ -34,12 +33,15 @@ let warp
 <style lang=scss>
 
   .sector-details {
-    padding: 0.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.5rem;
     color: rgba(0, 0, 0, 0.75);
-    &.sector-name {
+    & .sector-name {
       background: rgba(155, 55, 55, 0.75);
     }
-    &.warps-quota {
+    & .warps-quota {
       background: rgba(55, 55, 155, 0.75);
     }
   }

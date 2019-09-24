@@ -154,12 +154,13 @@
     let input = document.getElementById("command-input");
     let val = input.value;
     command = val;
+    let currentSector = galaxy[currentSectorId]
     console.log(
       `current sector: ^^^<<<   ${currentSectorId}   >>>^^^ full input value: ${val}`
     );
     console.log(`full sector warps list:`);
-    console.log(galaxy[currentSectorId].outlinks);
-    let outlinks = galaxy[currentSectorId].outlinks;
+    console.log(currentSector.outlinks);
+    let outlinks = currentSector.outlinks;
     let arr = val.split("");
     let lastChar = arr[val.length - 1];
     console.log(`last character: ${lastChar}`);
@@ -167,18 +168,24 @@
     if (isInt(val)) {
       console.log(`is an int ${val}`);
       outlinks.forEach(warp => {
+        let thisWarp = document.getElementById(`sector-${currentSectorId}-outlink-${warp}`)
         if (parseInt(val) === parseInt(warp)) {
           console.log(`!@!@!@@!@!@!@!@!@  You matched a valid warp out!`);
           warpTo(warp);
+          input.value = "";
         } else {
           // (warp.toString()+'').indexOf(val) > -1
           if (warp.toString().startsWith(val)) {
             console.log(`current sector ${warp} check startsWith: PASSED`);
+            
+            thisWarp.classList.toggle('warp-highlight')
             currentSectorMatch = true;
             return;
           } else {
             console.log(`current sector ${warp} check FAILED`);
+            thisWarp.classList.contains('warp-highlight') ? thisWarp.classList.toggle('warp-highlight') : null
           }
+          thisWarp.classList.contains('warp-highlight') ? thisWarp.classList.toggle('warp-highlight') : null
         }
       });
       currentSectorMatch ? (currentSectorMatch = false) : (input.value = "");
@@ -187,6 +194,7 @@
       input.value = "";
     }
   }
+  
   //  thank you, Stack Overflow! https://stackoverflow.com/questions/14636536/how-to-check-if-a-variable-is-an-integer-in-javascript
   // Short-circuiting, and saving a parse operation
   function isInt(value) {
@@ -212,7 +220,7 @@
 
   function initGalaxy() {
     galaxy = JSON.parse(localStorage.getItem("galaxy"));
-    return (galaxy = galaxy);
+    // return (galaxy = galaxy);
   }
 
   function loadGalaxy() {
@@ -220,7 +228,7 @@
     galaxy = JSON.parse(localStorage.getItem("galaxy"));
     preGameSetup = true;
     console.log(galaxy);
-    return (galaxy = galaxy);
+    // return (galaxy = galaxy);
   }
 
   async function generateGalaxy(galSize, warpMin, warpMax) {
@@ -539,6 +547,12 @@
     color: white;
     padding-left: 1rem;
   }
+
+.warp-highlight {
+  background: red;
+  transition: all 0.05s;
+}
+
 </style>
 
 <svelte:head>
@@ -624,7 +638,7 @@
       <div id="sector-list" class="sector-list">
         {#each galaxy as sector}
           <SectorComponent {sector} let:warp>
-            <span slot="outlinks" class="warp" on:click={() => warpTo(warp)}>
+            <span slot="outlinks" class="warp" on:click={() => warpTo(warp)} id="sector-{sector.id}-outlink-{warp}">
               {warp}
             </span>
             <span slot="inlinks" class="warp">{warp}</span>
@@ -636,7 +650,7 @@
       <div id="sector-list" class="sector-list">
         {#each currentGalaxyTrace as sector}
           <SectorComponent {sector} let:warp>
-            <span slot="outlinks" class="warp" on:click={() => warpTo(warp)}>
+            <span slot="outlinks" class="warp" id="sector-{sector.id}-outlink-{warp}" on:click={() => warpTo(warp)}>
               {warp}
             </span>
             <span slot="inlinks" class="warp">{warp}</span>
