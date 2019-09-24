@@ -70,7 +70,6 @@
         behavior: "smooth"
       });
     }, 1);
-
   }
 
   function warpTo(id) {
@@ -84,9 +83,11 @@
       console.log(`warpTo requested: ${id}`);
       console.log(`currentSectorId: ${currentSectorId}`);
       if (galaxy[currentSectorId].outlinks.includes(id)) {
-        let oldSectorLink = document.getElementById(`sector-${currentSectorId}-outlink-${id}`)
-        console.log(`sector-${currentSectorId}-outlink-${id}`)
-        oldSectorLink.classList = 'warp warp-highlight-completed'
+        let oldSectorLink = document.getElementById(
+          `sector-${currentSectorId}-outlink-${id}`
+        );
+        console.log(`sector-${currentSectorId}-outlink-${id}`);
+        oldSectorLink.classList = "warp warp-highlight-completed";
         currentSectorId = id;
         let newSector = galaxy[id];
         currentGalaxyTrace = [...currentGalaxyTrace, newSector];
@@ -158,8 +159,17 @@
       link.toString().startsWith(command.toString())
     );
     let nonMatches = outlinks.filter(link => !matches.includes(link));
-    console.log(`matches are: ${matches}, nonmatches are: ${nonMatches}`);
+    console.log(
+      `matches are: ${matches} (length ${matches.length}), nonmatches are: ${nonMatches}`
+    );
     if (matches.length < 1) {
+      input.value = "";
+      outlinks.forEach(warp => {
+        let thisWarp = document.getElementById(
+          `sector-${currentSectorId}-outlink-${warp}`
+        );
+        thisWarp.classList = "warp";
+      });
       return;
     }
     if (matches.length === 1) {
@@ -176,12 +186,25 @@
       if (e.keyCode === 13) {
         if (isInt(command)) {
           warpTo(matches[0]);
-          console.log(`Supposed to warp to ${command} typeof ${typeof command}`);
+          command = ''
+          console.log(
+            `Supposed to warp to ${command} typeof ${typeof command}`
+          );
         } else {
           alert(`What is this command, ${command}?`);
         }
       }
     } else {
+      if (e.keyCode === 13) {
+        if (isInt(command)) {
+          warpTo(command);
+          console.log(
+            `Supposed to warp to ${command} typeof ${typeof command}`
+          );
+        } else {
+          alert(`What is this command, ${command}?`);
+        }
+      }
       matches.forEach(warp => {
         let thisWarp = document.getElementById(
           `sector-${currentSectorId}-outlink-${warp}`
@@ -265,7 +288,6 @@
     );
     // triggerWarpHighlights(currentSectorId, matchedWarps)
   }
-
 
   //  thank you, Stack Overflow! https://stackoverflow.com/questions/14636536/how-to-check-if-a-variable-is-an-integer-in-javascript
   // Short-circuiting, and saving a parse operation
