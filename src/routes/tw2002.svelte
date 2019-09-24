@@ -56,19 +56,9 @@
     currentGalaxyTrace = [...currentGalaxyTrace, galaxy[ship.location]];
     console.log(currentGalaxyTrace);
     preGameSetup = false;
-    // start async game ticker @ 1s
-    // let end = 10
-    // runGameWatcher(end)
-    // listen for commands, run a "move" function when sectors are keyed in
-    // add "move" function to click listeners on warps
   }
 
   function travelTo(id) {
-    // let newSector = getRandomSector(galaxy) // galaxy[id] ? galaxy[id] :
-    // currentGalaxyTrace = [...currentGalaxyTrace, newSector]
-    // console.log(`currentGalaxyTrace ${currentGalaxyTrace}`)
-    // currentSectorId = id ? id : currentSectorId
-    // console.log(`in travelTo after conditional, currentSectorId ${currentSectorId}`)
     setTimeout(() => {
       let sectorList = document.getElementById("sector-list");
       let sectors = sectorList.children;
@@ -80,11 +70,12 @@
         behavior: "smooth"
       });
     }, 1);
+
   }
 
   function warpTo(id) {
-    let valid = updateCurrentGalaxyTrace(id);
-    travelTo(valid);
+    let validWarpId = updateCurrentGalaxyTrace(id);
+    travelTo(validWarpId);
   }
 
   function updateCurrentGalaxyTrace(id) {
@@ -93,6 +84,9 @@
       console.log(`warpTo requested: ${id}`);
       console.log(`currentSectorId: ${currentSectorId}`);
       if (galaxy[currentSectorId].outlinks.includes(id)) {
+        let oldSectorLink = document.getElementById(`sector-${currentSectorId}-outlink-${id}`)
+        console.log(`sector-${currentSectorId}-outlink-${id}`)
+        oldSectorLink.classList = 'warp warp-highlight-completed'
         currentSectorId = id;
         let newSector = galaxy[id];
         currentGalaxyTrace = [...currentGalaxyTrace, newSector];
@@ -146,93 +140,111 @@
     return id;
   }
 
- function newKey(e) {
+  function newKey(e) {
     let input = document.getElementById("command-input");
     let val = input.value;
-    let warp
-    console.log(`input value: ${val}`)
-    console.log(`input value bound command: ${command}`)
-    command = val;
-    let currentSector = galaxy[currentSectorId]
-    let arr = val.split("");
-    let lastChar = arr[val.length - 1];
-    let matchedWarps = []
+    let warp;
+    console.log(`input value: ${command}`);
+    console.log(`input value bound command: ${command}`);
+    // command = val;
+    let currentSector = galaxy[currentSectorId];
+    let arr = command.split("");
+    let lastChar = arr[command.length - 1];
+    let matchedWarps = [];
     let outlinks = currentSector.outlinks;
-    console.log(`outlinks: ${outlinks}`)
+    console.log(`outlinks: ${outlinks}`);
 
-    let matches = outlinks.filter(link => link.toString().startsWith(val.toString()))
-    let nonMatches = outlinks.filter(link => !matches.includes(link))
-    console.log(`matches are: ${matches}, nonmatches are: ${nonMatches}`)
-    if(matches.length < 1) {
-      return
-    } else {
-if(matches.length === 1) {
-      let thisWarp = document.getElementById(`sector-${currentSectorId}-outlink-${matches[0]}`)
-      thisWarp.classList.contains('warp-highlight-multiple') ? thisWarp.classList.toggle('warp-highlight-multiple') : null
-      thisWarp.classList.contains('warp-highlight-single') ? null : thisWarp.classList.toggle('warp-highlight-single')
-          if(e.keyCode === 13) { 
-      if(isInt(val)) {
-      warpTo(parseInt(val))
-      console.log(`Supposed to warp to ${val} typeof ${typeof val}`)
-      } else {
-        alert(`What is this command, ${val}?`)
-      }
-      }
-}
+    let matches = outlinks.filter(link =>
+      link.toString().startsWith(command.toString())
+    );
+    let nonMatches = outlinks.filter(link => !matches.includes(link));
+    console.log(`matches are: ${matches}, nonmatches are: ${nonMatches}`);
+    if (matches.length < 1) {
+      return;
     }
-    matches.forEach(warp => {
-      let thisWarp = document.getElementById(`sector-${currentSectorId}-outlink-${warp}`)
-      if(command = '') { thisWarp.classList = 'warp' } 
-      else {      
-      thisWarp.classList.contains('warp-highlight-multiple') ? null : thisWarp.classList.toggle('warp-highlight-multiple')
+    if (matches.length === 1) {
+      outlinks.forEach(warp => {
+        let thisWarp = document.getElementById(
+          `sector-${currentSectorId}-outlink-${warp}`
+        );
+        thisWarp.classList = "warp";
+      });
+      let thisWarp = document.getElementById(
+        `sector-${currentSectorId}-outlink-${matches[0]}`
+      );
+      thisWarp.classList.toggle("warp-highlight-single");
+      if (e.keyCode === 13) {
+        if (isInt(command)) {
+          warpTo(matches[0]);
+          console.log(`Supposed to warp to ${command} typeof ${typeof command}`);
+        } else {
+          alert(`What is this command, ${command}?`);
+        }
       }
-    })
-}
-
+    } else {
+      matches.forEach(warp => {
+        let thisWarp = document.getElementById(
+          `sector-${currentSectorId}-outlink-${warp}`
+        );
+        if (command === "") {
+          console.log(`command = '', resetting warp classes`);
+          thisWarp.classList = "warp";
+        } else {
+          thisWarp.classList.contains("warp-highlight-multiple")
+            ? null
+            : thisWarp.classList.toggle("warp-highlight-multiple");
+        }
+      });
+    }
+  }
 
   async function gameCommand(e) {
     console.log(`gameCommand entered with key ${e.keyCode}`);
     let input = document.getElementById("command-input");
-    let val = input.value;
-    command = val;
-    let currentSector = galaxy[currentSectorId]
-    let arr = val.split("");
-    let lastChar = arr[val.length - 1];
-    let matchedWarps = []
+    // let val = input.value;
+    // command = val;
+    let currentSector = galaxy[currentSectorId];
+    let arr = command.split("");
+    let lastChar = arr[command.length - 1];
+    let matchedWarps = [];
     let outlinks = currentSector.outlinks;
 
     console.log(
-      `current sector: ^^^<<<   ${currentSectorId}   >>>^^^ full input value: ${val}`
+      `current sector: ^^^<<<   ${currentSectorId}   >>>^^^ full input value: ${command}`
     );
     console.log(`full sector warps list:`);
     console.log(currentSector.outlinks);
 
-    if(e.keyCode === 13) { 
-      if(isInt(val)) {
-      await triggerWarpHighlights(currentSectorId, matchedWarps)  
-      warpTo(parseInt(val))
-      console.log(`Supposed to warp to ${val} typeof ${typeof val}`)
+    if (e.keyCode === 13) {
+      if (isInt(command)) {
+        await triggerWarpHighlights(currentSectorId, matchedWarps);
+        warpTo(parseInt(command));
+        console.log(`Supposed to warp to ${command} typeof ${typeof command}`);
       } else {
-        alert(`What is this command, ${val}?`)
+        alert(`What is this command, ${command}?`);
       }
-      }
+    }
 
     console.log(`last character: ${lastChar}`);
-    if (isInt(val)) {
-      console.log(`is an int ${val}`);
+    if (isInt(command)) {
+      console.log(`is an int ${command}`);
       outlinks.forEach(warp => {
-        let thisWarp = document.getElementById(`sector-${currentSectorId}-outlink-${warp}`)
-        if (parseInt(val) === parseInt(warp)) {
-          console.log(`XXXXXXXXXXXXXXXXXXXXX  You matched a valid warp out! let's see if there is a longer match....`);
+        let thisWarp = document.getElementById(
+          `sector-${currentSectorId}-outlink-${warp}`
+        );
+        if (parseInt(command) === parseInt(warp)) {
+          console.log(
+            `XXXXXXXXXXXXXXXXXXXXX  You matched a valid warp out! let's see if there is a longer match....`
+          );
           // thisWarp.classList.contains('warp-highlight') ? null : thisWarp.classList.toggle('warp-highlight')
           currentSectorMatch = true;
-          matchedWarps.push(warp) 
-          // triggerWarpHighlights(currentSectorId, matchedWarps)      
+          matchedWarps.push(warp);
+          // triggerWarpHighlights(currentSectorId, matchedWarps)
         } else {
-          // (warp.toString()+'').indexOf(val) > -1
-          if (warp.toString().startsWith(val)) {
+          // (warp.toString()+'').indexOf(command) > -1
+          if (warp.toString().startsWith(command)) {
             console.log(`current sector ${warp} check startsWith: PASSED`);
-            matchedWarps.push(warp) 
+            matchedWarps.push(warp);
             // thisWarp.classList.toggle('warp-highlight')
             currentSectorMatch = true;
             return;
@@ -241,33 +253,18 @@ if(matches.length === 1) {
             // thisWarp.classList.contains('warp-highlight') ? thisWarp.classList.toggle('warp-highlight') : null
           }
           // thisWarp.classList.contains('warp-highlight') ? thisWarp.classList.toggle('warp-highlight') : null
-          
         }
       });
       currentSectorMatch ? (currentSectorMatch = false) : (input.value = "");
     } else {
-      console.log(`${val} is not an int, clearing input`);
+      console.log(`${command} is not an int, clearing input`);
       input.value = "";
     }
-    console.log(`*************************************** matchedWarps: ${matchedWarps}`)
+    console.log(
+      `*************************************** matchedWarps: ${matchedWarps}`
+    );
     // triggerWarpHighlights(currentSectorId, matchedWarps)
   }
-  
-function triggerWarpHighlights(current, matchedWarps) {
-  if(matchedWarps.length < 1) {
-    return false
-  }
-  if(matchedWarps.length > 1) {
-    matchedWarps.forEach(warp => {
-      let thisWarp = document.getElementById(`sector-${current}-outlink-${warp}`)
-      thisWarp.classList.contains('warp-highlight-multiple') ? null : thisWarp.classList.toggle('warp-highlight-multiple')
-    })
-    } else {
-      console.log(`%%%%%%%%%%%%%%%% triggerWarpHighlights %%%%%%%%%%%%% current ${current} matchedWarps ${matchedWarps}`)
-      let thisWarp = document.getElementById(`sector-${current}-outlink-${parseInt(matchedWarps[0])}`)
-      thisWarp.classList.contains('warp-highlight') ? null : thisWarp.classList.toggle('warp-highlight')
-    }
-}
 
 
   //  thank you, Stack Overflow! https://stackoverflow.com/questions/14636536/how-to-check-if-a-variable-is-an-integer-in-javascript
@@ -624,19 +621,18 @@ function triggerWarpHighlights(current, matchedWarps) {
   }
 
   .warp-highlight-single {
-  background: rgba(118,0,255,0.5);
-  transition: all 0.05s;
-}
+    background: rgba(118, 0, 255, 0.5);
+    transition: all 0.05s;
+  }
 
-.warp-highlight-multiple {
-  background: rgba(255,0,118,0.5);
-  transition: all 0.05s;
-}
+  .warp-highlight-multiple {
+    background: rgba(255, 0, 118, 0.5);
+    transition: all 0.05s;
+  }
 
-.warp-completed {
-  background: rgba(0,255,118,0.25);
-}
-
+  .warp-highlight-completed {
+    background: rgba(0, 255, 118, 0.25);
+  }
 </style>
 
 <svelte:head>
@@ -722,7 +718,11 @@ function triggerWarpHighlights(current, matchedWarps) {
       <div id="sector-list" class="sector-list">
         {#each galaxy as sector}
           <SectorComponent {sector} let:warp>
-            <span slot="outlinks" class="warp" on:click={() => warpTo(warp)} id="sector-{sector.id}-outlink-{warp}">
+            <span
+              slot="outlinks"
+              class="warp"
+              on:click={() => warpTo(warp)}
+              id="sector-{sector.id}-outlink-{warp}">
               {warp}
             </span>
             <span slot="inlinks" class="warp">{warp}</span>
@@ -734,7 +734,11 @@ function triggerWarpHighlights(current, matchedWarps) {
       <div id="sector-list" class="sector-list">
         {#each currentGalaxyTrace as sector}
           <SectorComponent {sector} let:warp>
-            <span slot="outlinks" class="warp" id="sector-{sector.id}-outlink-{warp}" on:click={() => warpTo(warp)}>
+            <span
+              slot="outlinks"
+              class="warp"
+              id="sector-{sector.id}-outlink-{warp}"
+              on:click={() => warpTo(warp)}>
               {warp}
             </span>
             <span slot="inlinks" class="warp">{warp}</span>
