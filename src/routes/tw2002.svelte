@@ -146,31 +146,48 @@
     return id;
   }
 
-//  function newKey(e) {
-//     let input = document.getElementById("command-input");
-//     let val = input.value;
-//     command = val;
-//     let currentSector = galaxy[currentSectorId]
-//     let arr = val.split("");
-//     let lastChar = arr[val.length - 1];
-//     let matchedWarps = []
-//     let outlinks = currentSector.outlinks;
+ function newKey(e) {
+    let input = document.getElementById("command-input");
+    let val = input.value;
+    let warp
+    console.log(`input value: ${val}`)
+    console.log(`input value bound command: ${command}`)
+    command = val;
+    let currentSector = galaxy[currentSectorId]
+    let arr = val.split("");
+    let lastChar = arr[val.length - 1];
+    let matchedWarps = []
+    let outlinks = currentSector.outlinks;
+    console.log(`outlinks: ${outlinks}`)
 
-//     matchingLinks = outlinks.filter(warp => outlinks !== val)
-//     console.log(`matchingLinks are: ${matchingLinks}`)
-//     if(matchingLinks.length < 1) {
-//       return
-//     } else {
-// if(matchingLinks.length === 1) {
-//       let thisWarp = document.getElementById(`sector-${currentSectorId}-outlink-${warp}`)
-//       thisWarp.classList.toggle('warp-highlight-single')
-// }
-//     }
-//     matchingLinks.forEach(warp => {
-//       let thisWarp = document.getElementById(`sector-${currentSectorId}-outlink-${warp}`)
-//       thisWarp.classList.toggle('warp-highlight-multiple')
-//     })
-// }
+    let matches = outlinks.filter(link => link.toString().startsWith(val.toString()))
+    let nonMatches = outlinks.filter(link => !matches.includes(link))
+    console.log(`matches are: ${matches}, nonmatches are: ${nonMatches}`)
+    if(matches.length < 1) {
+      return
+    } else {
+if(matches.length === 1) {
+      let thisWarp = document.getElementById(`sector-${currentSectorId}-outlink-${matches[0]}`)
+      thisWarp.classList.contains('warp-highlight-multiple') ? thisWarp.classList.toggle('warp-highlight-multiple') : null
+      thisWarp.classList.contains('warp-highlight-single') ? null : thisWarp.classList.toggle('warp-highlight-single')
+          if(e.keyCode === 13) { 
+      if(isInt(val)) {
+      warpTo(parseInt(val))
+      console.log(`Supposed to warp to ${val} typeof ${typeof val}`)
+      } else {
+        alert(`What is this command, ${val}?`)
+      }
+      }
+}
+    }
+    matches.forEach(warp => {
+      let thisWarp = document.getElementById(`sector-${currentSectorId}-outlink-${warp}`)
+      if(command = '') { thisWarp.classList = 'warp' } 
+      else {      
+      thisWarp.classList.contains('warp-highlight-multiple') ? null : thisWarp.classList.toggle('warp-highlight-multiple')
+      }
+    })
+}
 
 
   async function gameCommand(e) {
@@ -210,13 +227,13 @@
           // thisWarp.classList.contains('warp-highlight') ? null : thisWarp.classList.toggle('warp-highlight')
           currentSectorMatch = true;
           matchedWarps.push(warp) 
-          triggerWarpHighlights(currentSectorId, matchedWarps)      
+          // triggerWarpHighlights(currentSectorId, matchedWarps)      
         } else {
           // (warp.toString()+'').indexOf(val) > -1
           if (warp.toString().startsWith(val)) {
             console.log(`current sector ${warp} check startsWith: PASSED`);
             matchedWarps.push(warp) 
-            thisWarp.classList.toggle('warp-highlight')
+            // thisWarp.classList.toggle('warp-highlight')
             currentSectorMatch = true;
             return;
           } else {
@@ -233,7 +250,7 @@
       input.value = "";
     }
     console.log(`*************************************** matchedWarps: ${matchedWarps}`)
-    triggerWarpHighlights(currentSectorId, matchedWarps)
+    // triggerWarpHighlights(currentSectorId, matchedWarps)
   }
   
 function triggerWarpHighlights(current, matchedWarps) {
@@ -698,7 +715,7 @@ function triggerWarpHighlights(current, matchedWarps) {
           bind:value={command}
           name="command"
           id="command-input"
-          on:keyup={gameCommand} />
+          on:keyup={newKey} />
       </label>
     </div>
     {#if preGameSetup}
