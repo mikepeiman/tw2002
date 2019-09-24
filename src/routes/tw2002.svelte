@@ -146,46 +146,85 @@
     return id;
   }
 
-  // I can add a "keyListener" data property to my Modal instances, and set which key(s) that specific modal will be triggered by
-  // in the Modal, simply pull in that variable as an argument for attaching the event listeners
+//  function newKey(e) {
+//     let input = document.getElementById("command-input");
+//     let val = input.value;
+//     command = val;
+//     let currentSector = galaxy[currentSectorId]
+//     let arr = val.split("");
+//     let lastChar = arr[val.length - 1];
+//     let matchedWarps = []
+//     let outlinks = currentSector.outlinks;
 
-  function gameCommand(e) {
+//     matchingLinks = outlinks.filter(warp => outlinks !== val)
+//     console.log(`matchingLinks are: ${matchingLinks}`)
+//     if(matchingLinks.length < 1) {
+//       return
+//     } else {
+// if(matchingLinks.length === 1) {
+//       let thisWarp = document.getElementById(`sector-${currentSectorId}-outlink-${warp}`)
+//       thisWarp.classList.toggle('warp-highlight-single')
+// }
+//     }
+//     matchingLinks.forEach(warp => {
+//       let thisWarp = document.getElementById(`sector-${currentSectorId}-outlink-${warp}`)
+//       thisWarp.classList.toggle('warp-highlight-multiple')
+//     })
+// }
+
+
+  async function gameCommand(e) {
     console.log(`gameCommand entered with key ${e.keyCode}`);
     let input = document.getElementById("command-input");
     let val = input.value;
     command = val;
     let currentSector = galaxy[currentSectorId]
+    let arr = val.split("");
+    let lastChar = arr[val.length - 1];
+    let matchedWarps = []
+    let outlinks = currentSector.outlinks;
+
     console.log(
       `current sector: ^^^<<<   ${currentSectorId}   >>>^^^ full input value: ${val}`
     );
     console.log(`full sector warps list:`);
     console.log(currentSector.outlinks);
-    let outlinks = currentSector.outlinks;
-    let arr = val.split("");
-    let lastChar = arr[val.length - 1];
+
+    if(e.keyCode === 13) { 
+      if(isInt(val)) {
+      await triggerWarpHighlights(currentSectorId, matchedWarps)  
+      warpTo(parseInt(val))
+      console.log(`Supposed to warp to ${val} typeof ${typeof val}`)
+      } else {
+        alert(`What is this command, ${val}?`)
+      }
+      }
+
     console.log(`last character: ${lastChar}`);
-    console.log(`is int? val ${isInt(val)}`);
     if (isInt(val)) {
       console.log(`is an int ${val}`);
       outlinks.forEach(warp => {
         let thisWarp = document.getElementById(`sector-${currentSectorId}-outlink-${warp}`)
         if (parseInt(val) === parseInt(warp)) {
-          console.log(`!@!@!@@!@!@!@!@!@  You matched a valid warp out!`);
-          warpTo(warp);
-          input.value = "";
+          console.log(`XXXXXXXXXXXXXXXXXXXXX  You matched a valid warp out! let's see if there is a longer match....`);
+          // thisWarp.classList.contains('warp-highlight') ? null : thisWarp.classList.toggle('warp-highlight')
+          currentSectorMatch = true;
+          matchedWarps.push(warp) 
+          triggerWarpHighlights(currentSectorId, matchedWarps)      
         } else {
           // (warp.toString()+'').indexOf(val) > -1
           if (warp.toString().startsWith(val)) {
             console.log(`current sector ${warp} check startsWith: PASSED`);
-            
+            matchedWarps.push(warp) 
             thisWarp.classList.toggle('warp-highlight')
             currentSectorMatch = true;
             return;
           } else {
             console.log(`current sector ${warp} check FAILED`);
-            thisWarp.classList.contains('warp-highlight') ? thisWarp.classList.toggle('warp-highlight') : null
+            // thisWarp.classList.contains('warp-highlight') ? thisWarp.classList.toggle('warp-highlight') : null
           }
-          thisWarp.classList.contains('warp-highlight') ? thisWarp.classList.toggle('warp-highlight') : null
+          // thisWarp.classList.contains('warp-highlight') ? thisWarp.classList.toggle('warp-highlight') : null
+          
         }
       });
       currentSectorMatch ? (currentSectorMatch = false) : (input.value = "");
@@ -193,8 +232,27 @@
       console.log(`${val} is not an int, clearing input`);
       input.value = "";
     }
+    console.log(`*************************************** matchedWarps: ${matchedWarps}`)
+    triggerWarpHighlights(currentSectorId, matchedWarps)
   }
   
+function triggerWarpHighlights(current, matchedWarps) {
+  if(matchedWarps.length < 1) {
+    return false
+  }
+  if(matchedWarps.length > 1) {
+    matchedWarps.forEach(warp => {
+      let thisWarp = document.getElementById(`sector-${current}-outlink-${warp}`)
+      thisWarp.classList.contains('warp-highlight-multiple') ? null : thisWarp.classList.toggle('warp-highlight-multiple')
+    })
+    } else {
+      console.log(`%%%%%%%%%%%%%%%% triggerWarpHighlights %%%%%%%%%%%%% current ${current} matchedWarps ${matchedWarps}`)
+      let thisWarp = document.getElementById(`sector-${current}-outlink-${parseInt(matchedWarps[0])}`)
+      thisWarp.classList.contains('warp-highlight') ? null : thisWarp.classList.toggle('warp-highlight')
+    }
+}
+
+
   //  thank you, Stack Overflow! https://stackoverflow.com/questions/14636536/how-to-check-if-a-variable-is-an-integer-in-javascript
   // Short-circuiting, and saving a parse operation
   function isInt(value) {
@@ -548,9 +606,18 @@
     padding-left: 1rem;
   }
 
-.warp-highlight {
-  background: red;
+  .warp-highlight-single {
+  background: rgba(118,0,255,0.5);
   transition: all 0.05s;
+}
+
+.warp-highlight-multiple {
+  background: rgba(255,0,118,0.5);
+  transition: all 0.05s;
+}
+
+.warp-completed {
+  background: rgba(0,255,118,0.25);
 }
 
 </style>
