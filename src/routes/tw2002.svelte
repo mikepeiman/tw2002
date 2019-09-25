@@ -72,13 +72,13 @@
     }, 1);
   }
 
-  function warpTo(sectorId, id) {
-    renderDuplicateSectorIds(sectorId, id) 
-    let validWarpId = updateCurrentGalaxyTrace(id);
+  function warpTo(sectorId, warpId) {
+    // renderDuplicateSectorIds(sectorId, warpId) 
+    let validWarpId = updateCurrentGalaxyTrace(warpId);
     travelTo(validWarpId);
   }
 
-async function isThisSectorInstantiatedAlready(sector, warp) {
+function isThisSectorInstantiatedAlready(sector, warp) {
     let matches = currentGalaxyTrace.filter(sector => sector === sector).length
     console.log(`$$$$$$$$$$$$$$$ inside isThisSectorInstantiatedAlready, sectors matching ${sector} are: ${matches}`)
     galaxy[sector].instances = matches
@@ -87,16 +87,16 @@ async function isThisSectorInstantiatedAlready(sector, warp) {
     // Can you think of any use case where you'd need them?
 }
 
-  async function updateCurrentGalaxyTrace(id) {
+  function updateCurrentGalaxyTrace(id) {
     if (id !== "random") {
       console.log(`############################################`);
-      console.log(`warpTo requested: ${id}`);
+      console.log(`warpTo random requested: ${id}`);
       console.log(`currentSectorId: ${currentSectorId}`);
       if (galaxy[currentSectorId].outlinks.includes(id)) {
-        let oldSectorLink = await document.getElementById(
-          `sector-${currentSectorId}-outlink-${id}-instance-${galaxy[currentSectorId].instances}`
+        let oldSectorLink = document.getElementById(
+          `sector-${currentSectorId}-outlink-${id}`
         );
-        console.log(`sector-${currentSectorId}-outlink-${id}-instance-${galaxy[currentSectorId].instances}`);
+        console.log(`sector-${currentSectorId}-outlink-${id}`);
         oldSectorLink.classList = "warp warp-highlight-completed";
         currentSectorId = id;
         let newSector = galaxy[id];
@@ -206,7 +206,7 @@ async function isThisSectorInstantiatedAlready(sector, warp) {
       thisWarp.classList.toggle("warp-highlight-single");
       if (e.keyCode === 13) {
         if (isInt(command)) {
-          warpTo(matches[0]);
+          warpTo(currentSectorId, matches[0]);
           command = ''
           console.log(
             `Supposed to warp to ${command} typeof ${typeof command}`
@@ -218,7 +218,7 @@ async function isThisSectorInstantiatedAlready(sector, warp) {
     } else {
       if (e.keyCode === 13) {
         if (isInt(command)) {
-          warpTo(command);
+          warpTo(currentSectorId, command);
           console.log(
             `Supposed to warp to ${command} typeof ${typeof command}`
           );
@@ -262,7 +262,7 @@ async function isThisSectorInstantiatedAlready(sector, warp) {
     if (e.keyCode === 13) {
       if (isInt(command)) {
         await triggerWarpHighlights(currentSectorId, matchedWarps);
-        warpTo(parseInt(command));
+        warpTo(currentSectorId, parseInt(command));
         console.log(`Supposed to warp to ${command} typeof ${typeof command}`);
       } else {
         alert(`What is this command, ${command}?`);
@@ -764,7 +764,6 @@ async function isThisSectorInstantiatedAlready(sector, warp) {
             <span
               slot="outlinks"
               class="warp"
-              on:click={() => warpTo(warp)}
               id="sector-{sector.id}-outlink-{warp}">
               {warp}
             </span>
@@ -780,7 +779,7 @@ async function isThisSectorInstantiatedAlready(sector, warp) {
             <span
               slot="outlinks"
               class="warp"
-              id={() => isThisSectorInstantiatedAlready(sector.id, warp)}
+              id="sector-{sector.id}-outlink-{warp}"
               on:click={() => warpTo(sector.id, warp)}>
               {warp}
             </span>
