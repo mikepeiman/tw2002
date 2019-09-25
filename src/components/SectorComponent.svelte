@@ -18,7 +18,7 @@ export let sector, warp
     <span class="sector-warps">
       OUT:
       {#each sector.outlinks as warp}
-        <slot name="outlinks" warp={warp} class="warp" id="{sector.id}-{warp}">No outlinks here!</slot>
+        <slot name="outlinks" warp={warp} class="warp">No outlinks here!</slot>
       {/each}
     </span>
     <span class="sector-warps">

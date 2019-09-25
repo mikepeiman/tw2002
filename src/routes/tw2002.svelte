@@ -19,6 +19,7 @@
   $: allShipsInGame = [];
   $: preGameSetup = true;
   $: command = "";
+  // $: matches = 1;
   let modal, keyTrigger;
   // $: sectorList = document.getElementById('sector-list');
 
@@ -54,7 +55,6 @@
     ship.location = 0;
     currentGalaxyTrace = [];
     currentGalaxyTrace = [...currentGalaxyTrace, galaxy[ship.location]];
-    console.log(currentGalaxyTrace);
     preGameSetup = false;
   }
 
@@ -72,25 +72,37 @@
     }, 1);
   }
 
-  function warpTo(id) {
+  function warpTo(sectorId, id) {
+    renderDuplicateSectorIds(sectorId, id) 
     let validWarpId = updateCurrentGalaxyTrace(id);
     travelTo(validWarpId);
   }
 
-  function updateCurrentGalaxyTrace(id) {
+async function isThisSectorInstantiatedAlready(sector, warp) {
+    let matches = currentGalaxyTrace.filter(sector => sector === sector).length
+    console.log(`$$$$$$$$$$$$$$$ inside isThisSectorInstantiatedAlready, sectors matching ${sector} are: ${matches}`)
+    galaxy[sector].instances = matches
+    return `sector-${sector}-outlink-${warp}-instance-${matches}`
+    // another way to do this, rather than unique IDs for every warp, is to remove the IDs from prior instances.
+    // Can you think of any use case where you'd need them?
+}
+
+  async function updateCurrentGalaxyTrace(id) {
     if (id !== "random") {
       console.log(`############################################`);
       console.log(`warpTo requested: ${id}`);
       console.log(`currentSectorId: ${currentSectorId}`);
       if (galaxy[currentSectorId].outlinks.includes(id)) {
-        let oldSectorLink = document.getElementById(
-          `sector-${currentSectorId}-outlink-${id}`
+        let oldSectorLink = await document.getElementById(
+          `sector-${currentSectorId}-outlink-${id}-instance-${galaxy[currentSectorId].instances}`
         );
-        console.log(`sector-${currentSectorId}-outlink-${id}`);
+        console.log(`sector-${currentSectorId}-outlink-${id}-instance-${galaxy[currentSectorId].instances}`);
         oldSectorLink.classList = "warp warp-highlight-completed";
         currentSectorId = id;
         let newSector = galaxy[id];
+
         currentGalaxyTrace = [...currentGalaxyTrace, newSector];
+
         console.log(`warpTo requested: ${id}`);
         console.log(`currentSectorId: ${currentSectorId}`);
         return id;
@@ -106,6 +118,15 @@
       return newSector.id;
     }
   }
+
+  function renderDuplicateSectorIds(sectorId, warpId) {
+    // let currentSectorCount = 1
+    // "sector-{sector.id}-outlink-{warp}"
+    console.log(`sectorId ${sectorId}, warpId ${warpId}`)
+    let sectorCount = currentGalaxyTrace.filter(sector => sector.id === sectorId).length
+    console.log(`sectorCount: ${sectorCount}`)
+  }
+
 
   function insertNotification() {
     console.log(`insertNotification`);
@@ -717,14 +738,14 @@
         keyTrigger="t"
         modalHeading="TEST"
         modalContent="Test successful!"
-        buttonContent="Test modal"
+        buttonContent="Click or press 'T' to test"
         buttonId="test" />
       <Modal
         modalId="modal-quit"
         keyTrigger="q"
         modalHeading="QUIT"
         modalContent="Do you really want to quit?"
-        buttonContent="QUIT GAME"
+        buttonContent="Click or press 'Q' to quit"
         buttonId="quit" />
       <label for="command-input">
         Enter command:
@@ -759,8 +780,8 @@
             <span
               slot="outlinks"
               class="warp"
-              id="sector-{sector.id}-outlink-{warp}"
-              on:click={() => warpTo(warp)}>
+              id={() => isThisSectorInstantiatedAlready(sector.id, warp)}
+              on:click={() => warpTo(sector.id, warp)}>
               {warp}
             </span>
             <span slot="inlinks" class="warp">{warp}</span>
