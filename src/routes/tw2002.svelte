@@ -84,7 +84,7 @@
   }
 
   function isThisSectorInstantiatedAlready(sector) {
-    let matches = currentGalaxyTrace.filter(s => s === sector).length;
+    let matches = currentGalaxyTrace.filter(s => s.id === sector).length;
     console.log(
       `$$$$$$$$$$$$$$$ inside isThisSectorInstantiatedAlready, sectors matching ${sector} are: ${matches}`
     );
@@ -250,7 +250,7 @@
           alert(`What is this command, ${command}?`);
         }
         command = "";
-      }
+      } else {
       matches.forEach(warp => {
         let thisWarp = document.getElementById(
           `sector-${currentSectorId}-outlink-${warp}`
@@ -264,6 +264,7 @@
             : thisWarp.classList.toggle("warp-highlight-multiple");
         }
       });
+      }
     }
   }
 
