@@ -53,8 +53,11 @@
     // (load and save functionality will come later)
     // place player/ship in sector 0
     ship.location = 0;
-    currentGalaxyTrace = [];
-    currentGalaxyTrace = [...currentGalaxyTrace, galaxy[ship.location]];
+    currentGalaxyTrace = [galaxy[ship.location]];
+    localStorage.setItem(
+          "currentGalaxyTrace",
+          JSON.stringify(currentGalaxyTrace)
+        );
     preGameSetup = false;
   }
 
@@ -88,7 +91,9 @@
     console.log(
       `$$$$$$$$$$$$$$$ inside isThisSectorInstantiatedAlready, sectors matching ${sectorId} are: ${matches}`
     );
+
     galaxy[sectorId].instance = matches;
+    return matches
     // return `sector-${sector}-outlink-${warp}-instance-${matches}`
     // another way to do this, rather than unique IDs for every warp, is to remove the IDs from prior instances.
     // Can you think of any use case where you'd need them?
@@ -96,21 +101,29 @@
 
   function updateCurrentGalaxyTrace(id) {
     if (id !== "random") {
+      let matches = isThisSectorInstantiatedAlready(id);
       let current = galaxy[currentSectorId]
       console.log(`############################################`);
       console.log(`warpTo direct requested: ${id}`);
       console.log(`currentSectorId: ${currentSectorId}`);
-      isThisSectorInstantiatedAlready(id);
+      // return number of matches with warpTo sector ID in currentGalaxyTrace
+      
       if (current.outlinks.includes(parseInt(id))) {
         let oldSectorLink = document.getElementById(
           `sector-${currentSectorId}-instance-${current.instance}-outlink-${id}`
         );
         console.log(`sector-${currentSectorId}-instance-${current.instance}-outlink-${id}`);
         oldSectorLink.classList = "warp warp-highlight-completed";
+        
+        // update global var to new current sector ID
         currentSectorId = id;
-        let newSector = galaxy[id];
 
-        currentGalaxyTrace = [...currentGalaxyTrace, newSector];
+        let nextSector = galaxy[id];
+
+        currentGalaxyTrace = [...currentGalaxyTrace, nextSector];
+        console.log(`@@@ @@@ @@@ currentGalaxyTrace[currentGalaxyTrace.length-1] ${currentGalaxyTrace[currentGalaxyTrace.length-1].id}`)
+
+        currentGalaxyTrace[currentGalaxyTrace.length-1].instance = matches;
         localStorage.setItem(
           "currentGalaxyTrace",
           JSON.stringify(currentGalaxyTrace)
@@ -125,9 +138,9 @@
       }
     } else {
       console.log("else random sector");
-      let newSector = getRandomSector(galaxy);
-      currentGalaxyTrace = [...currentGalaxyTrace, newSector];
-      return newSector.id;
+      let nextSector = getRandomSector(galaxy);
+      currentGalaxyTrace = [...currentGalaxyTrace, nextSector];
+      return nextSector.id;
     }
   }
 
