@@ -83,12 +83,12 @@
     // input.value = "";
   }
 
-  function isThisSectorInstantiatedAlready(sector) {
-    let matches = currentGalaxyTrace.filter(s => s.id === sector).length;
+  function isThisSectorInstantiatedAlready(sectorId) {
+    let matches = currentGalaxyTrace.filter(s => s.id === sectorId).length;
     console.log(
-      `$$$$$$$$$$$$$$$ inside isThisSectorInstantiatedAlready, sectors matching ${sector} are: ${matches}`
+      `$$$$$$$$$$$$$$$ inside isThisSectorInstantiatedAlready, sectors matching ${sectorId} are: ${matches}`
     );
-    galaxy[sector].instances = matches;
+    galaxy[sectorId].instance = matches;
     // return `sector-${sector}-outlink-${warp}-instance-${matches}`
     // another way to do this, rather than unique IDs for every warp, is to remove the IDs from prior instances.
     // Can you think of any use case where you'd need them?
@@ -96,15 +96,16 @@
 
   function updateCurrentGalaxyTrace(id) {
     if (id !== "random") {
+      let current = galaxy[currentSectorId]
       console.log(`############################################`);
       console.log(`warpTo direct requested: ${id}`);
       console.log(`currentSectorId: ${currentSectorId}`);
       isThisSectorInstantiatedAlready(id);
-      if (galaxy[currentSectorId].outlinks.includes(parseInt(id))) {
+      if (current.outlinks.includes(parseInt(id))) {
         let oldSectorLink = document.getElementById(
-          `sector-${currentSectorId}-outlink-${id}`
+          `sector-${currentSectorId}-instance-${current.instance}-outlink-${id}`
         );
-        console.log(`sector-${currentSectorId}-outlink-${id}`);
+        console.log(`sector-${currentSectorId}-instance-${current.instance}-outlink-${id}`);
         oldSectorLink.classList = "warp warp-highlight-completed";
         currentSectorId = id;
         let newSector = galaxy[id];
@@ -132,7 +133,7 @@
 
   function renderDuplicateSectorIds(sectorId, warpId) {
     // let currentSectorCount = 1
-    // "sector-{sector.id}-outlink-{warp}"
+    // "sector-{sector.id}-instance-{sector.instance}-outlink-{warp}"
     console.log(`sectorId ${sectorId}, warpId ${warpId}`);
     let sectorCount = currentGalaxyTrace.filter(
       sector => sector.id === sectorId
@@ -181,11 +182,11 @@
     console.log(`input value: ${command}`);
     console.log(`input value bound command: ${command}`);
     // command = val;
-    let currentSector = galaxy[currentSectorId];
+    let current = galaxy[currentSectorId];
     let arr = command.split("");
     let lastChar = arr[command.length - 1];
     let matchedWarps = [];
-    let outlinks = currentSector.outlinks;
+    let outlinks = current.outlinks;
     console.log(`outlinks: ${outlinks}`);
 
     let matches = outlinks.filter(link =>
@@ -199,7 +200,7 @@
       input.value = "";
       outlinks.forEach(warp => {
         let thisWarp = document.getElementById(
-          `sector-${currentSectorId}-outlink-${warp}`
+          `sector-${currentSectorId}-instance-${current.instance}-outlink-${warp}`
         );
         thisWarp.classList = "warp";
       });
@@ -208,12 +209,12 @@
     if (matches.length === 1) {
       outlinks.forEach(warp => {
         let thisWarp = document.getElementById(
-          `sector-${currentSectorId}-outlink-${warp}`
+          `sector-${currentSectorId}-instance-${current.instance}-outlink-${warp}`
         );
         thisWarp.classList = "warp";
       });
       let thisWarp = document.getElementById(
-        `sector-${currentSectorId}-outlink-${matches[0]}`
+        `sector-${currentSectorId}-instance-${current.instance}-outlink-${matches[0]}`
       );
       thisWarp.classList.toggle("warp-highlight-single");
       if (e.keyCode === 13) {
@@ -236,9 +237,9 @@
           
           matches.forEach(warp => {
             console.log(`ENTER KEY hit, if isInt(command), matches.forEach, current sector ID ${currentSectorId}`)
-            console.log(`sector-${currentSectorId}-outlink-${warp}`)
+            console.log(`sector-${currentSectorId}-instance-${current.instance}-outlink-${warp}`)
             let thisWarp = document.getElementById(
-              `sector-${currentSectorId}-outlink-${warp}`
+              `sector-${currentSectorId}-instance-${current.instance}-outlink-${warp}`
             );
             thisWarp.classList = "warp";
           });
@@ -253,7 +254,7 @@
       } else {
       matches.forEach(warp => {
         let thisWarp = document.getElementById(
-          `sector-${currentSectorId}-outlink-${warp}`
+          `sector-${currentSectorId}-instance-${current.instance}-outlink-${warp}`
         );
         if (command === "") {
           console.log(`command = '', resetting warp classes`);
@@ -722,7 +723,7 @@
             <span
               slot="outlinks"
               class="warp"
-              id="sector-{sector.id}-outlink-{warp}">
+              id="sector-{sector.id}-instance-{sector.instance}-outlink-{warp}">
               {warp}
             </span>
             <span slot="inlinks" class="warp">{warp}</span>
@@ -737,7 +738,7 @@
             <span
               slot="outlinks"
               class="warp"
-              id="sector-{sector.id}-outlink-{warp}"
+              id="sector-{sector.id}-instance-{sector.instance}-outlink-{warp}"
               on:click={() => warpTo(sector.id, warp)}>
               {warp}
             </span>
