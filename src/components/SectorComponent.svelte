@@ -6,7 +6,7 @@ export let sector, warp
 <div class="svelte-universe" transition:fade  id="sector-{sector.id}">
   <div class="sector-details">
     <span class="sector-name">
-      Sector
+      Sector {sector}
       <span class="sector-number" >{sector.id}</span>
     </span>
     <span class="warps-quota">
