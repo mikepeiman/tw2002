@@ -4,14 +4,15 @@
   import shipsData from "../store/shipsData.json";
   import SectorComponent from ".././components/SectorComponent.svelte";
   import Modal from ".././components/Modal.svelte";
-  import createGraph from 'ngraph.graph';
-  import path from 'ngraph.path';
-  
+  import createGraph from "ngraph.graph";
+  import path from "ngraph.path";
 
   // import { galaxy } from "../store"
   import seedrandom from "seedrandom";
   // import '../components/galaxy-generator.js'
 
+  $: filteredGalaxy = [];
+  $: galaxyArray = [];
   $: galaxy = [];
   $: galaxyGraph = {};
   $: galSize = 50;
@@ -20,6 +21,7 @@
   $: currentSectorId = 0;
   $: currentSectorMatch = false;
   $: currentGalaxyTrace = [];
+  $: currentRoute = [];
   $: allShipsInGame = [];
   $: preGameSetup = true;
   $: command = "";
@@ -32,10 +34,32 @@
     warpMin = document.getElementById("warpsMin").value;
     warpMax = document.getElementById("warpsMax").value;
     galSize = document.getElementById("galSize").value;
+    Object.filter = (obj, predicate) =>
+      Object.keys(obj)
+        .filter(key => predicate(obj[key]))
+        .reduce((res, key) => ((res[key] = obj[key]), res), {});
+
     generateGalaxy(galSize, warpMin, warpMax).then(galaxy => {
       linkGalaxy(galaxy);
       localStorage.setItem("galaxy", JSON.stringify(galaxy));
       initGalaxy();
+
+      filteredGalaxy = Object.filter(galaxy, node => node.hasOwnProperty("id"));
+      console.log(`filteredGalaxy ${filteredGalaxy}`);
+      console.log(filteredGalaxy);
+      // galaxy = filteredGalaxy
+      let pathFinder = path.aStar(galaxy);
+      let foundPath = pathFinder.find(5, 25);
+      console.log(
+        `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${5} to ${25} path ${foundPath}`
+      );
+      console.log(foundPath)
+      for(let id in foundPath) {
+        console.log(`step: ${foundPath[id].id}`)
+        currentRoute.push(foundPath[id].id)
+        console.log(foundPath[id])
+      }
+      console.log(`current route: ${currentRoute}`)
     });
   });
 
@@ -60,9 +84,9 @@
     ship.location = 0;
     currentGalaxyTrace = [galaxy[ship.location]];
     localStorage.setItem(
-          "currentGalaxyTrace",
-          JSON.stringify(currentGalaxyTrace)
-        );
+      "currentGalaxyTrace",
+      JSON.stringify(currentGalaxyTrace)
+    );
     preGameSetup = false;
   }
 
@@ -82,10 +106,12 @@
 
   function warpTo(sectorId, warpId) {
     // renderDuplicateSectorIds(sectorId, warpId)
-    let fromNode = galaxy[sectorId].id
-    let toNode = galaxy[warpId].id
-    let foundPath = pathFinder.find(sectorId, warpId)
-    console.log(`>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${sectorId} to ${warpId} path ${foundPath}`)
+    // let fromNode = galaxy[sectorId].id;
+    // let toNode = galaxy[warpId].id;
+    // let foundPath = pathFinder.find(sectorId, warpId);
+    // console.log(
+    //   `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${sectorId} to ${warpId} path ${foundPath}`
+    // );
     let validWarpId = updateCurrentGalaxyTrace(warpId);
     travelTo(validWarpId);
     // console.log(
@@ -102,7 +128,7 @@
     );
 
     galaxy[sectorId].instance = matches;
-    return matches
+    return matches;
     // return `sector-${sector}-outlink-${warp}-instance-${matches}`
     // another way to do this, rather than unique IDs for every warp, is to remove the IDs from prior instances.
     // Can you think of any use case where you'd need them?
@@ -111,28 +137,32 @@
   function updateCurrentGalaxyTrace(id) {
     if (id !== "random") {
       let matches = isThisSectorInstantiatedAlready(id);
-      let current = galaxy[currentSectorId]
+      let current = galaxy[currentSectorId];
       console.log(`############################################`);
       console.log(`warpTo direct requested: ${id}`);
       console.log(`currentSectorId: ${currentSectorId}`);
       // return number of matches with warpTo sector ID in currentGalaxyTrace
-      
+
       if (current.data.outlinks.includes(parseInt(id))) {
         let oldSectorLink = document.getElementById(
           `sector-${currentSectorId}-instance-${current.data.instance}-outlink-${id}`
         );
-        console.log(`sector-${currentSectorId}-instance-${current.data.instance}-outlink-${id}`);
+        console.log(
+          `sector-${currentSectorId}-instance-${current.data.instance}-outlink-${id}`
+        );
         oldSectorLink.classList = "warp warp-highlight-completed";
-        
+
         // update global var to new current sector ID
         currentSectorId = id;
 
         let nextSector = galaxy[id];
 
         currentGalaxyTrace = [...currentGalaxyTrace, nextSector];
-        console.log(`@@@ @@@ @@@ currentGalaxyTrace[currentGalaxyTrace.length-1] ${currentGalaxyTrace[currentGalaxyTrace.length-1].id}`)
+        console.log(
+          `@@@ @@@ @@@ currentGalaxyTrace[currentGalaxyTrace.length-1] ${currentGalaxyTrace[currentGalaxyTrace.length - 1].id}`
+        );
 
-        currentGalaxyTrace[currentGalaxyTrace.length-1].instance = matches;
+        currentGalaxyTrace[currentGalaxyTrace.length - 1].instance = matches;
         localStorage.setItem(
           "currentGalaxyTrace",
           JSON.stringify(currentGalaxyTrace)
@@ -254,12 +284,15 @@
     } else {
       if (e.keyCode === 13) {
         console.log(`isInt command? ${isInt(command)}  matches > 1`);
-        console.log(`more than one match, enter key hit, matches: ${matches}`)
+        console.log(`more than one match, enter key hit, matches: ${matches}`);
         if (isInt(command)) {
-          
           matches.forEach(warp => {
-            console.log(`ENTER KEY hit, if isInt(command), matches.forEach, current sector ID ${currentSectorId}`)
-            console.log(`sector-${currentSectorId}-instance-${current.data.instance}-outlink-${warp}`)
+            console.log(
+              `ENTER KEY hit, if isInt(command), matches.forEach, current sector ID ${currentSectorId}`
+            );
+            console.log(
+              `sector-${currentSectorId}-instance-${current.data.instance}-outlink-${warp}`
+            );
             let thisWarp = document.getElementById(
               `sector-${currentSectorId}-instance-${current.data.instance}-outlink-${warp}`
             );
@@ -274,19 +307,19 @@
         }
         command = "";
       } else {
-      matches.forEach(warp => {
-        let thisWarp = document.getElementById(
-          `sector-${currentSectorId}-instance-${current.data.instance}-outlink-${warp}`
-        );
-        if (command === "") {
-          console.log(`command = '', resetting warp classes`);
-          thisWarp.classList = "warp";
-        } else {
-          thisWarp.classList.contains("warp-highlight-multiple")
-            ? null
-            : thisWarp.classList.toggle("warp-highlight-multiple");
-        }
-      });
+        matches.forEach(warp => {
+          let thisWarp = document.getElementById(
+            `sector-${currentSectorId}-instance-${current.data.instance}-outlink-${warp}`
+          );
+          if (command === "") {
+            console.log(`command = '', resetting warp classes`);
+            thisWarp.classList = "warp";
+          } else {
+            thisWarp.classList.contains("warp-highlight-multiple")
+              ? null
+              : thisWarp.classList.toggle("warp-highlight-multiple");
+          }
+        });
       }
     }
   }
@@ -328,11 +361,11 @@
   }
 
   async function generateGalaxy(galSize, warpMin, warpMax) {
-    
     for (let sectorId = 0; sectorId < galSize; sectorId++) {
       galaxy[sectorId] = await makeSector(sectorId, warpMin, warpMax);
+      galaxyArray = [...galaxyArray, galaxy[sectorId]]
     }
-    let pathFinder = path.aStar(galaxy)
+    // let pathFinder = path.aStar(galaxy);
     return galaxy;
   }
 
@@ -343,7 +376,7 @@
       inlinks: [],
       outlinks: [],
       shipsInSector: []
-    })
+    });
     // sector.id = sectorId;
     // sector.data.warpsQuota = getRandomInt(warpMin, warpMax);
     // sector.data.inlinks = [];
@@ -394,6 +427,7 @@
       sector.data.inlinks.forEach(link => {
         if (!sector.data.outlinks.includes(link)) {
           sector.data.outlinks.push(link);
+          
         }
       });
     }
@@ -403,7 +437,7 @@
 
     while (needsLinks > 0) {
       let rand = getRandomSector(galaxy);
-      console.log(`needslinks, rand = ${rand.id}`)
+      console.log(`needslinks, rand = ${rand.id}`);
 
       if (
         rand.id !== sector.id &&
@@ -414,6 +448,7 @@
         warps.sort();
         sector.data.outlinks.push(rand.id);
         sector.data.inlinks.push(rand.id);
+        galaxy.addLink(sector.id, rand.id)
 
         // only push inlink to the outlinked (rand) sector if it is not already at quota
         // if(rand.data.inlinks >= rand.data.warpsQuota) {
@@ -725,7 +760,7 @@
       </div>
     </div>
     <div class="commands-window">
-        <Modal
+      <Modal
         modalId="modal-galaxy"
         keyTrigger="g"
         modalHeading="GALAXY"
@@ -758,8 +793,8 @@
     </div>
     {#if preGameSetup}
       <div id="sector-list" class="sector-list">
-        {#each galaxy as sector}
-        {sector}
+        {#each galaxyArray as sector}
+          {sector}
           <SectorComponent {sector} let:warp>
             <span
               slot="outlinks"
@@ -773,10 +808,8 @@
       </div>
     {/if}
     {#if !preGameSetup}
-
       <div id="sector-list" class="sector-list">
         {#each currentGalaxyTrace as sector}
-            {sector}
           <SectorComponent {sector} let:warp>
             <span
               slot="outlinks"
