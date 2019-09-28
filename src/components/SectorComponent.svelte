@@ -11,19 +11,19 @@ export let sector, warp
     </span>
     <span class="warps-quota">
       warps quota:
-      <span class="warps-quota-number">{sector.warpsQuota}</span>
+      <span class="warps-quota-number">{sector.data.warpsQuota}</span>
     </span>
   </div>
   <div class="warps-group">
     <span class="sector-warps">
       OUT:
-      {#each sector.outlinks as warp}
+      {#each sector.data.outlinks as warp}
         <slot name="outlinks" warp={warp} class="warp">No outlinks here!</slot>
       {/each}
     </span>
     <span class="sector-warps">
       IN:
-      {#each sector.inlinks as warp}
+      {#each sector.data.inlinks as warp}
         <slot name="inlinks" warp={warp}>No outlinks here!</slot>
       {/each}
     </span>
