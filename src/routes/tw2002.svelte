@@ -11,7 +11,7 @@
   import seedrandom from "seedrandom";
   // import '../components/galaxy-generator.js'
 
-  $: filteredGalaxy = [];
+  // $: filteredGalaxy = [];
   $: galaxyArray = [];
   $: galaxy = createGraph();
   $: galaxyGraph = {};
@@ -40,42 +40,29 @@
 
     generateGalaxy(galSize, warpMin, warpMax).then(galaxy => {
       linkGalaxy(galaxy);
-      console.log(`original galaxy object in onMount() inside .then`);
-      console.log(galaxy);
-      galaxy = galaxy;
-      localStorage.setItem("galaxy", JSON.stringify(galaxy))
+      // galaxy = galaxy;
+      localStorage.setItem("galaxy", JSON.stringify(galaxy));
 
-      findPath(galaxy, 3, 18);
-      console.log(`immediately following successful findPath in onMount()`);
-      console.log(galaxy);
-      console.log(`galaxy.constructor.name ${galaxy.constructor.name}`)
 
-      filteredGalaxy = Object.filter(galaxy, node => node.hasOwnProperty("id"));
+      findPath(3, 18);
+
+
+      let filteredGalaxy = Object.filter(galaxy, node => node.hasOwnProperty("id"));
       localStorage.setItem("filteredGalaxy", JSON.stringify(filteredGalaxy));
       Object.keys(filteredGalaxy).forEach(key => {
-        // console.log(`filteredGalaxy object keys: ${key}`);
         let system = galaxy[key];
-        // console.log(`system.id ${system.id}, system.links ${system.links}`);
         galaxyArray = [...galaxyArray, system];
       });
       localStorage.setItem("galaxyArray", JSON.stringify(galaxyArray));
-      console.log(`filteredGalaxy ${filteredGalaxy}`);
-      console.log(filteredGalaxy);
     });
-    console.log(`original galaxy object in onMount() after .then`);
-    console.log(galaxy);
   });
 
-  async function findPath(galaxy, a, b) {
+  async function findPath(a, b) {
     console.log(`findPath function a ${a}, b ${b}`);
-    console.log(`galaxy object in findPath()`);
-    console.log(galaxy);
 
     let pp = new Promise(res => {
       res(path.aStar(galaxy));
     });
-    // let a = 3
-    // let b = 18
     pp.then(gal => {
       let fp = new Promise(res => {
         res(gal.find(a, b));
@@ -84,8 +71,10 @@
         console.log(
           `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${a} to ${b} path ${found}`
         );
+        currentRoute = []
         for (let id in found) {
-          currentRoute.push(found[id].id);
+          currentRoute = [...currentRoute, found[id].id]
+          // currentRoute.push(found[id].id);
         }
         console.log(`currentRoute: ${currentRoute}`);
         return currentRoute;
@@ -150,11 +139,7 @@
   }
 
   async function warpTo(sectorId, warpId) {
-    console.log(`galaxy object in warpTo()`);
-    console.log(galaxy);
-    let loadedGalaxy = JSON.parse(localStorage.getItem("galaxy"));
-    // await findPath(loadedGalaxy, sectorId, warpId);
-    findPath(galaxy, sectorId, warpId).then(found => {
+    findPath(currentSectorId, warpId).then(found => {
       console.log(`warpTo path found: ${found}`);
     });
     let validWarpId = updateCurrentGalaxyTrace(warpId);
