@@ -18,6 +18,7 @@
   $: galSize = 50;
   $: warpMin = 5;
   $: warpMax = 5;
+  $: currentShip = {};
   $: currentSectorId = 0;
   $: currentSectorMatch = false;
   $: currentGalaxyTrace = [];
@@ -43,11 +44,11 @@
       // galaxy = galaxy;
       localStorage.setItem("galaxy", JSON.stringify(galaxy));
 
-
       findPath(3, 18);
 
-
-      let filteredGalaxy = Object.filter(galaxy, node => node.hasOwnProperty("id"));
+      let filteredGalaxy = Object.filter(galaxy, node =>
+        node.hasOwnProperty("id")
+      );
       localStorage.setItem("filteredGalaxy", JSON.stringify(filteredGalaxy));
       Object.keys(filteredGalaxy).forEach(key => {
         let system = galaxy[key];
@@ -60,41 +61,13 @@
   async function findPath(a, b) {
     console.log(`findPath function a ${a}, b ${b}`);
 
-    let pp = new Promise(res => {
-      res(path.aStar(galaxy));
-    });
-    pp.then(gal => {
-      let fp = new Promise(res => {
-        res(gal.find(a, b));
-      });
-      fp.then(found => {
-        console.log(
-          `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${a} to ${b} path ${found}`
-        );
-        currentRoute = []
-        for (let id in found) {
-          currentRoute = [...currentRoute, found[id].id]
-          // currentRoute.push(found[id].id);
-        }
-        console.log(`currentRoute: ${currentRoute}`);
-        return currentRoute;
-      });
-    });
-    //     let pathFinder = await path.aStar(galaxy);
-    // let foundPath = pathFinder.find(a, b);
-    // console.log(
-    //   `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${5} to ${25} path ${foundPath}`
-    // );
-    // console.log(
-    //   `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${galaxy.getNode(
-    //     5
-    //   )} to ${galaxy.getNode(25)} path ${foundPath}`
-    // );
-    // console.log(foundPath);
-    // for (let id in foundPath) {
-    //   currentRoute.push(foundPath[id].id);
-    // }
-    // console.log(`current route: ${currentRoute}`);
+    let pathFinder = await path.aStar(galaxy);
+    let found = pathFinder.find(a, b);
+    for (let id in found) {
+      currentRoute = [...currentRoute, found[id].id];
+    }
+    console.log(`currentRoute: ${currentRoute}`);
+    return currentRoute;
   }
 
   function generateGalaxyWithNewProps(e) {
@@ -116,7 +89,9 @@
     // (load and save functionality will come later)
     // place player/ship in sector 0
     ship.location = 0;
+    ship.moves = 3;
     currentGalaxyTrace = [galaxy[ship.location]];
+    currentShip = ship
     localStorage.setItem(
       "currentGalaxyTrace",
       JSON.stringify(currentGalaxyTrace)
@@ -135,21 +110,37 @@
         top: lastSectorEl.offsetHeight,
         behavior: "smooth"
       });
-    }, 1);
+    }, 150);
   }
 
-  async function warpTo(sectorId, warpId) {
-    findPath(currentSectorId, warpId).then(found => {
-      console.log(`warpTo path found: ${found}`);
-    });
-    let validWarpId = updateCurrentGalaxyTrace(warpId);
-    travelTo(validWarpId);
+  async function warpTo(warpId) {
+    currentRoute = [];
+    findPath(currentSectorId, warpId).then(path => {
+      console.log(`warpTo findPath().then path found: ${path}`);
+      path.pop();
+      path.reverse();
+      // path.forEach(sector => {
+      //   console.log(`path.forEach sector ${sector}`);
+      //   setTimeout(() => {
+      //     updateCurrentGalaxyTrace(sector);
+      //     travelTo(sector);
+      //   }, 150);
+      // });
 
-    // console.log(
-    //   `inside warpTo, let's clear that input field value!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`
-    // );
-    // let input = document.getElementById("command-input");
-    // input.value = "";
+      path.forEach((sector, index) => {
+        setTimeout(() => {
+          updateCurrentGalaxyTrace(sector);
+          travelTo(sector);
+        }, index * 150 * currentShip.moves);
+      });
+    });
+    console.log(`warpTo path found: ${currentRoute}`);
+    await currentRoute.forEach(sector => {
+      console.log(`sector in currentRoute.forEach ${sector}`);
+      let validWarpId = updateCurrentGalaxyTrace(warpId);
+      console.log(`validWarpId in currentRoute.forEach ${validWarpId}`);
+      travelTo(validWarpId);
+    });
   }
 
   function isThisSectorInstantiatedAlready(sectorId) {
@@ -167,45 +158,47 @@
 
   function updateCurrentGalaxyTrace(id) {
     if (id !== "random") {
-      let matches = isThisSectorInstantiatedAlready(id);
-      let current = galaxy[currentSectorId];
-      console.log(`############################################`);
-      console.log(`warpTo direct requested: ${id}`);
-      console.log(`currentSectorId: ${currentSectorId}`);
-      // return number of matches with warpTo sector ID in currentGalaxyTrace
+      let nextSector = galaxy[id];
+      currentGalaxyTrace = [...currentGalaxyTrace, nextSector];
+      currentSectorId = id;
 
-      if (current.data.outlinks.includes(parseInt(id))) {
-        let oldSectorLink = document.getElementById(
-          `sector-${currentSectorId}-instance-${current.data.instance}-outlink-${id}`
-        );
-        console.log(
-          `sector-${currentSectorId}-instance-${current.data.instance}-outlink-${id}`
-        );
-        oldSectorLink.classList = "warp warp-highlight-completed";
+      // let matches = isThisSectorInstantiatedAlready(id);
+      // let current = galaxy[currentSectorId];
+      // console.log(`############################################`);
+      // console.log(`warpTo direct requested: ${id}`);
+      // console.log(`currentSectorId: ${currentSectorId}`);
+      // // return number of matches with warpTo sector ID in currentGalaxyTrace
 
-        // update global var to new current sector ID
-        currentSectorId = id;
+      // if (current.data.outlinks.includes(parseInt(id))) {
+      //   let oldSectorLink = document.getElementById(
+      //     `sector-${currentSectorId}-instance-${current.data.instance}-outlink-${id}`
+      //   );
+      //   console.log(
+      //     `sector-${currentSectorId}-instance-${current.data.instance}-outlink-${id}`
+      //   );
+      //   oldSectorLink.classList = "warp warp-highlight-completed";
 
-        let nextSector = galaxy[id];
+      //   // update global var to new current sector ID
+      //   currentSectorId = id;
 
-        currentGalaxyTrace = [...currentGalaxyTrace, nextSector];
-        console.log(
-          `@@@ @@@ @@@ currentGalaxyTrace[currentGalaxyTrace.length-1] ${currentGalaxyTrace[currentGalaxyTrace.length - 1].id}`
-        );
+      //   let nextSector = galaxy[id];
 
-        currentGalaxyTrace[currentGalaxyTrace.length - 1].instance = matches;
-        localStorage.setItem(
-          "currentGalaxyTrace",
-          JSON.stringify(currentGalaxyTrace)
-        );
-        console.log(`warpTo requested: ${id}`);
-        console.log(`currentSectorId: ${currentSectorId}`);
-        return id;
-      } else {
-        console.log("... sorry, it is not a direct jump from our sector");
-        insertNotification();
-        return false;
-      }
+      //   currentGalaxyTrace = [...currentGalaxyTrace, nextSector];
+      //   console.log(
+      //     `@@@ @@@ @@@ currentGalaxyTrace[currentGalaxyTrace.length-1] ${currentGalaxyTrace[currentGalaxyTrace.length - 1].id}`
+      //   );
+
+      //   currentGalaxyTrace[currentGalaxyTrace.length - 1].instance = matches;
+      //   localStorage.setItem(
+      //     "currentGalaxyTrace",
+      //     JSON.stringify(currentGalaxyTrace)
+      //   );
+      //   return id;
+      // } else {
+      //   console.log("... sorry, it is not a direct jump from our sector");
+      //   insertNotification();
+      //   return false;
+      // }
     } else {
       console.log("else random sector");
       let nextSector = getRandomSector(galaxy);
@@ -303,7 +296,7 @@
       if (e.keyCode === 13) {
         console.log(`isInt command? ${isInt(command)} matches === 1`);
         if (isInt(command)) {
-          warpTo(currentSectorId, matches[0]);
+          warpTo(matches[0]);
           console.log(
             `Supposed to warp to ${command} typeof ${typeof command}`
           );
@@ -329,7 +322,7 @@
             );
             thisWarp.classList = "warp";
           });
-          warpTo(currentSectorId, command);
+          warpTo(command);
           console.log(
             `Supposed to warp to ${command} typeof ${typeof command}`
           );
@@ -848,7 +841,7 @@
               slot="outlinks"
               class="warp"
               id="sector-{sector.id}-instance-{sector.data.instance}-outlink-{warp}"
-              on:click={() => warpTo(sector.id, warp)}>
+              on:click={() => warpTo(warp)}>
               <!--  on:click={() => findPath(sector.id, warp)} -->
               {warp}
             </span>
