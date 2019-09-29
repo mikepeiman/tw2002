@@ -1,0 +1,128 @@
+{#if width}
+<div class="svelte-progress-bar {barClass}" style="{barStyle}">
+	{#if running}
+	<div class="svelte-progress-bar-leader" style="{leaderColorStyle}"></div>
+	{/if}
+</div>
+{/if}
+
+<script>
+const getIncrement = number => {
+	if (number >= 0 && number < 0.2) return 0.1
+	else if (number >= 0.2 && number < 0.5) return 0.04
+	else if (number >= 0.5 && number < 0.8) return 0.02
+	else if (number >= 0.8 && number < 0.99) return 0.005
+	return 0
+}
+    let updater, width, running
+	  let	minimum = 0.08
+		let	maximum = 0.994
+    let settleTime = 700
+    let intervalTime = 700
+    let stepSizes = [ 0, 0.005, 0.01, 0.02 ]
+
+		function start() {
+			this.reset()
+			this.continue()
+		}
+		function reset() {
+			const startingWidth = this.get().minimum
+			this.set({
+				width: startingWidth,
+				running: true
+			})
+		}
+		function continueOn() {
+			const maximumWidth = this.get().maximum
+			const intervalTime = this.get().intervalTime
+			if (updater) {
+				// prevent multiple intervals by clearing before making
+				clearInterval(updater)
+			}
+			this.set({ running: true })
+			updater = setInterval(() => {
+				let value = this.get().width
+				const stepSizes = this.get().stepSizes
+				const randomStep = stepSizes[Math.floor(Math.random() * stepSizes.length)]
+				const step = getIncrement(value) + randomStep
+				if (value < maximumWidth) {
+					value = value + step
+				}
+				if (value > maximumWidth) {
+					value = maximumWidth
+					this.stop()
+				}
+				this.set({ width: value })
+			}, intervalTime)
+		}
+		function stop() {
+			if (updater) {
+				clearInterval(updater)
+			}
+		}
+		function complete() {
+			clearInterval(updater)
+			this.set({
+				width: 1,
+				running: false
+			})
+			const settleTime = this.get().settleTime
+			setTimeout(() => {
+				this.set({
+					completed: true
+				})
+				setTimeout(() => {
+					this.set({
+						completed: false,
+						width: 0
+					})
+				}, settleTime)
+			}, settleTime)
+		}
+		function setWidthRatio(widthRatio) {
+			this.stop()
+			this.set({
+				width: widthRatio,
+				completed: false,
+				running: true
+			})
+		}
+	function barClass({ completed }) {
+			return completed ? 'svelte-progress-bar-hiding' : ''
+		}
+	function	barStyle({ width, color }) {
+			const barColorStyle = color && `background-color: ${color};` || ''
+			const barWidth = width && width * 100 && `width: ${width * 100}%;` || ''
+			return [ barColorStyle, barWidth ].filter(Boolean).join('')
+		}
+	function	leaderColorStyle({ color }) {
+			// the box shadow of the leader bar uses `color` to set its shadow color
+			return color && `background-color: ${color}; color: ${color};` || ''
+		}
+
+</script>
+
+<style>
+.svelte-progress-bar {
+	position: fixed;
+	top: 0;
+	left: 0;
+	height: 2px;
+	transition: width 0.16s ease-in-out;
+	z-index: 1;
+}
+.svelte-progress-bar-hiding {
+	transition: top 0.16s ease;
+	top: -8px;
+}
+.svelte-progress-bar-leader {
+	position: absolute;
+	top: 0;
+	right: 0;
+	height: 2px;
+	width: 100px;
+	transform: rotate(2.5deg) translate(0px, -4px);
+	box-shadow: 0 0 8px;
+	z-index: 2;
+}
+</style>

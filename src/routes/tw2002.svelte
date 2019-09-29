@@ -6,12 +6,12 @@
   import Modal from ".././components/Modal.svelte";
   import createGraph from "ngraph.graph";
   import path from "ngraph.path";
+  import Nanobar from "nanobar";
 
   // import { galaxy } from "../store"
   import seedrandom from "seedrandom";
   // import '../components/galaxy-generator.js'
-
-  // $: filteredGalaxy = [];
+  $: nanobar = {};
   $: galaxyArray = [];
   $: galaxy = createGraph();
   $: galaxyGraph = {};
@@ -19,7 +19,7 @@
   $: warpMin = 5;
   $: warpMax = 5;
   $: currentShip = {};
-  $: delayInterval = 150
+  $: delayInterval = 150;
   $: moveTime = currentShip.moves * delayInterval;
   $: currentSectorId = 0;
   $: currentSectorMatch = false;
@@ -79,8 +79,13 @@
   }
 
   function startGame() {
+    var options = {
+      target: document.getElementById('progress-bar')
+    };
+
+    nanobar = new Nanobar( options );
     console.log(`startGame() triggered`);
-    console.log(`currentSectorId ${currentSectorId}`)
+    console.log(`currentSectorId ${currentSectorId}`);
     // create player
     let player = new Player("Mike");
     // create player's starting ship
@@ -94,7 +99,7 @@
     ship.location = currentSectorId;
     ship.moves = 3;
     currentGalaxyTrace = [galaxy[ship.location]];
-    currentShip = ship
+    currentShip = ship;
     localStorage.setItem(
       "currentGalaxyTrace",
       JSON.stringify(currentGalaxyTrace)
@@ -103,12 +108,14 @@
   }
 
   function travelTo(id) {
+
     setTimeout(() => {
       let sectorList = document.getElementById("sector-list");
       let sectors = sectorList.children;
       let sectorListLength = sectors.length;
       let lastSector = currentGalaxyTrace[sectorListLength - 1];
       let lastSectorEl = sectors[sectorListLength - 1];
+
       sectorList.scrollBy({
         top: lastSectorEl.offsetHeight,
         behavior: "smooth"
@@ -118,6 +125,7 @@
 
   async function warpTo(warpId) {
     currentRoute = [];
+    nanobar.go(30)
     findPath(currentSectorId, warpId).then(path => {
       console.log(`warpTo findPath().then path found: ${path}`);
       path.pop();
@@ -737,6 +745,7 @@
       <p>Because I'm not done playing yet.</p>
     </div>
   </div>
+  <div id="progress-bar"></div>
   <div class="game">
     <div class="game-menu">
       <div class="controls">
