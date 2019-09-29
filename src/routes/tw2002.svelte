@@ -41,26 +41,26 @@
 
     generateGalaxy(galSize, warpMin, warpMax).then(galaxy => {
       linkGalaxy(galaxy);
-            console.log(`original galaxy object in onMount() inside .then`)
-      console.log(galaxy)
+      console.log(`original galaxy object in onMount() inside .then`);
+      console.log(galaxy);
       localStorage.setItem("galaxy", JSON.stringify(galaxy));
       initGalaxy();
 
       filteredGalaxy = Object.filter(galaxy, node => node.hasOwnProperty("id"));
-      localStorage.setItem('filteredGalaxy', JSON.stringify(filteredGalaxy))
+      localStorage.setItem("filteredGalaxy", JSON.stringify(filteredGalaxy));
       Object.keys(filteredGalaxy).forEach(key => {
-console.log(`filteredGalaxy object keys: ${key}`)
-let system = galaxy[key]
-console.log(`system.id ${system.id}, system.links ${system.links}`)
-galaxyArray = [...galaxyArray, system]
-      })
-      localStorage.setItem('galaxyArray', JSON.stringify(galaxyArray))
+        console.log(`filteredGalaxy object keys: ${key}`);
+        let system = galaxy[key];
+        console.log(`system.id ${system.id}, system.links ${system.links}`);
+        galaxyArray = [...galaxyArray, system];
+      });
+      localStorage.setItem("galaxyArray", JSON.stringify(galaxyArray));
       console.log(`filteredGalaxy ${filteredGalaxy}`);
       console.log(filteredGalaxy);
       // galaxy = filteredGalaxy
     });
-      console.log(`original galaxy object in onMount() after .then`)
-      console.log(galaxy)      
+    console.log(`original galaxy object in onMount() after .then`);
+    console.log(galaxy);
   });
 
   function generateGalaxyWithNewProps(e) {
@@ -111,8 +111,10 @@ galaxyArray = [...galaxyArray, system]
     console.log(
       `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${5} to ${25} path ${foundPath}`
     );
-        console.log(
-      `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${galaxy.getNode(5)} to ${galaxy.getNode(25)} path ${foundPath}`
+    console.log(
+      `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${galaxy.getNode(
+        5
+      )} to ${galaxy.getNode(25)} path ${foundPath}`
     );
     console.log(foundPath);
     for (let id in foundPath) {
@@ -121,7 +123,6 @@ galaxyArray = [...galaxyArray, system]
     console.log(`current route: ${currentRoute}`);
     let validWarpId = updateCurrentGalaxyTrace(warpId);
     travelTo(validWarpId);
-
 
     // console.log(
     //   `inside warpTo, let's clear that input field value!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`
@@ -384,14 +385,14 @@ galaxyArray = [...galaxyArray, system]
   async function generateGalaxy(galSize, warpMin, warpMax) {
     for (let sectorId = 0; sectorId < galSize; sectorId++) {
       let newSector = await makeSector(sectorId, warpMin, warpMax);
-      galaxy[sectorId] = newSector
-      galaxyArray[sectorId] = newSector
-      console.log(`current galaxy[sectorId]: ${galaxy[sectorId]}`)
-      console.log(newSector)
+      galaxy[sectorId] = newSector;
+      // galaxyArray[sectorId] = newSector;
+      console.log(`current galaxy[sectorId]: ${galaxy[sectorId]}`);
+      console.log(newSector);
       // galaxyArray = [...galaxyArray, await galaxy[sectorId]];
       // galaxyArray.push(galaxy[sectorId])
     }
-    localStorage.setItem('galaxyArray', JSON.stringify(galaxyArray))
+    // localStorage.setItem("galaxyArray", JSON.stringify(galaxyArray));
     return galaxy;
   }
 
