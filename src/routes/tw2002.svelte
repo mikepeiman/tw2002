@@ -46,20 +46,17 @@
       localStorage.setItem("galaxy", JSON.stringify(galaxy));
       initGalaxy();
 
-
-    let pathFinder = path.aStar(galaxy);
-    let foundPath = pathFinder.find(5, 25);
-    console.log(
-      `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${5} to ${25} path ${foundPath}`
-    );
-        console.log(
-      `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${galaxy.getNode(5)} to ${galaxy.getNode(25)} path ${foundPath}`
-    );
-    console.log(foundPath);
-    for (let id in foundPath) {
-      currentRoute.push(foundPath[id].id);
-    }
-    console.log(`current route: ${currentRoute}`);
+      filteredGalaxy = Object.filter(galaxy, node => node.hasOwnProperty("id"));
+      localStorage.setItem('filteredGalaxy', JSON.stringify(filteredGalaxy))
+      Object.keys(filteredGalaxy).forEach(key => {
+console.log(`filteredGalaxy object keys: ${key}`)
+let system = galaxy[key]
+console.log(`system.id ${system.id}, system.links ${system.links}`)
+galaxyArray = [...galaxyArray, system]
+      })
+      localStorage.setItem('galaxyArray', JSON.stringify(galaxyArray))
+      console.log(`filteredGalaxy ${filteredGalaxy}`);
+      console.log(filteredGalaxy);
       // galaxy = filteredGalaxy
     });
       console.log(`original galaxy object in onMount() after .then`)
