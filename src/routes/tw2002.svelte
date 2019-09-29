@@ -110,7 +110,7 @@
         top: lastSectorEl.offsetHeight,
         behavior: "smooth"
       });
-    }, 150);
+    }, 150 * currentShip.moves);
   }
 
   async function warpTo(warpId) {
@@ -119,14 +119,6 @@
       console.log(`warpTo findPath().then path found: ${path}`);
       path.pop();
       path.reverse();
-      // path.forEach(sector => {
-      //   console.log(`path.forEach sector ${sector}`);
-      //   setTimeout(() => {
-      //     updateCurrentGalaxyTrace(sector);
-      //     travelTo(sector);
-      //   }, 150);
-      // });
-
       path.forEach((sector, index) => {
         setTimeout(() => {
           updateCurrentGalaxyTrace(sector);
