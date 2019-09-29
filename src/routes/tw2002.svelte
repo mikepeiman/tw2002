@@ -41,26 +41,29 @@
 
     generateGalaxy(galSize, warpMin, warpMax).then(galaxy => {
       linkGalaxy(galaxy);
+            console.log(`original galaxy object in onMount() inside .then`)
+      console.log(galaxy)
       localStorage.setItem("galaxy", JSON.stringify(galaxy));
       initGalaxy();
 
-      filteredGalaxy = Object.filter(galaxy, node => node.hasOwnProperty("id"));
-      console.log(`filteredGalaxy ${filteredGalaxy}`);
-      console.log(filteredGalaxy);
+
+    let pathFinder = path.aStar(galaxy);
+    let foundPath = pathFinder.find(5, 25);
+    console.log(
+      `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${5} to ${25} path ${foundPath}`
+    );
+        console.log(
+      `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${galaxy.getNode(5)} to ${galaxy.getNode(25)} path ${foundPath}`
+    );
+    console.log(foundPath);
+    for (let id in foundPath) {
+      currentRoute.push(foundPath[id].id);
+    }
+    console.log(`current route: ${currentRoute}`);
       // galaxy = filteredGalaxy
-      let pathFinder = path.aStar(galaxy);
-      let foundPath = pathFinder.find(5, 25);
-      console.log(
-        `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${5} to ${25} path ${foundPath}`
-      );
-      console.log(foundPath)
-      for(let id in foundPath) {
-        console.log(`step: ${foundPath[id].id}`)
-        currentRoute.push(foundPath[id].id)
-        console.log(foundPath[id])
-      }
-      console.log(`current route: ${currentRoute}`)
     });
+      console.log(`original galaxy object in onMount() after .then`)
+      console.log(galaxy)      
   });
 
   function generateGalaxyWithNewProps(e) {
@@ -105,15 +108,24 @@
   }
 
   function warpTo(sectorId, warpId) {
-    // renderDuplicateSectorIds(sectorId, warpId)
-    // let fromNode = galaxy[sectorId].id;
-    // let toNode = galaxy[warpId].id;
-    // let foundPath = pathFinder.find(sectorId, warpId);
-    // console.log(
-    //   `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${sectorId} to ${warpId} path ${foundPath}`
-    // );
+    // galaxy = JSON.parse(localStorage.getItem("galaxy"));
+    let pathFinder = path.aStar(galaxy);
+    let foundPath = pathFinder.find(5, 25);
+    console.log(
+      `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${5} to ${25} path ${foundPath}`
+    );
+        console.log(
+      `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${galaxy.getNode(5)} to ${galaxy.getNode(25)} path ${foundPath}`
+    );
+    console.log(foundPath);
+    for (let id in foundPath) {
+      currentRoute.push(foundPath[id].id);
+    }
+    console.log(`current route: ${currentRoute}`);
     let validWarpId = updateCurrentGalaxyTrace(warpId);
     travelTo(validWarpId);
+
+
     // console.log(
     //   `inside warpTo, let's clear that input field value!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`
     // );
@@ -172,6 +184,16 @@
         return id;
       } else {
         console.log("... sorry, it is not a direct jump from our sector");
+        let pathFinder = path.aStar(galaxy);
+        let foundPath = pathFinder.find(currentSectorId, id);
+        console.log(
+          `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${currentSectorId} to ${id} path ${foundPath}`
+        );
+        for (let id in foundPath) {
+          currentRoute.push(foundPath[id].id);
+        }
+        console.log(`current route: ${currentRoute}`);
+
         insertNotification();
         return false;
       }
@@ -352,20 +374,27 @@
     // return (galaxy = galaxy);
   }
 
-  function loadGalaxy() {
+  async function loadGalaxy() {
     console.log("loadGalaxy clicked");
+    // galaxyArray = JSON.parse(localStorage.getItem("galaxyArray"));
     galaxy = JSON.parse(localStorage.getItem("galaxy"));
     preGameSetup = true;
     console.log(galaxy);
+    // console.log(galaxyArray);
     // return (galaxy = galaxy);
   }
 
   async function generateGalaxy(galSize, warpMin, warpMax) {
     for (let sectorId = 0; sectorId < galSize; sectorId++) {
-      galaxy[sectorId] = await makeSector(sectorId, warpMin, warpMax);
-      galaxyArray = [...galaxyArray, galaxy[sectorId]]
+      let newSector = await makeSector(sectorId, warpMin, warpMax);
+      galaxy[sectorId] = newSector
+      galaxyArray[sectorId] = newSector
+      console.log(`current galaxy[sectorId]: ${galaxy[sectorId]}`)
+      console.log(newSector)
+      // galaxyArray = [...galaxyArray, await galaxy[sectorId]];
+      // galaxyArray.push(galaxy[sectorId])
     }
-    // let pathFinder = path.aStar(galaxy);
+    localStorage.setItem('galaxyArray', JSON.stringify(galaxyArray))
     return galaxy;
   }
 
@@ -427,7 +456,6 @@
       sector.data.inlinks.forEach(link => {
         if (!sector.data.outlinks.includes(link)) {
           sector.data.outlinks.push(link);
-          
         }
       });
     }
@@ -437,7 +465,7 @@
 
     while (needsLinks > 0) {
       let rand = getRandomSector(galaxy);
-      console.log(`needslinks, rand = ${rand.id}`);
+      // console.log(`needslinks, rand = ${rand.id}`);
 
       if (
         rand.id !== sector.id &&
@@ -448,7 +476,7 @@
         warps.sort();
         sector.data.outlinks.push(rand.id);
         sector.data.inlinks.push(rand.id);
-        galaxy.addLink(sector.id, rand.id)
+        galaxy.addLink(sector.id, rand.id);
 
         // only push inlink to the outlinked (rand) sector if it is not already at quota
         // if(rand.data.inlinks >= rand.data.warpsQuota) {
@@ -794,7 +822,6 @@
     {#if preGameSetup}
       <div id="sector-list" class="sector-list">
         {#each galaxyArray as sector}
-          {sector}
           <SectorComponent {sector} let:warp>
             <span
               slot="outlinks"
