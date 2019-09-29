@@ -13,7 +13,7 @@
 
   $: filteredGalaxy = [];
   $: galaxyArray = [];
-  $: galaxy = [];
+  $: galaxy = createGraph();
   $: galaxyGraph = {};
   $: galSize = 50;
   $: warpMin = 5;
@@ -30,7 +30,6 @@
   // $: sectorList = document.getElementById('sector-list');
 
   onMount(() => {
-    galaxy = createGraph();
     warpMin = document.getElementById("warpsMin").value;
     warpMax = document.getElementById("warpsMax").value;
     galSize = document.getElementById("galSize").value;
@@ -43,25 +42,71 @@
       linkGalaxy(galaxy);
       console.log(`original galaxy object in onMount() inside .then`);
       console.log(galaxy);
-      localStorage.setItem("galaxy", JSON.stringify(galaxy));
-      initGalaxy();
+      galaxy = galaxy;
+      localStorage.setItem("galaxy", JSON.stringify(galaxy))
+
+      findPath(galaxy, 3, 18);
+      console.log(`immediately following successful findPath in onMount()`);
+      console.log(galaxy);
+      console.log(`galaxy.constructor.name ${galaxy.constructor.name}`)
 
       filteredGalaxy = Object.filter(galaxy, node => node.hasOwnProperty("id"));
       localStorage.setItem("filteredGalaxy", JSON.stringify(filteredGalaxy));
       Object.keys(filteredGalaxy).forEach(key => {
-        console.log(`filteredGalaxy object keys: ${key}`);
+        // console.log(`filteredGalaxy object keys: ${key}`);
         let system = galaxy[key];
-        console.log(`system.id ${system.id}, system.links ${system.links}`);
+        // console.log(`system.id ${system.id}, system.links ${system.links}`);
         galaxyArray = [...galaxyArray, system];
       });
       localStorage.setItem("galaxyArray", JSON.stringify(galaxyArray));
       console.log(`filteredGalaxy ${filteredGalaxy}`);
       console.log(filteredGalaxy);
-      // galaxy = filteredGalaxy
     });
     console.log(`original galaxy object in onMount() after .then`);
     console.log(galaxy);
   });
+
+  async function findPath(galaxy, a, b) {
+    console.log(`findPath function a ${a}, b ${b}`);
+    console.log(`galaxy object in findPath()`);
+    console.log(galaxy);
+
+    let pp = new Promise(res => {
+      res(path.aStar(galaxy));
+    });
+    // let a = 3
+    // let b = 18
+    pp.then(gal => {
+      let fp = new Promise(res => {
+        res(gal.find(a, b));
+      });
+      fp.then(found => {
+        console.log(
+          `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${a} to ${b} path ${found}`
+        );
+        for (let id in found) {
+          currentRoute.push(found[id].id);
+        }
+        console.log(`currentRoute: ${currentRoute}`);
+        return currentRoute;
+      });
+    });
+    //     let pathFinder = await path.aStar(galaxy);
+    // let foundPath = pathFinder.find(a, b);
+    // console.log(
+    //   `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${5} to ${25} path ${foundPath}`
+    // );
+    // console.log(
+    //   `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${galaxy.getNode(
+    //     5
+    //   )} to ${galaxy.getNode(25)} path ${foundPath}`
+    // );
+    // console.log(foundPath);
+    // for (let id in foundPath) {
+    //   currentRoute.push(foundPath[id].id);
+    // }
+    // console.log(`current route: ${currentRoute}`);
+  }
 
   function generateGalaxyWithNewProps(e) {
     console.log(e.keyCode);
@@ -104,23 +149,14 @@
     }, 1);
   }
 
-  function warpTo(sectorId, warpId) {
-    // galaxy = JSON.parse(localStorage.getItem("galaxy"));
-    let pathFinder = path.aStar(galaxy);
-    let foundPath = pathFinder.find(5, 25);
-    console.log(
-      `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${5} to ${25} path ${foundPath}`
-    );
-    console.log(
-      `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${galaxy.getNode(
-        5
-      )} to ${galaxy.getNode(25)} path ${foundPath}`
-    );
-    console.log(foundPath);
-    for (let id in foundPath) {
-      currentRoute.push(foundPath[id].id);
-    }
-    console.log(`current route: ${currentRoute}`);
+  async function warpTo(sectorId, warpId) {
+    console.log(`galaxy object in warpTo()`);
+    console.log(galaxy);
+    let loadedGalaxy = JSON.parse(localStorage.getItem("galaxy"));
+    // await findPath(loadedGalaxy, sectorId, warpId);
+    findPath(galaxy, sectorId, warpId).then(found => {
+      console.log(`warpTo path found: ${found}`);
+    });
     let validWarpId = updateCurrentGalaxyTrace(warpId);
     travelTo(validWarpId);
 
@@ -182,16 +218,6 @@
         return id;
       } else {
         console.log("... sorry, it is not a direct jump from our sector");
-        let pathFinder = path.aStar(galaxy);
-        let foundPath = pathFinder.find(currentSectorId, id);
-        console.log(
-          `>>>>>>>>>>>>>>>>>>> PATHFINDER FINDS from ${currentSectorId} to ${id} path ${foundPath}`
-        );
-        for (let id in foundPath) {
-          currentRoute.push(foundPath[id].id);
-        }
-        console.log(`current route: ${currentRoute}`);
-
         insertNotification();
         return false;
       }
@@ -378,6 +404,7 @@
     galaxy = JSON.parse(localStorage.getItem("galaxy"));
     preGameSetup = true;
     console.log(galaxy);
+    return galaxy;
     // console.log(galaxyArray);
     // return (galaxy = galaxy);
   }
@@ -386,13 +413,9 @@
     for (let sectorId = 0; sectorId < galSize; sectorId++) {
       let newSector = await makeSector(sectorId, warpMin, warpMax);
       galaxy[sectorId] = newSector;
-      // galaxyArray[sectorId] = newSector;
-      console.log(`current galaxy[sectorId]: ${galaxy[sectorId]}`);
-      console.log(newSector);
-      // galaxyArray = [...galaxyArray, await galaxy[sectorId]];
-      // galaxyArray.push(galaxy[sectorId])
+      // console.log(`current galaxy[sectorId]: ${galaxy[sectorId]}`);
+      // console.log(newSector);
     }
-    // localStorage.setItem("galaxyArray", JSON.stringify(galaxyArray));
     return galaxy;
   }
 
@@ -841,6 +864,7 @@
               class="warp"
               id="sector-{sector.id}-instance-{sector.data.instance}-outlink-{warp}"
               on:click={() => warpTo(sector.id, warp)}>
+              <!--  on:click={() => findPath(sector.id, warp)} -->
               {warp}
             </span>
             <span slot="inlinks" class="warp">{warp}</span>
