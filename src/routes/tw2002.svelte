@@ -45,6 +45,14 @@
       initGalaxy();
 
       filteredGalaxy = Object.filter(galaxy, node => node.hasOwnProperty("id"));
+      localStorage.setItem('filteredGalaxy', JSON.stringify(filteredGalaxy))
+      Object.keys(filteredGalaxy).forEach(key => {
+console.log(`filteredGalaxy object keys: ${key}`)
+let system = galaxy[key]
+console.log(`system.id ${system.id}, system.links ${system.links}`)
+galaxyArray = [...galaxyArray, system]
+      })
+      localStorage.setItem('galaxyArray', JSON.stringify(galaxyArray))
       console.log(`filteredGalaxy ${filteredGalaxy}`);
       console.log(filteredGalaxy);
       // galaxy = filteredGalaxy
@@ -437,7 +445,7 @@
 
     while (needsLinks > 0) {
       let rand = getRandomSector(galaxy);
-      console.log(`needslinks, rand = ${rand.id}`);
+      // console.log(`needslinks, rand = ${rand.id}`);
 
       if (
         rand.id !== sector.id &&
@@ -794,7 +802,6 @@
     {#if preGameSetup}
       <div id="sector-list" class="sector-list">
         {#each galaxyArray as sector}
-          {sector}
           <SectorComponent {sector} let:warp>
             <span
               slot="outlinks"
