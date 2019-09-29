@@ -19,6 +19,8 @@
   $: warpMin = 5;
   $: warpMax = 5;
   $: currentShip = {};
+  $: delayInterval = 150
+  $: moveTime = currentShip.moves * delayInterval;
   $: currentSectorId = 0;
   $: currentSectorMatch = false;
   $: currentGalaxyTrace = [];
@@ -78,6 +80,7 @@
 
   function startGame() {
     console.log(`startGame() triggered`);
+    console.log(`currentSectorId ${currentSectorId}`)
     // create player
     let player = new Player("Mike");
     // create player's starting ship
@@ -88,7 +91,7 @@
     console.log(`Ship ID: ${ship.id}`);
     // (load and save functionality will come later)
     // place player/ship in sector 0
-    ship.location = 0;
+    ship.location = currentSectorId;
     ship.moves = 3;
     currentGalaxyTrace = [galaxy[ship.location]];
     currentShip = ship
@@ -110,7 +113,7 @@
         top: lastSectorEl.offsetHeight,
         behavior: "smooth"
       });
-    }, 150 * currentShip.moves);
+    }, moveTime);
   }
 
   async function warpTo(warpId) {
@@ -123,7 +126,7 @@
         setTimeout(() => {
           updateCurrentGalaxyTrace(sector);
           travelTo(sector);
-        }, index * 150 * currentShip.moves);
+        }, index * moveTime);
       });
     });
     console.log(`warpTo path found: ${currentRoute}`);
