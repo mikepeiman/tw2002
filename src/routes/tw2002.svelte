@@ -130,7 +130,6 @@
       path.pop();
       path.reverse();
       let len = path.length
-      console.log(`route length is ${len}, movetime is ${moveTime}, so each portion of progress bar is ${(1/len)*(1000/moveTime)}`)
       nanobar.go(0)
       path.forEach((sector, index) => {
         console.log(`index+1 ${index+1} / len ${len} = ${((index+1)/len)*100}`)
@@ -754,7 +753,7 @@
 
   .nanobar {
   width: 100%;
-  height: 4px;
+  height: 10px;
   z-index: 9999;
   top:0
 }
@@ -762,7 +761,7 @@
   width: 0;
   height: 100%;
   transition: height .5s;
-  background:rgba(155, 25, 255, 1);
+  background:rgba(155, 25, 255, .5);
 }
 </style>
 
@@ -795,7 +794,7 @@
             Galaxy size:
             <input
               type="number"
-              value="50"
+              value="300"
               name="galSize"
               id="galSize"
               on:keyup={generateGalaxyWithNewProps} />
@@ -804,7 +803,7 @@
             Min warps:
             <input
               type="number"
-              value="5"
+              value="3"
               name="warpsMin"
               id="warpsMin"
               on:keyup={generateGalaxyWithNewProps} />
@@ -813,7 +812,7 @@
             Max warps:
             <input
               type="number"
-              value="5"
+              value="6"
               name="warpsMax"
               id="warpsMax"
               on:keyup={generateGalaxyWithNewProps} />
