@@ -15,9 +15,9 @@
   $: galaxyArray = [];
   $: galaxy = createGraph();
   $: galaxyGraph = {};
-  $: galSize = 50;
-  $: warpMin = 5;
-  $: warpMax = 5;
+  $: galSize = 1000;
+  $: warpMin = 3;
+  $: warpMax = 6;
   $: currentShip = {};
   $: delayInterval = 150;
   $: moveTime = currentShip.moves * delayInterval;
@@ -80,7 +80,7 @@
 
   function startGame() {
     var options = {
-      target: document.getElementById('progress-bar')
+      target: document.getElementById('nanobar')
     };
 
     nanobar = new Nanobar( options );
@@ -125,17 +125,23 @@
 
   async function warpTo(warpId) {
     currentRoute = [];
-    nanobar.go(30)
     findPath(currentSectorId, warpId).then(path => {
       console.log(`warpTo findPath().then path found: ${path}`);
       path.pop();
       path.reverse();
+      let len = path.length
+      console.log(`route length is ${len}, movetime is ${moveTime}, so each portion of progress bar is ${(1/len)*(1000/moveTime)}`)
+      nanobar.go(0)
       path.forEach((sector, index) => {
+        console.log(`index+1 ${index+1} / len ${len} = ${((index+1)/len)*100}`)
         setTimeout(() => {
           updateCurrentGalaxyTrace(sector);
           travelTo(sector);
-        }, index * moveTime);
+          nanobar.go(((index+1)/len)*100)
+        }, (index * moveTime));
+        
       });
+      // nanobar.go(100)
     });
     console.log(`warpTo path found: ${currentRoute}`);
     await currentRoute.forEach(sector => {
@@ -367,10 +373,22 @@
     warpMax = document.getElementById("warpsMax").value;
     galSize = document.getElementById("galSize").value;
 
-    generateGalaxy(galSize, warpMin, warpMax).then(g => {
-      linkGalaxy(g);
-      localStorage.setItem("galaxy", JSON.stringify(g));
-      initGalaxy();
+    generateGalaxy(galSize, warpMin, warpMax).then(galaxy => {
+      linkGalaxy(galaxy);
+      // galaxy = galaxy;
+      localStorage.setItem("galaxy", JSON.stringify(galaxy));
+
+      findPath(3, 18);
+
+      let filteredGalaxy = Object.filter(galaxy, node =>
+        node.hasOwnProperty("id")
+      );
+      localStorage.setItem("filteredGalaxy", JSON.stringify(filteredGalaxy));
+      Object.keys(filteredGalaxy).forEach(key => {
+        let system = galaxy[key];
+        galaxyArray = [...galaxyArray, system];
+      });
+      localStorage.setItem("galaxyArray", JSON.stringify(galaxyArray));
     });
   }
 
@@ -733,6 +751,19 @@
   .warp-highlight-completed {
     background: rgba(0, 255, 118, 0.25);
   }
+
+  .nanobar {
+  width: 100%;
+  height: 4px;
+  z-index: 9999;
+  top:0
+}
+.bar {
+  width: 0;
+  height: 100%;
+  transition: height .5s;
+  background:rgba(155, 25, 255, 1);
+}
 </style>
 
 <svelte:head>
@@ -745,7 +776,7 @@
       <p>Because I'm not done playing yet.</p>
     </div>
   </div>
-  <div id="progress-bar"></div>
+  
   <div class="game">
     <div class="game-menu">
       <div class="controls">
@@ -837,8 +868,10 @@
         {/each}
       </div>
     {/if}
+    
     {#if !preGameSetup}
       <div id="sector-list" class="sector-list">
+      <div id="nanobar"></div>
         {#each currentGalaxyTrace as sector}
           <SectorComponent {sector} let:warp>
             <span
