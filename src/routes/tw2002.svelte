@@ -33,6 +33,11 @@
   // $: sectorList = document.getElementById('sector-list');
 
   onMount(() => {
+    let warpProgress = document.getElementsByClassName(
+      "warp-progress-container"
+    );
+    console.log(`warp progress`);
+    console.dir(warpProgress);
     warpMin = document.getElementById("warpsMin").value;
     warpMax = document.getElementById("warpsMax").value;
     galSize = document.getElementById("galSize").value;
@@ -79,11 +84,18 @@
   }
 
   function startGame() {
+    let warpProgress = document.getElementsByClassName(
+      "warp-progress-container"
+    );
+    console.log(`warp progress`);
+    console.dir(warpProgress);
     var options = {
-      target: document.getElementById('nanobar')
+      id: "my-nanobar",
+      class: "my-nanobar",
+      target: document.getElementsByClassName("warp-progress-container")[0]
     };
 
-    nanobar = new Nanobar( options );
+    nanobar = new Nanobar(options);
     console.log(`startGame() triggered`);
     console.log(`currentSectorId ${currentSectorId}`);
     // create player
@@ -108,7 +120,6 @@
   }
 
   function travelTo(id) {
-
     setTimeout(() => {
       let sectorList = document.getElementById("sector-list");
       let sectors = sectorList.children;
@@ -123,22 +134,25 @@
     }, moveTime);
   }
 
-  async function warpTo(warpId) {
+  async function warpTo(warpId, e) {
+    console.log(`warpTo e`);
+    console.log(e);
     currentRoute = [];
     findPath(currentSectorId, warpId).then(path => {
       console.log(`warpTo findPath().then path found: ${path}`);
       path.pop();
       path.reverse();
-      let len = path.length
-      nanobar.go(0)
+      let len = path.length;
+      nanobar.go(0);
       path.forEach((sector, index) => {
-        console.log(`index+1 ${index+1} / len ${len} = ${((index+1)/len)*100}`)
+        console.log(
+          `index+1 ${index + 1} / len ${len} = ${((index + 1) / len) * 100}`
+        );
         setTimeout(() => {
           updateCurrentGalaxyTrace(sector);
           travelTo(sector);
-          nanobar.go(((index+1)/len)*100)
-        }, (index * moveTime));
-        
+          nanobar.go(((index + 1) / len) * 100);
+        }, index * moveTime);
       });
       // nanobar.go(100)
     });
@@ -751,18 +765,31 @@
     background: rgba(0, 255, 118, 0.25);
   }
 
+  .warp-progress-container {
+    // padding: 1rem;
+    background: rgba(55, 255, 0, 0.5);
+    width: 100%;
+    height: 1rem;
+    position: relative;
+    border-bottom: 5px solid rgba(155, 25, 255, 1);
+  }
+    .warp-progress-container-child {
+      height: 1rem;
+    }
+
   .nanobar {
-  width: 100%;
-  height: 10px;
-  z-index: 9999;
-  top:0
-}
-.bar {
-  width: 0;
-  height: 100%;
-  transition: height .5s;
-  background:rgba(155, 25, 255, .5);
-}
+    // position: absolute;
+    width: 100%;
+    height: 1rem;
+    z-index: 9999;
+    // top: 10;
+  }
+  .bar {
+    width: 0;
+    height: 100%;
+    transition: height 0.5s;
+    background: rgba(155, 25, 255, 0.5);
+  }
 </style>
 
 <svelte:head>
@@ -775,7 +802,9 @@
       <p>Because I'm not done playing yet.</p>
     </div>
   </div>
-  
+  <div class="warp-progress-container">
+    <div class="warp-progress-container-child" />
+  </div>
   <div class="game">
     <div class="game-menu">
       <div class="controls">
@@ -867,10 +896,9 @@
         {/each}
       </div>
     {/if}
-    
+
     {#if !preGameSetup}
       <div id="sector-list" class="sector-list">
-      <div id="nanobar"></div>
         {#each currentGalaxyTrace as sector}
           <SectorComponent {sector} let:warp>
             <span
