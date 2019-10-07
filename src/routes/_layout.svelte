@@ -12,7 +12,7 @@
 		/* padding: 2em; */
 		/* margin: 3rem auto; */
     top: 10vh;
-    height: 90vh;
+    height: calc(90vh - 2rem - 10px);
 		box-sizing: border-box;
 	}
 </style>

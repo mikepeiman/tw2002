@@ -3,6 +3,7 @@
   import { writable } from "svelte/store";
   import shipsData from "../store/shipsData.json";
   import SectorComponent from ".././components/SectorComponent.svelte";
+  import WarpRouteProgress from ".././components/WarpRouteProgress.svelte";
   import Modal from ".././components/Modal.svelte";
   import createGraph from "ngraph.graph";
   import path from "ngraph.path";
@@ -25,6 +26,7 @@
   $: currentSectorMatch = false;
   $: currentGalaxyTrace = [];
   $: currentRoute = [];
+  $: currentRouteReversed = [];
   $: allShipsInGame = [];
   $: preGameSetup = true;
   $: command = "";
@@ -51,7 +53,7 @@
       // galaxy = galaxy;
       localStorage.setItem("galaxy", JSON.stringify(galaxy));
 
-      findPath(3, 18);
+      findPath(0, galSize-1);
 
       let filteredGalaxy = Object.filter(galaxy, node =>
         node.hasOwnProperty("id")
@@ -73,7 +75,9 @@
     for (let id in found) {
       currentRoute = [...currentRoute, found[id].id];
     }
-    console.log(`currentRoute: ${currentRoute}`);
+    
+    currentRouteReversed = currentRoute.slice().reverse()
+    console.log(`currentRoute: ${currentRoute}, reversed ${currentRouteReversed}`);
     return currentRoute;
   }
 
@@ -391,7 +395,7 @@
       // galaxy = galaxy;
       localStorage.setItem("galaxy", JSON.stringify(galaxy));
 
-      findPath(3, 18);
+      findPath(0, galSize-1);
 
       let filteredGalaxy = Object.filter(galaxy, node =>
         node.hasOwnProperty("id")
@@ -765,31 +769,7 @@
     background: rgba(0, 255, 118, 0.25);
   }
 
-  .warp-progress-container {
-    // padding: 1rem;
-    background: rgba(55, 255, 0, 0.5);
-    width: 100%;
-    height: 1rem;
-    position: relative;
-    border-bottom: 5px solid rgba(155, 25, 255, 1);
-  }
-    .warp-progress-container-child {
-      height: 1rem;
-    }
 
-  .nanobar {
-    // position: absolute;
-    width: 100%;
-    height: 1rem;
-    z-index: 9999;
-    // top: 10;
-  }
-  .bar {
-    width: 0;
-    height: 100%;
-    transition: height 0.5s;
-    background: rgba(155, 25, 255, 0.5);
-  }
 </style>
 
 <svelte:head>
@@ -802,9 +782,10 @@
       <p>Because I'm not done playing yet.</p>
     </div>
   </div>
-  <div class="warp-progress-container">
+  <WarpRouteProgress {currentRouteReversed}></WarpRouteProgress>
+  <!-- <div class="warp-progress-container">
     <div class="warp-progress-container-child" />
-  </div>
+  </div> -->
   <div class="game">
     <div class="game-menu">
       <div class="controls">
