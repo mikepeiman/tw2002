@@ -782,7 +782,7 @@
       <p>Because I'm not done playing yet.</p>
     </div>
   </div>
-  <WarpRouteProgress {currentRouteReversed}></WarpRouteProgress>
+  <WarpRouteProgress {currentRouteReversed} {currentGalaxyTrace} let:routeLength></WarpRouteProgress>
   <!-- <div class="warp-progress-container">
     <div class="warp-progress-container-child" />
   </div> -->

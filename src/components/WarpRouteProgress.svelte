@@ -1,5 +1,9 @@
 <script>
-  export let currentRouteReversed;
+  export let currentRouteReversed, currentGalaxyTrace, routeLength;
+
+  routeLength = currentRouteReversed.length
+  console.log(`WarpRouteProgress component`)
+  console.log(`currentRoute length ${routeLength}`)
   // let reversed = currentRoute.slice().reverse()
 </script>
 
