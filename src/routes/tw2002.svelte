@@ -4,6 +4,7 @@
   import shipsData from "../store/shipsData.json";
   import SectorComponent from ".././components/SectorComponent.svelte";
   import WarpRouteProgress from ".././components/WarpRouteProgress.svelte";
+  import PlayerStats from ".././components/PlayerStats.svelte";
   import Modal from ".././components/Modal.svelte";
   import createGraph from "ngraph.graph";
   import path from "ngraph.path";
@@ -617,6 +618,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    position: relative;
   }
 
   .game {
@@ -773,7 +775,7 @@
 </style>
 
 <svelte:head>
-  <title>About</title>
+  <title>TW2002</title>
 </svelte:head>
 <section class="tw2002">
   <div class="game-header">
@@ -782,6 +784,7 @@
       <p>Because I'm not done playing yet.</p>
     </div>
   </div>
+  <PlayerStats></PlayerStats>
   <WarpRouteProgress {currentRouteReversed} {currentGalaxyTrace} let:routeLength></WarpRouteProgress>
   <!-- <div class="warp-progress-container">
     <div class="warp-progress-container-child" />
