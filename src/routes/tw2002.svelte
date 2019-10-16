@@ -5,6 +5,7 @@
   import SectorComponent from ".././components/SectorComponent.svelte";
   import WarpRouteProgress from ".././components/WarpRouteProgress.svelte";
   import PlayerStats from ".././components/PlayerStats.svelte";
+  import ShipStats from ".././components/ShipStats.svelte";
   import Modal from ".././components/Modal.svelte";
   import createGraph from "ngraph.graph";
   import path from "ngraph.path";
@@ -105,7 +106,7 @@
     console.log(`startGame() triggered`);
     console.log(`currentSectorId ${currentSectorId}`);
     // create player
-    player = new Player("Mike", 1000);
+    player = new Player("Mike", 10);
     // create player's starting ship
     let ship = new ShipFactory(0, player);
     console.log(shipsData);
@@ -149,6 +150,7 @@
       path.pop();
       path.reverse();
       let len = path.length;
+      usePlayerTurns(len - 1);
       nanobar.go(0);
       path.forEach((sector, index) => {
         console.log(
@@ -169,6 +171,11 @@
       console.log(`validWarpId in currentRoute.forEach ${validWarpId}`);
       travelTo(validWarpId);
     });
+  }
+
+  function usePlayerTurns(distance) {
+    player.turns - distance > 0 ? player.turns = player.turns - distance : alert(`You do not have enough turns left to travel ${distance}!`)
+    console.log(`usePlayerTurns - turns now ${player.turns}`)
   }
 
   function isThisSectorInstantiatedAlready(sectorId) {
@@ -787,6 +794,7 @@
     </div>
   </div>
   <PlayerStats {player}></PlayerStats>
+    <ShipStats {currentShip}></ShipStats>
   <WarpRouteProgress {currentRouteReversed} {currentGalaxyTrace} let:routeLength></WarpRouteProgress>
   <!-- <div class="warp-progress-container">
     <div class="warp-progress-container-child" />

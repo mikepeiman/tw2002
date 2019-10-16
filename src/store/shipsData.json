@@ -1,8 +1,10 @@
 {
   "0": {
-    "name": "Merchant Cruiser"
+    "name": "Merchant Cruiser",
+    "moves": 3
   },
   "1": {
-    "name": "Voidhawk"
+    "name": "Voidhawk",
+    "moves": 2
   }
 }
