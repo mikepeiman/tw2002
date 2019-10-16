@@ -14,6 +14,7 @@
   import seedrandom from "seedrandom";
   // import '../components/galaxy-generator.js'
   $: nanobar = {};
+  $: player = {}
   $: galaxyArray = [];
   $: galaxy = createGraph();
   $: galaxyGraph = {};
@@ -104,7 +105,7 @@
     console.log(`startGame() triggered`);
     console.log(`currentSectorId ${currentSectorId}`);
     // create player
-    let player = new Player("Mike");
+    player = new Player("Mike", 1000);
     // create player's starting ship
     let ship = new ShipFactory(0, player);
     console.log(shipsData);
@@ -561,8 +562,9 @@
   }
 
   class Player {
-    constructor(name) {
+    constructor(name, turns) {
       this.name = name;
+      this.turns = turns;
     }
   }
 
@@ -784,7 +786,7 @@
       <p>Because I'm not done playing yet.</p>
     </div>
   </div>
-  <PlayerStats></PlayerStats>
+  <PlayerStats {player}></PlayerStats>
   <WarpRouteProgress {currentRouteReversed} {currentGalaxyTrace} let:routeLength></WarpRouteProgress>
   <!-- <div class="warp-progress-container">
     <div class="warp-progress-container-child" />
