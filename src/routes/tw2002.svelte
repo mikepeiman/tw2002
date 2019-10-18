@@ -15,7 +15,8 @@
   import seedrandom from "seedrandom";
   // import '../components/galaxy-generator.js'
   $: nanobar = {};
-  $: player = {}
+  $: warpProgressElement = {};
+  $: player = {};
   $: galaxyArray = [];
   $: galaxy = createGraph();
   $: galaxyGraph = {};
@@ -26,6 +27,7 @@
   $: delayInterval = 150;
   $: moveTime = currentShip.moves * delayInterval;
   $: currentSectorId = 0;
+  $: nextSectorId = 0;
   $: currentSectorMatch = false;
   $: currentGalaxyTrace = [];
   $: currentRoute = [];
@@ -41,6 +43,10 @@
     let warpProgress = document.getElementsByClassName(
       "warp-progress-container"
     );
+    warpProgressElement = document.getElementsByClassName(
+      "warp-progress-container"
+    );
+    console.dir(warpProgressElement)
     console.log(`warp progress`);
     console.dir(warpProgress);
     warpMin = document.getElementById("warpsMin").value;
@@ -127,6 +133,7 @@
   }
 
   function travelTo(id) {
+    addWarpProgress(id)
     setTimeout(() => {
       let sectorList = document.getElementById("sector-list");
       let sectors = sectorList.children;
@@ -139,6 +146,19 @@
         behavior: "smooth"
       });
     }, moveTime);
+  }
+
+  function addWarpProgress(id) {
+    // warpProgressElement = document.getElementsByClassName(
+    //   "warp-progress-container"
+    // );
+    let warp = document.createElement('span')
+    console.log(`addWarpProgress id ${id} and element warp ${warp}`)
+    console.dir(warp)
+    warp.className = 'warp-route-trace'
+    let idText = document.createTextNode(id)
+    warp.appendChild(idText)
+    warpProgressElement[0].appendChild(warp)
   }
 
   async function warpTo(warpId, e) {
@@ -158,6 +178,7 @@
         );
         setTimeout(() => {
           updateCurrentGalaxyTrace(sector);
+          nextSectorId = sector;
           travelTo(sector);
           nanobar.go(((index + 1) / len) * 100);
         }, index * moveTime);
@@ -196,44 +217,6 @@
       let nextSector = galaxy[id];
       currentGalaxyTrace = [...currentGalaxyTrace, nextSector];
       currentSectorId = id;
-
-      // let matches = isThisSectorInstantiatedAlready(id);
-      // let current = galaxy[currentSectorId];
-      // console.log(`############################################`);
-      // console.log(`warpTo direct requested: ${id}`);
-      // console.log(`currentSectorId: ${currentSectorId}`);
-      // // return number of matches with warpTo sector ID in currentGalaxyTrace
-
-      // if (current.data.outlinks.includes(parseInt(id))) {
-      //   let oldSectorLink = document.getElementById(
-      //     `sector-${currentSectorId}-instance-${current.data.instance}-outlink-${id}`
-      //   );
-      //   console.log(
-      //     `sector-${currentSectorId}-instance-${current.data.instance}-outlink-${id}`
-      //   );
-      //   oldSectorLink.classList = "warp warp-highlight-completed";
-
-      //   // update global var to new current sector ID
-      //   currentSectorId = id;
-
-      //   let nextSector = galaxy[id];
-
-      //   currentGalaxyTrace = [...currentGalaxyTrace, nextSector];
-      //   console.log(
-      //     `@@@ @@@ @@@ currentGalaxyTrace[currentGalaxyTrace.length-1] ${currentGalaxyTrace[currentGalaxyTrace.length - 1].id}`
-      //   );
-
-      //   currentGalaxyTrace[currentGalaxyTrace.length - 1].instance = matches;
-      //   localStorage.setItem(
-      //     "currentGalaxyTrace",
-      //     JSON.stringify(currentGalaxyTrace)
-      //   );
-      //   return id;
-      // } else {
-      //   console.log("... sorry, it is not a direct jump from our sector");
-      //   insertNotification();
-      //   return false;
-      // }
     } else {
       console.log("else random sector");
       let nextSector = getRandomSector(galaxy);
@@ -795,7 +778,8 @@
   </div>
   <PlayerStats {player}></PlayerStats>
     <ShipStats {currentShip}></ShipStats>
-  <WarpRouteProgress {currentRouteReversed} {currentGalaxyTrace} let:routeLength></WarpRouteProgress>
+    <div class="warp-progress-container"></div>
+  <!-- <WarpRouteProgress {currentRouteReversed} {currentGalaxyTrace} let:routeLength></WarpRouteProgress> -->
   <!-- <div class="warp-progress-container">
     <div class="warp-progress-container-child" />
   </div> -->
