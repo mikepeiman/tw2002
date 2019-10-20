@@ -3,7 +3,7 @@ import { fade } from 'svelte/transition';
 export let ship, currentShip
 </script>
 
-<div class="ship-stats">
+<div class="ship-stats info-panel">
 
 <h1>Ship</h1>
 <span class="data-stats">Type: {currentShip.name}</span>
@@ -21,16 +21,7 @@ export let ship, currentShip
 }
 
 .ship-stats {
-  position: absolute;
-  width: 20ch;
-  // height: 300px;
-  top: 0;
-  right: 1rem;
-  background: #333;
-  color: white;
-  padding: 1rem;
-  border: 5px solid black;
-  z-index: 999;
+
 }
 
 </style>

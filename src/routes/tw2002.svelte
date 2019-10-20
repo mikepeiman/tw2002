@@ -1,6 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
+  import { fade } from "svelte/transition";
   import shipsData from "../store/shipsData.json";
   import SectorComponent from ".././components/SectorComponent.svelte";
   import WarpRouteProgress from ".././components/WarpRouteProgress.svelte";
@@ -46,7 +47,7 @@
     warpProgressElement = document.getElementsByClassName(
       "warp-progress-container"
     );
-    console.dir(warpProgressElement)
+    console.dir(warpProgressElement);
     console.log(`warp progress`);
     console.dir(warpProgress);
     warpMin = document.getElementById("warpsMin").value;
@@ -62,7 +63,7 @@
       // galaxy = galaxy;
       localStorage.setItem("galaxy", JSON.stringify(galaxy));
 
-      findPath(0, galSize-1);
+      findPath(0, galSize - 1);
 
       let filteredGalaxy = Object.filter(galaxy, node =>
         node.hasOwnProperty("id")
@@ -84,9 +85,11 @@
     for (let id in found) {
       currentRoute = [...currentRoute, found[id].id];
     }
-    
-    currentRouteReversed = currentRoute.slice().reverse()
-    console.log(`currentRoute: ${currentRoute}, reversed ${currentRouteReversed}`);
+
+    currentRouteReversed = currentRoute.slice().reverse();
+    console.log(
+      `currentRoute: ${currentRoute}, reversed ${currentRouteReversed}`
+    );
     return currentRoute;
   }
 
@@ -133,7 +136,7 @@
   }
 
   function travelTo(id) {
-    addWarpProgress(id)
+    addWarpProgress(id);
     setTimeout(() => {
       let sectorList = document.getElementById("sector-list");
       let sectors = sectorList.children;
@@ -152,13 +155,19 @@
     // warpProgressElement = document.getElementsByClassName(
     //   "warp-progress-container"
     // );
-    let warp = document.createElement('span')
-    console.log(`addWarpProgress id ${id} and element warp ${warp}`)
-    console.dir(warp)
-    warp.className = 'warp-route-trace'
-    let idText = document.createTextNode(id)
-    warp.appendChild(idText)
-    warpProgressElement[0].appendChild(warp)
+    let warp = document.createElement("span");
+    console.log(`addWarpProgress id ${id} and element warp ${warp}`);
+    console.dir(warp);
+    warp.className = "warp-route-trace";
+
+    let idText = document.createTextNode(id);
+    warp.appendChild(idText);
+    // warp.setAttribute("in:fade", "{{duration: 300}}");
+    warpProgressElement[0].appendChild(warp);
+    setTimeout(() => {
+    warp.classList.add('fade-in')
+    }, 1)
+
   }
 
   async function warpTo(warpId, e) {
@@ -170,7 +179,8 @@
       path.pop();
       path.reverse();
       let len = path.length;
-      usePlayerTurns(len - 1);
+      console.log(`warpTo findPath().then path length: ${len}`);
+      usePlayerTurns(len);
       nanobar.go(0);
       path.forEach((sector, index) => {
         console.log(
@@ -195,8 +205,10 @@
   }
 
   function usePlayerTurns(distance) {
-    player.turns - distance > 0 ? player.turns = player.turns - distance : alert(`You do not have enough turns left to travel ${distance}!`)
-    console.log(`usePlayerTurns - turns now ${player.turns}`)
+    player.turns - distance > 0
+      ? (player.turns = player.turns - distance)
+      : alert(`You do not have enough turns left to travel ${distance}!`);
+    console.log(`usePlayerTurns - distance: ${distance} turns now ${player.turns}`);
   }
 
   function isThisSectorInstantiatedAlready(sectorId) {
@@ -387,7 +399,7 @@
       // galaxy = galaxy;
       localStorage.setItem("galaxy", JSON.stringify(galaxy));
 
-      findPath(0, galSize-1);
+      findPath(0, galSize - 1);
 
       let filteredGalaxy = Object.filter(galaxy, node =>
         node.hasOwnProperty("id")
@@ -763,7 +775,68 @@
     background: rgba(0, 255, 118, 0.25);
   }
 
+  .warp-progress-container {
+    /* padding: .5rem 1rem 1rem 1rem; */
+    background: rgba(55, 255, 0, 0.5);
+    width: 100%;
+    /* height: 1rem; */
+    position: relative;
+    border-bottom: 5px solid rgba(155, 25, 255, 1);
+    display: flex;
+    justify-content: start;
+  }
+  .warp-progress-container-child {
+    /* height: 1rem; */
+    display: flex;
+    justify-content: center;
+    width: 60vw;
+  }
 
+  .warp-route-trace {
+    padding: 0.5rem 1rem;
+    margin: 0.5rem;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: all .3s;
+  }
+
+  .fade-in {
+    opacity: 1;
+  }
+
+  .nanobar {
+    position: absolute !important;
+    width: 100%;
+    height: auto;
+    z-index: 9999;
+    top: 10;
+  }
+  .bar {
+    width: 0;
+    height: 100%;
+    transition: height 0.5s;
+    background: rgba(155, 25, 255, 0.5);
+  }
+
+  .game-header {
+    display: grid;
+    grid-template-columns: 5fr 1fr 1fr;
+  }
+
+  .info-panel {
+  width: 20ch;
+  right: 30ch;
+  background: #333;
+  color: white;
+  padding: 1rem;
+  // border: 5px solid black;
+  z-index: 999;
+  & h1 {
+    padding: 0 1rem;
+    // background: black;
+    font-size: 1.25rem;
+  }
+  }
 </style>
 
 <svelte:head>
@@ -775,10 +848,11 @@
       <h1>TW2002 Redux:</h1>
       <p>Because I'm not done playing yet.</p>
     </div>
+    <PlayerStats {player} />
+    <ShipStats {currentShip} />
   </div>
-  <PlayerStats {player}></PlayerStats>
-    <ShipStats {currentShip}></ShipStats>
-    <div class="warp-progress-container"></div>
+
+  <div class="warp-progress-container" />
   <!-- <WarpRouteProgress {currentRouteReversed} {currentGalaxyTrace} let:routeLength></WarpRouteProgress> -->
   <!-- <div class="warp-progress-container">
     <div class="warp-progress-container-child" />

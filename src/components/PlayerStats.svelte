@@ -3,7 +3,7 @@ import { fade } from 'svelte/transition';
 export let turns, name, player
 </script>
 
-<div class="player-stats">
+<div class="player-stats info-panel">
 
 <h1>Player</h1>
 <span class="data-stats">Name: {player.name}</span>
@@ -21,16 +21,7 @@ export let turns, name, player
   }
 
 .player-stats {
-  position: absolute;
-  width: 20ch;
-  // height: 300px;
-  top: 0;
-  right: 30ch;
-  background: #333;
-  color: white;
-  padding: 1rem;
-  border: 5px solid black;
-  z-index: 999;
+
 }
 
 </style>
