@@ -119,13 +119,13 @@
     // create player's starting ship
     let ship = new ShipFactory(0, player);
     console.log(shipsData);
-    console.log(`Ship type name: ${ship.type.name}`);
+    console.log(`Ship type name: ${ship.name}`);
     console.log(`Ship owner name: ${ship.owner.name}`);
     console.log(`Ship ID: ${ship.id}`);
     // (load and save functionality will come later)
     // place player/ship in sector 0
     ship.location = currentSectorId;
-    ship.moves = 3;
+    // ship.moves = 3;
     currentGalaxyTrace = [galaxy[ship.location]];
     currentShip = ship;
     localStorage.setItem(
@@ -586,13 +586,15 @@
 
   class ShipFactory {
     constructor(type, owner) {
-      this.type = shipsData[type];
+      let ship = shipsData[type]
+      this.type = type;
+      this.name = ship.name;
       this.owner = owner;
       this.id = getShipId();
       // this.name = name;
       // this.baseCost = baseCost;
       // this.holds = holds;
-      // this.moves = moves;
+      this.moves = ship.moves;
     }
 
     getCost() {
@@ -824,15 +826,19 @@
   }
 
   .info-panel {
+    display: flex;
+    flex-direction: column;
   width: 20ch;
   right: 30ch;
   background: #333;
   color: white;
-  padding: 1rem;
+  padding: .25rem;
   // border: 5px solid black;
+  font-size: .75rem;
   z-index: 999;
   & h1 {
     padding: 0 1rem;
+    margin-top: .5rem;
     // background: black;
     font-size: 1.25rem;
   }
