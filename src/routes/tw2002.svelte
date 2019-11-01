@@ -781,7 +781,7 @@
     /* padding: .5rem 1rem 1rem 1rem; */
     background: rgba(55, 255, 0, 0.5);
     width: 100%;
-    /* height: 1rem; */
+    min-height: 2rem; 
     position: relative;
     border-bottom: 5px solid rgba(155, 25, 255, 1);
     display: flex;
@@ -796,10 +796,12 @@
 
   .warp-route-trace {
     padding: 0.5rem 1rem;
-    margin: 0.5rem;
+    margin: 0.15rem 0.075rem;
     background: rgba(0, 0, 0, 0.5);
     opacity: 0;
     transition: all .3s;
+    display: flex;
+    align-items: center;
   }
 
   .fade-in {
@@ -858,7 +860,9 @@
     <ShipStats {currentShip} />
   </div>
 
-  <div class="warp-progress-container" />
+  <div class="warp-progress-container">
+  <div class="warp-route-trace"></div>
+  </div>
   <!-- <WarpRouteProgress {currentRouteReversed} {currentGalaxyTrace} let:routeLength></WarpRouteProgress> -->
   <!-- <div class="warp-progress-container">
     <div class="warp-progress-container-child" />
