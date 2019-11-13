@@ -207,7 +207,7 @@
   function usePlayerTurns(distance) {
     player.turns - distance > 0
       ? (player.turns = player.turns - distance)
-      : alert(`You do not have enough turns left to travel ${distance}!`);
+      : console.log(`You do not have enough turns left to travel ${distance}!`);
     console.log(`usePlayerTurns - distance: ${distance} turns now ${player.turns}`);
   }
 
@@ -416,6 +416,10 @@
   function initGalaxy() {
     galaxy = JSON.parse(localStorage.getItem("galaxy"));
     // return (galaxy = galaxy);
+  }
+
+  function showControls() {
+    console.log(`showControls clicked`)
   }
 
   async function loadGalaxy() {
@@ -845,6 +849,31 @@
     font-size: 1.25rem;
   }
   }
+
+  .rotated {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    // transform: rotate(-180deg);
+  }
+
+  #show-controls {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    position: fixed;
+    left: 0;
+    margin: 0;
+    top: 40%;
+    -webkit-transform-origin: bottom left;
+    -ms-transform-origin: bottom left;
+    -webkit-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    transform: rotate(90deg);
+    transform-origin: bottom left;
+    z-index: 99;
+    padding: 1rem;
+    background: rgba(50,50,255,1);
+    border: 3px solid rgba(100,150,255,1)
+  }
 </style>
 
 <svelte:head>
@@ -869,15 +898,18 @@
   </div> -->
   <div class="game">
     <div class="game-menu">
+        <button id="show-controls" class="rotated" on:click={showControls}>
+          OPTIONS
+        </button>
       <div class="controls">
-        <button id="generate-game" on:click={newGalaxy}>
+        <button id="generate-galaxy" on:click={newGalaxy}>
           Generate New Universe
         </button>
-        <button id="generate-links" on:click={loadGalaxy}>
+        <button id="load-galaxy" on:click={loadGalaxy}>
           Load Local Galaxy
         </button>
-        <button id="generate-links" on:click={startGame}>Start Game</button>
-        <button id="generate-links" on:click={() => warpTo('random')}>
+        <button id="start-game" on:click={startGame}>Start Game</button>
+        <button id="warp-to-random" on:click={() => warpTo('random')}>
           Go To Random Sector
         </button>
         <div id="game-settings" class="controls subgroup">
