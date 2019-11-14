@@ -159,6 +159,7 @@
     console.log(`addWarpProgress id ${id} and element warp ${warp}`);
     console.dir(warp);
     warp.className = "warp-route-trace";
+    warp.addEventListener("click", () => warpTo(id))
 
     let idText = document.createTextNode(id);
     warp.appendChild(idText);
@@ -419,7 +420,7 @@
   }
 
   function showControls() {
-    console.log(`showControls clicked`)
+    alert(`showControls clicked`)
   }
 
   async function loadGalaxy() {
@@ -799,13 +800,24 @@
   }
 
   .warp-route-trace {
-    padding: 0.5rem 1rem;
-    margin: 0.15rem 0.075rem;
-    background: rgba(0, 0, 0, 0.5);
+    // padding: 0.5rem 1rem;
+    // margin: 0.15rem 0.075rem;
+    // background: rgba(0, 0, 0, 0.5);
     opacity: 0;
     transition: all .3s;
     display: flex;
     align-items: center;
+    justify-content: center;
+        padding: 0.25rem;
+    margin: 0.25rem;
+    width: 5ch;
+    background: rgba(0, 0, 0, 0.25);
+    transition: all 0.15s;
+    &:hover {
+      background: rgba(155, 155, 255, 0.25);
+      cursor: pointer;
+      // border-bottom: 3px solid rgba(0, 50, 250, 0.75);
+    }
   }
 
   .fade-in {
