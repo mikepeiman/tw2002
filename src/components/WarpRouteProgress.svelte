@@ -29,19 +29,6 @@
     background: rgba(0, 0, 0, 0.5);
   }
 
-  .nanobar {
-    position: absolute;
-    width: 100%;
-    height: 1rem;
-    z-index: 9999;
-    top: 10;
-  }
-  .bar {
-    width: 0;
-    height: 100%;
-    transition: height 0.5s;
-    background: rgba(155, 25, 255, 0.5);
-  }
 </style>
 
 <div class="warp-progress-container">
