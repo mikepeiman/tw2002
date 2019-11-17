@@ -10,6 +10,8 @@ import { terser } from "rollup-plugin-terser";
 import config from "sapper/config/rollup.js";
 import pkg from "./package.json";
 import json from "rollup-plugin-json";
+// import builtins from 'rollup-plugin-node-builtins';
+// import commonjs from 'rollup-plugin-commonjs';
 
 const mode = process.env.NODE_ENV;
 const dev = mode === "development";
@@ -33,6 +35,7 @@ export default {
     input: config.client.input(),
     output: config.client.output(),
     plugins: [
+      // builtins(),
       json({
         // All JSON files will be parsed by default,
         // but you can also specifically include/exclude files

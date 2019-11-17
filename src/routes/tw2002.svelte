@@ -12,11 +12,13 @@
   import path from "ngraph.path";
   import Nanobar from "nanobar";
   // import firebase from "firebase";
-  // import ships from ".././components/Airtable.svelte";
+  // import Airtable from ".././components/Airtable.svelte";
+  import Airtable from ".././components/Airtable2.svelte";
 
   // import { galaxy } from "../store"
   import seedrandom from "seedrandom";
   // import '../components/galaxy-generator.js'
+  $: records = []
   $: nanobar = {};
   $: warpProgressElement = {};
   $: player = {};
@@ -930,7 +932,7 @@ db.collection("ships").get().then(function(querySnapshot) {
     <PlayerStats {player} />
     <ShipStats {currentShip} />
   </div>
-
+  <Airtable let:records />
   <div class="warp-progress-container">
   <div class="warp-route-trace"></div>
   </div>
