@@ -1,71 +1,76 @@
 <script>
-  
   // import Airtable from "airtable";
   import { onMount } from "svelte";
   import axios from "axios";
-  
+
   // const base = new Airtable({apiKey: 'keyoLbEc7OzfEfj68'}).base('appFmmP7xud6lzPXw')
-  
-let API_URL = "https://api.airtable.com"
-let BASE = "appFmmP7xud6lzPXw"
-let TABLE = "ships"
-let API_KEY = "keyoLbEc7OzfEfj68"
-let records
-const proxyurl = "https://cors-anywhere.herokuapp.com/"
+
+  let API_URL = "https://api.airtable.com/v0";
+  let BASE = "appFmmP7xud6lzPXw";
+  let TABLE = "ships";
+  let API_KEY = "keyoLbEc7OzfEfj68";
+  let records;
+  // const proxyurl = "https://cors-anywhere.herokuapp.com:443/";
 
   function getData() {
-      axios({
-        method: "get",
-        url: proxyurl + API_URL + "/" + BASE + "/" + TABLE + "/",
-        headers: {
-          Authorization: `Bearer ${API_KEY}`
-        }
-      }).then(res => {
-        console.log('AirtableModule getData results:')
-        console.log(res.data.records)
-        records = res.data.records;
-        // $store.commit('change', records)
-      });
-    }
+    axios({
+      method: "get",
+      url: API_URL + "/" + BASE + "/" + TABLE + "/",
+      headers: {
+        Authorization: `Bearer ${API_KEY}`
+      }
+    }).then(res => {
+      console.log("AirtableModule getData results:");
+      console.log(res.data.records);
+      records = res.data.records;
+      // $store.commit('change', records)
+    });
+  }
 
   function postData(data) {
-      console.log('postData called in AirtableModule')
-      axios({
-        method: "post",
-        url: API_URL + "/" + BASE + "/" + TABLE + "/",
-        headers: {
-          Authorization: `Bearer ${API_KEY}`
-        },
-        data: data
-      }).then(res => {
-                console.log('AirtableMOdule postData results:')
-        console.log(res)
-        // records = res.data.records;
-        records.push(res.data)
-      });
-    }
+    console.log("postData called in AirtableModule");
+    axios({
+      method: "post",
+      url: API_URL + "/" + BASE + "/" + TABLE + "/",
+      headers: {
+        Authorization: `Bearer ${API_KEY}`
+      },
+      data: data
+    }).then(res => {
+      console.log("AirtableMOdule postData results:");
+      console.log(res);
+      // records = res.data.records;
+      records.push(res.data);
+    });
+  }
 
-    function deleteRecord() {
-      axios({
-        method: "delete",
-        url: API_URL + BASE + TABLE + recordToDelete,
-        headers: {
-          Authorization: `Bearer ${API_KEY}`
-        }
-      }).then(res => {
-        console.log('AirtableMOdule deleteData results:')
-        console.log(res.data.deleted)
-        if(res.data.deleted) {
-          records = records.filter(item => {
-            return item.id !== recordToDelete
-          })
-        } else {
-          console.log(`There appears to be an error attempting to delete ${recordToDelete}`)
-        }
-        // records = res.data.records;
-        // $store.commit('change', records)
-      });
-    }
+  function deleteRecord() {
+    axios({
+      method: "delete",
+      url: API_URL + BASE + TABLE + recordToDelete,
+      headers: {
+        Authorization: `Bearer ${API_KEY}`
+      }
+    }).then(res => {
+      console.log("AirtableMOdule deleteData results:");
+      console.log(res.data.deleted);
+      if (res.data.deleted) {
+        records = records.filter(item => {
+          return item.id !== recordToDelete;
+        });
+      } else {
+        console.log(
+          `There appears to be an error attempting to delete ${recordToDelete}`
+        );
+      }
+      // records = res.data.records;
+      // $store.commit('change', records)
+    });
+  }
+
+  onMount(() => {
+    getData();
+  });
 
   // const ships = async function getAirtableData() {
   //   base('ships').select({
@@ -77,11 +82,6 @@ const proxyurl = "https://cors-anywhere.herokuapp.com/"
   //     });
   //   });
   // }
-  
-  onMount(() => {
-       getData();
-  })
 
-  
   // end official Airtable API implementation
 </script>
