@@ -17,7 +17,7 @@
   // import { galaxy } from "../store"
   import seedrandom from "seedrandom";
   // import '../components/galaxy-generator.js'
-  $: records = []
+  $: records = [];
   $: nanobar = {};
   $: warpProgressElement = {};
   $: player = {};
@@ -44,31 +44,30 @@
   // $: sectorList = document.getElementById('sector-list');
 
   onMount(() => {
-
-// ************* FIREBASE **************************  
-// var firebaseConfig = {
-//     apiKey: "AIzaSyDC-r_YJ9Ye6mNg4_w5yXX82yArIowrqFA",
-//     authDomain: "tw2002-svelte.firebaseapp.com",
-//     databaseURL: "https://tw2002-svelte.firebaseio.com",
-//     projectId: "tw2002-svelte",
-//     storageBucket: "tw2002-svelte.appspot.com",
-//     messagingSenderId: "771340398451",
-//     appId: "1:771340398451:web:af08913f8e9c18045f1f06",
-//     measurementId: "G-JF5C2CFCYD"
-//   };
-//   // Initialize Firebase
-//   firebase.initializeApp(firebaseConfig);
-//   firebase.analytics();
-//   const db = firebase.firestore()
-//   const ships = db.collection("ships")
-//   console.log(`FIREBASE INITIALIZED ********************`)
-//   console.log(ships)
-// db.collection("ships").get().then(function(querySnapshot) {
-//     querySnapshot.forEach(function(doc) {
-//         // doc.data() is never undefined for query doc snapshots
-//         console.log(doc.id, " => ", doc.data());
-//     });
-// });
+    // ************* FIREBASE **************************
+    // var firebaseConfig = {
+    //     apiKey: "AIzaSyDC-r_YJ9Ye6mNg4_w5yXX82yArIowrqFA",
+    //     authDomain: "tw2002-svelte.firebaseapp.com",
+    //     databaseURL: "https://tw2002-svelte.firebaseio.com",
+    //     projectId: "tw2002-svelte",
+    //     storageBucket: "tw2002-svelte.appspot.com",
+    //     messagingSenderId: "771340398451",
+    //     appId: "1:771340398451:web:af08913f8e9c18045f1f06",
+    //     measurementId: "G-JF5C2CFCYD"
+    //   };
+    //   // Initialize Firebase
+    //   firebase.initializeApp(firebaseConfig);
+    //   firebase.analytics();
+    //   const db = firebase.firestore()
+    //   const ships = db.collection("ships")
+    //   console.log(`FIREBASE INITIALIZED ********************`)
+    //   console.log(ships)
+    // db.collection("ships").get().then(function(querySnapshot) {
+    //     querySnapshot.forEach(function(doc) {
+    //         // doc.data() is never undefined for query doc snapshots
+    //         console.log(doc.id, " => ", doc.data());
+    //     });
+    // });
 
     let warpProgress = document.getElementsByClassName(
       "warp-progress-container"
@@ -76,7 +75,7 @@
     warpProgressElement = document.getElementsByClassName(
       "warp-progress-container"
     );
-    console.dir(warpProgressElement);
+    console.dir(`warpProgressElement: `, warpProgressElement);
     console.log(`warp progress`);
     console.dir(warpProgress);
     warpMin = document.getElementById("warpsMin").value;
@@ -84,21 +83,21 @@
     galSize = document.getElementById("galSize").value;
     Object.filter = (obj, predicate) =>
       Object.keys(obj)
-        .filter(key => predicate(obj[key]))
+        .filter((key) => predicate(obj[key]))
         .reduce((res, key) => ((res[key] = obj[key]), res), {});
 
-    generateGalaxy(galSize, warpMin, warpMax).then(galaxy => {
+    generateGalaxy(galSize, warpMin, warpMax).then((galaxy) => {
       linkGalaxy(galaxy);
       // galaxy = galaxy;
       localStorage.setItem("galaxy", JSON.stringify(galaxy));
 
       findPath(0, galSize - 1);
 
-      let filteredGalaxy = Object.filter(galaxy, node =>
+      let filteredGalaxy = Object.filter(galaxy, (node) =>
         node.hasOwnProperty("id")
       );
       localStorage.setItem("filteredGalaxy", JSON.stringify(filteredGalaxy));
-      Object.keys(filteredGalaxy).forEach(key => {
+      Object.keys(filteredGalaxy).forEach((key) => {
         let system = galaxy[key];
         galaxyArray = [...galaxyArray, system];
       });
@@ -137,7 +136,7 @@
     var options = {
       id: "my-nanobar",
       class: "my-nanobar",
-      target: document.getElementsByClassName("warp-progress-container")[0]
+      target: document.getElementsByClassName("warp-progress-container")[0],
     };
 
     nanobar = new Nanobar(options);
@@ -175,7 +174,7 @@
 
       sectorList.scrollBy({
         top: lastSectorEl.offsetHeight,
-        behavior: "smooth"
+        behavior: "smooth",
       });
     }, moveTime);
   }
@@ -188,23 +187,22 @@
     console.log(`addWarpProgress id ${id} and element warp ${warp}`);
     console.dir(warp);
     warp.className = "warp-route-trace";
-    warp.addEventListener("click", () => warpTo(id))
+    warp.addEventListener("click", () => warpTo(id));
 
     let idText = document.createTextNode(id);
     warp.appendChild(idText);
     // warp.setAttribute("in:fade", "{{duration: 300}}");
     warpProgressElement[0].appendChild(warp);
     setTimeout(() => {
-    warp.classList.add('fade-in')
-    }, 1)
-
+      warp.classList.add("fade-in");
+    }, 1);
   }
 
   async function warpTo(warpId, e) {
     console.log(`warpTo e`);
     console.log(e);
     currentRoute = [];
-    findPath(currentSectorId, warpId).then(path => {
+    findPath(currentSectorId, warpId).then((path) => {
       console.log(`warpTo findPath().then path found: ${path}`);
       path.pop();
       path.reverse();
@@ -226,7 +224,7 @@
       // nanobar.go(100)
     });
     console.log(`warpTo path found: ${currentRoute}`);
-    await currentRoute.forEach(sector => {
+    await currentRoute.forEach((sector) => {
       console.log(`sector in currentRoute.forEach ${sector}`);
       let validWarpId = updateCurrentGalaxyTrace(warpId);
       console.log(`validWarpId in currentRoute.forEach ${validWarpId}`);
@@ -238,11 +236,13 @@
     player.turns - distance > 0
       ? (player.turns = player.turns - distance)
       : console.log(`You do not have enough turns left to travel ${distance}!`);
-    console.log(`usePlayerTurns - distance: ${distance} turns now ${player.turns}`);
+    console.log(
+      `usePlayerTurns - distance: ${distance} turns now ${player.turns}`
+    );
   }
 
   function isThisSectorInstantiatedAlready(sectorId) {
-    let matches = currentGalaxyTrace.filter(s => s.id === sectorId).length;
+    let matches = currentGalaxyTrace.filter((s) => s.id === sectorId).length;
     console.log(
       `$$$$$$$$$$$$$$$ inside isThisSectorInstantiatedAlready, sectors matching ${sectorId} are: ${matches}`
     );
@@ -272,7 +272,7 @@
     // "sector-{sector.id}-instance-{sector.instance}-outlink-{warp}"
     console.log(`sectorId ${sectorId}, warpId ${warpId}`);
     let sectorCount = currentGalaxyTrace.filter(
-      sector => sector.id === sectorId
+      (sector) => sector.id === sectorId
     ).length;
     console.log(`sectorCount: ${sectorCount}`);
   }
@@ -325,16 +325,16 @@
     let outlinks = current.data.outlinks;
     console.log(`outlinks: ${outlinks}`);
 
-    let matches = outlinks.filter(link =>
+    let matches = outlinks.filter((link) =>
       link.toString().startsWith(command.toString())
     );
-    let nonMatches = outlinks.filter(link => !matches.includes(link));
+    let nonMatches = outlinks.filter((link) => !matches.includes(link));
     console.log(
       `matches are: ${matches} (length ${matches.length}), nonmatches are: ${nonMatches}`
     );
     if (matches.length < 1) {
       input.value = "";
-      outlinks.forEach(warp => {
+      outlinks.forEach((warp) => {
         let thisWarp = document.getElementById(
           `sector-${currentSectorId}-instance-${current.data.instance}-outlink-${warp}`
         );
@@ -343,7 +343,7 @@
       return;
     }
     if (matches.length === 1) {
-      outlinks.forEach(warp => {
+      outlinks.forEach((warp) => {
         let thisWarp = document.getElementById(
           `sector-${currentSectorId}-instance-${current.data.instance}-outlink-${warp}`
         );
@@ -370,7 +370,7 @@
         console.log(`isInt command? ${isInt(command)}  matches > 1`);
         console.log(`more than one match, enter key hit, matches: ${matches}`);
         if (isInt(command)) {
-          matches.forEach(warp => {
+          matches.forEach((warp) => {
             console.log(
               `ENTER KEY hit, if isInt(command), matches.forEach, current sector ID ${currentSectorId}`
             );
@@ -391,7 +391,7 @@
         }
         command = "";
       } else {
-        matches.forEach(warp => {
+        matches.forEach((warp) => {
           let thisWarp = document.getElementById(
             `sector-${currentSectorId}-instance-${current.data.instance}-outlink-${warp}`
           );
@@ -424,18 +424,18 @@
     warpMax = document.getElementById("warpsMax").value;
     galSize = document.getElementById("galSize").value;
 
-    generateGalaxy(galSize, warpMin, warpMax).then(galaxy => {
+    generateGalaxy(galSize, warpMin, warpMax).then((galaxy) => {
       linkGalaxy(galaxy);
       // galaxy = galaxy;
       localStorage.setItem("galaxy", JSON.stringify(galaxy));
 
       findPath(0, galSize - 1);
 
-      let filteredGalaxy = Object.filter(galaxy, node =>
+      let filteredGalaxy = Object.filter(galaxy, (node) =>
         node.hasOwnProperty("id")
       );
       localStorage.setItem("filteredGalaxy", JSON.stringify(filteredGalaxy));
-      Object.keys(filteredGalaxy).forEach(key => {
+      Object.keys(filteredGalaxy).forEach((key) => {
         let system = galaxy[key];
         galaxyArray = [...galaxyArray, system];
       });
@@ -449,7 +449,7 @@
   }
 
   function showControls() {
-    alert(`showControls clicked`)
+    alert(`showControls clicked`);
   }
 
   async function loadGalaxy() {
@@ -479,7 +479,7 @@
       warpsQuota: getRandomInt(warpMin, warpMax),
       inlinks: [],
       outlinks: [],
-      shipsInSector: []
+      shipsInSector: [],
     });
     // sector.id = sectorId;
     // sector.data.warpsQuota = getRandomInt(warpMin, warpMax);
@@ -500,7 +500,7 @@
   async function linkGalaxy(galaxy) {
     console.log(`from linkGalaxy(), localStorage galaxy: `);
     console.log(galaxy);
-    galaxy.forEachNode(sector => {
+    galaxy.forEachNode((sector) => {
       let needsLinks = sector.data.warpsQuota - sector.data.outlinks;
       let warps = [];
       let overflow = 0;
@@ -528,7 +528,7 @@
     // then, assign new needsLinks value for while loop
 
     if (sector.data.inlinks.length > 0) {
-      sector.data.inlinks.forEach(link => {
+      sector.data.inlinks.forEach((link) => {
         if (!sector.data.outlinks.includes(link)) {
           sector.data.outlinks.push(link);
         }
@@ -620,7 +620,7 @@
 
   class ShipFactory {
     constructor(type, owner) {
-      let ship = shipsData[type]
+      let ship = shipsData[type];
       this.type = type;
       this.name = ship.name;
       this.owner = owner;
@@ -650,6 +650,144 @@
     }
   }
 </script>
+
+<svelte:head>
+  <title>TW2002</title>
+</svelte:head>
+<section class="tw2002">
+  <div class="game-header">
+    <div class="game-title">
+      <h1>TW2002 Redux:</h1>
+      <p>Because I'm not done playing yet.</p>
+    </div>
+    <PlayerStats {player} />
+    <ShipStats {currentShip} />
+  </div>
+  <Airtable let:records />
+  <div class="warp-progress-container">
+    <div class="warp-route-trace" />
+  </div>
+  <!-- <WarpRouteProgress {currentRouteReversed} {currentGalaxyTrace} let:routeLength></WarpRouteProgress> -->
+  <!-- <div class="warp-progress-container">
+    <div class="warp-progress-container-child" />
+  </div> -->
+  <div class="game">
+    <div class="game-menu">
+      <button id="show-controls" class="rotated" on:click={showControls}>
+        OPTIONS
+      </button>
+      <div class="controls">
+        <button id="generate-galaxy" on:click={newGalaxy}>
+          Generate New Universe
+        </button>
+        <button id="load-galaxy" on:click={loadGalaxy}>
+          Load Local Galaxy
+        </button>
+        <button id="start-game" on:click={startGame}>Start Game</button>
+        <button id="warp-to-random" on:click={() => warpTo("random")}>
+          Go To Random Sector
+        </button>
+        <div id="game-settings" class="controls subgroup">
+          <label for="galSize">
+            Galaxy size:
+            <input
+              type="number"
+              value="300"
+              name="galSize"
+              id="galSize"
+              on:keyup={generateGalaxyWithNewProps} />
+          </label>
+          <label for="warpsMin">
+            Min warps:
+            <input
+              type="number"
+              value="3"
+              name="warpsMin"
+              id="warpsMin"
+              on:keyup={generateGalaxyWithNewProps} />
+          </label>
+          <label for="warpsMax">
+            Max warps:
+            <input
+              type="number"
+              value="6"
+              name="warpsMax"
+              id="warpsMax"
+              on:keyup={generateGalaxyWithNewProps} />
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="commands-window">
+      <Modal
+        modalId="modal-galaxy"
+        keyTrigger="g"
+        modalHeading="GALAXY"
+        modalContent="Loading galaxy..."
+        buttonContent="Click or press 'G' to log galaxy"
+        buttonId="galaxy" />
+      <Modal
+        modalId="modal-test"
+        keyTrigger="t"
+        modalHeading="TEST"
+        modalContent="Test successful!"
+        buttonContent="Click or press 'T' to test"
+        buttonId="test" />
+      <Modal
+        modalId="modal-quit"
+        keyTrigger="q"
+        modalHeading="QUIT"
+        modalContent="Do you really want to quit?"
+        buttonContent="Click or press 'Q' to quit"
+        buttonId="quit" />
+      <label for="command-input">
+        Enter command:
+        <input
+          type="text"
+          bind:value={command}
+          name="command"
+          id="command-input"
+          on:keyup={newKey} />
+      </label>
+    </div>
+    {#if preGameSetup}
+      <div id="sector-list" class="sector-list">
+        {#each galaxyArray as sector}
+          <SectorComponent {sector} let:warp>
+            <span
+              slot="outlinks"
+              class="warp"
+              id="sector-{sector.id}-instance-{sector.data
+                .instance}-outlink-{warp}"
+                on:click={() => warpTo(warp)}>
+              {warp}
+            </span>
+            <span slot="inlinks" class="warp">{warp}</span>
+          </SectorComponent>
+        {/each}
+      </div>
+    {/if}
+
+    {#if !preGameSetup}
+      <div id="sector-list" class="sector-list">
+        {#each currentGalaxyTrace as sector}
+          <SectorComponent {sector} let:warp>
+            <span
+              slot="outlinks"
+              class="warp"
+              id="sector-{sector.id}-instance-{sector.data
+                .instance}-outlink-{warp}"
+              on:click={() => warpTo(warp)}>
+              <!--  on:click={() => findPath(sector.id, warp)} -->
+              {warp}
+            </span>
+            <span slot="inlinks" class="warp">{warp}</span>
+          </SectorComponent>
+        {/each}
+      </div>
+    {/if}
+  </div>
+</section>
 
 <style lang="scss" global>
   .tw2002 {
@@ -815,7 +953,7 @@
     /* padding: .5rem 1rem 1rem 1rem; */
     background: rgba(55, 255, 0, 0.5);
     width: 100%;
-    min-height: 2rem; 
+    min-height: 2rem;
     position: relative;
     border-bottom: 5px solid rgba(155, 25, 255, 1);
     display: flex;
@@ -833,11 +971,11 @@
     // margin: 0.15rem 0.075rem;
     // background: rgba(0, 0, 0, 0.5);
     opacity: 0;
-    transition: all .3s;
+    transition: all 0.3s;
     display: flex;
     align-items: center;
     justify-content: center;
-        padding: 0.25rem;
+    padding: 0.25rem;
     margin: 0.25rem;
     width: 5ch;
     background: rgba(0, 0, 0, 0.25);
@@ -875,20 +1013,20 @@
   .info-panel {
     display: flex;
     flex-direction: column;
-  width: 20ch;
-  right: 30ch;
-  background: #333;
-  color: white;
-  padding: .25rem;
-  // border: 5px solid black;
-  font-size: .75rem;
-  z-index: 999;
-  & h1 {
-    padding: 0 1rem;
-    margin-top: .5rem;
-    // background: black;
-    font-size: 1.25rem;
-  }
+    width: 20ch;
+    right: 30ch;
+    background: #333;
+    color: white;
+    padding: 0.25rem;
+    // border: 5px solid black;
+    font-size: 0.75rem;
+    z-index: 999;
+    & h1 {
+      padding: 0 1rem;
+      margin-top: 0.5rem;
+      // background: black;
+      font-size: 1.25rem;
+    }
   }
 
   .rotated {
@@ -912,143 +1050,7 @@
     transform-origin: bottom left;
     z-index: 99;
     padding: 1rem;
-    background: rgba(50,50,255,1);
-    border: 3px solid rgba(100,150,255,1)
+    background: rgba(50, 50, 255, 1);
+    border: 3px solid rgba(100, 150, 255, 1);
   }
 </style>
-
-<svelte:head>
-  <title>TW2002</title>
-</svelte:head>
-<section class="tw2002">
-  <div class="game-header">
-    <div class="game-title">
-      <h1>TW2002 Redux:</h1>
-      <p>Because I'm not done playing yet.</p>
-    </div>
-    <PlayerStats {player} />
-    <ShipStats {currentShip} />
-  </div>
-  <Airtable let:records />
-  <div class="warp-progress-container">
-  <div class="warp-route-trace"></div>
-  </div>
-  <!-- <WarpRouteProgress {currentRouteReversed} {currentGalaxyTrace} let:routeLength></WarpRouteProgress> -->
-  <!-- <div class="warp-progress-container">
-    <div class="warp-progress-container-child" />
-  </div> -->
-  <div class="game">
-    <div class="game-menu">
-        <button id="show-controls" class="rotated" on:click={showControls}>
-          OPTIONS
-        </button>
-      <div class="controls">
-        <button id="generate-galaxy" on:click={newGalaxy}>
-          Generate New Universe
-        </button>
-        <button id="load-galaxy" on:click={loadGalaxy}>
-          Load Local Galaxy
-        </button>
-        <button id="start-game" on:click={startGame}>Start Game</button>
-        <button id="warp-to-random" on:click={() => warpTo('random')}>
-          Go To Random Sector
-        </button>
-        <div id="game-settings" class="controls subgroup">
-          <label for="galSize">
-            Galaxy size:
-            <input
-              type="number"
-              value="300"
-              name="galSize"
-              id="galSize"
-              on:keyup={generateGalaxyWithNewProps} />
-          </label>
-          <label for="warpsMin">
-            Min warps:
-            <input
-              type="number"
-              value="3"
-              name="warpsMin"
-              id="warpsMin"
-              on:keyup={generateGalaxyWithNewProps} />
-          </label>
-          <label for="warpsMax">
-            Max warps:
-            <input
-              type="number"
-              value="6"
-              name="warpsMax"
-              id="warpsMax"
-              on:keyup={generateGalaxyWithNewProps} />
-          </label>
-        </div>
-      </div>
-    </div>
-    <div class="commands-window">
-      <Modal
-        modalId="modal-galaxy"
-        keyTrigger="g"
-        modalHeading="GALAXY"
-        modalContent="Loading galaxy..."
-        buttonContent="Click or press 'G' to log galaxy"
-        buttonId="galaxy" />
-      <Modal
-        modalId="modal-test"
-        keyTrigger="t"
-        modalHeading="TEST"
-        modalContent="Test successful!"
-        buttonContent="Click or press 'T' to test"
-        buttonId="test" />
-      <Modal
-        modalId="modal-quit"
-        keyTrigger="q"
-        modalHeading="QUIT"
-        modalContent="Do you really want to quit?"
-        buttonContent="Click or press 'Q' to quit"
-        buttonId="quit" />
-      <label for="command-input">
-        Enter command:
-        <input
-          type="text"
-          bind:value={command}
-          name="command"
-          id="command-input"
-          on:keyup={newKey} />
-      </label>
-    </div>
-    {#if preGameSetup}
-      <div id="sector-list" class="sector-list">
-        {#each galaxyArray as sector}
-          <SectorComponent {sector} let:warp>
-            <span
-              slot="outlinks"
-              class="warp"
-              id="sector-{sector.id}-instance-{sector.data.instance}-outlink-{warp}">
-              {warp}
-            </span>
-            <span slot="inlinks" class="warp">{warp}</span>
-          </SectorComponent>
-        {/each}
-      </div>
-    {/if}
-
-    {#if !preGameSetup}
-      <div id="sector-list" class="sector-list">
-        {#each currentGalaxyTrace as sector}
-          <SectorComponent {sector} let:warp>
-            <span
-              slot="outlinks"
-              class="warp"
-              id="sector-{sector.id}-instance-{sector.data.instance}-outlink-{warp}"
-              on:click={() => warpTo(warp)}>
-              <!--  on:click={() => findPath(sector.id, warp)} -->
-              {warp}
-            </span>
-            <span slot="inlinks" class="warp">{warp}</span>
-          </SectorComponent>
-        {/each}
-      </div>
-    {/if}
-  </div>
-
-</section>
