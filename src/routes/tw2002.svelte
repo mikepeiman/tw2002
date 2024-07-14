@@ -13,12 +13,14 @@
   import Nanobar from "nanobar";
   // import firebase from "firebase";
   import Airtable from ".././components/Airtable.svelte";
+  import NProgress from "nprogress";
 
   // import { galaxy } from "../store"
   import seedrandom from "seedrandom";
   // import '../components/galaxy-generator.js'
+
   $: records = [];
-  $: nanobar = {};
+  // $: nanobar = {};
   $: warpProgressElement = {};
   $: player = {};
   $: galaxyArray = [];
@@ -27,9 +29,11 @@
   $: galSize = 1000;
   $: warpMin = 3;
   $: warpMax = 6;
-  $: currentShip = {};
+  $: currentShip = {
+    moveSpeed:3,
+  };
   $: delayInterval = 150;
-  $: moveTime = currentShip.moves * delayInterval;
+  $: moveTime =  delayInterval / currentShip.moveSpeed * 10;
   $: currentSectorId = 0;
   $: nextSectorId = 0;
   $: currentSectorMatch = false;
@@ -134,12 +138,13 @@
     console.log(`warp progress`);
     console.dir(warpProgress);
     var options = {
-      id: "my-nanobar",
-      class: "my-nanobar",
+      id: "my-progress-bar",
+      class: "my-progress-bar",
       target: document.getElementsByClassName("warp-progress-container")[0],
     };
 
-    nanobar = new Nanobar(options);
+    // nanobar = new Nanobar(options);
+    NProgress.start()
     console.log(`startGame() triggered`);
     console.log(`currentSectorId ${currentSectorId}`);
     // create player
@@ -199,8 +204,8 @@
   }
 
   async function warpTo(warpId, e) {
-    console.log(`warpTo e`);
-    console.log(e);
+    console.log(`warpTo warpId, e`, warpId, e);
+
     currentRoute = [];
     findPath(currentSectorId, warpId).then((path) => {
       console.log(`warpTo findPath().then path found: ${path}`);
@@ -209,19 +214,20 @@
       let len = path.length;
       console.log(`warpTo findPath().then path length: ${len}`);
       usePlayerTurns(len);
-      nanobar.go(0);
+      NProgress.set(0);
       path.forEach((sector, index) => {
-        console.log(
-          `index+1 ${index + 1} / len ${len} = ${((index + 1) / len) * 100}`
-        );
         setTimeout(() => {
+          console.log(
+            `index+1 ${index + 1} / len ${len} = ${((index + 1) / len) * 100}`
+          );
+          console.log(`🚀 ~ path.forEach ~ moveTime:`, moveTime)
           updateCurrentGalaxyTrace(sector);
           nextSectorId = sector;
           travelTo(sector);
-          nanobar.go(((index + 1) / len) * 100);
+          NProgress.set(((index + 1) / len) * 100);
         }, index * moveTime);
       });
-      // nanobar.go(100)
+      // NProgress.go(100)
     });
     console.log(`warpTo path found: ${currentRoute}`);
     await currentRoute.forEach((sector) => {
@@ -991,7 +997,7 @@
     opacity: 1;
   }
 
-  .nanobar {
+  .progress-bar {
     position: absolute !important;
     width: 100%;
     height: auto;
